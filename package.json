@@ -1,0 +1,44 @@
+{
+  "name": "flipper-authenticator-companion",
+  "main": "main.js",
+  "version": "0.0.1",
+  "build": {
+    "icon": "public/favicon.png",
+    "productName": "Flipper Authenticator Companion",
+    "files": [
+      "public/**/*",
+      "main.js"
+    ],
+    "win": {},
+    "linux": {},
+    "mac": {}
+  },
+  "scripts": {
+    "electron": "wait-on http://localhost:8080 && electron .",
+    "electron-dev": "concurrently \"yarn run dev\" \"yarn run electron\"",
+    "preelectron-pack": "yarn run build",
+    "electron-pack": "electron-builder",
+    "build": "rollup -c --bundleConfigAsCjs",
+    "dev": "rollup -c -w --bundleConfigAsCjs",
+    "start": "sirv public --no-clear"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.3",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-terser": "^0.4.0",
+    "concurrently": "^8.2.0",
+    "electron": "^25.5.0",
+    "electron-builder": "^24.6.3",
+    "rollup": "^3.28.0",
+    "rollup-plugin-css-only": "^4.3.0",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-svelte": "^7.1.6",
+    "rollup-plugin-terser": "^7.0.2",
+    "sirv-cli": "^2.0.2",
+    "svelte": "^4.1.2",
+    "wait-on": "^7.0.1"
+  },
+  "dependencies": {
+    "electron-serve": "^1.1.0"
+  }
+}

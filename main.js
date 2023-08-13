@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const serve = require('electron-serve');
 const loadURL = serve({ directory: 'public' });
@@ -19,9 +19,12 @@ function createWindow() {
         height: 600,
         webPreferences: {
             nodeIntegration: true,
+            nodeIntegrationInWorker: true,
+            contextIsolation: false,
             preload: path.join(__dirname, 'preload.js'),
-            // enableRemoteModule: true,
-            // contextIsolation: false
+            enableRemoteModule: true,
+            autoHideMenuBar: true,
+            devTools: isDev()
         },
         icon: path.join(__dirname, 'public/favicon.png'),
         show: false
@@ -74,5 +77,7 @@ app.on('activate', function () {
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) createWindow()
 });
+
+ipcMain.on('totpca:force-reload', () => mainWindow.webContents.reloadIgnoringCache());
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

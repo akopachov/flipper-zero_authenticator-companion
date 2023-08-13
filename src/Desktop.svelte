@@ -1,15 +1,12 @@
 <script>
-  import { serialWaitForTotp } from './helpers/serial-wait-for-totp';
-  import { serialFlush } from './helpers/serial-flush'
-
-  export let serialPort;
+  export let totpAppClient;
 
   let totpCommandReady = false;
 
   async function main() {
-    await serialFlush(serialPort);
-    await serialWaitForTotp(serialPort);
+    await totpAppClient.waitForApp();
     totpCommandReady = true;
+    console.log(await totpAppClient.listTokens());
   }
 
   main();

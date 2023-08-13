@@ -6,7 +6,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import css from 'rollup-plugin-css-only';
 import smelte from "smelte/rollup-plugin-smelte.js";
-import copy from 'rollup-plugin-copy'
+import copy from 'rollup-plugin-copy';
 
 const production = !process.env.ROLLUP_WATCH;
 

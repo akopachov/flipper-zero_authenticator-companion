@@ -1,10 +1,14 @@
-import { TotpCommand, FlipperCliEndOfCommand, FlipperVendorId, FlipperProductId } from './constants';
+import { TotpCommand, FlipperCliEndOfCommand, FlipperVendorId, 
+  FlipperProductId, TotpAskForPin, TotpCommandCancelled, 
+  FlipperCliCommandNotFound, TotpEventNamePinRequested, TotpEventNameClose,
+  TotpEventNameConnecting, TotpEventNameConnected } from './constants';
 import delay from "delay";
 import { SerialPort } from 'serialport';
 import { readUntil, writeAndDrain } from './serial-port-extensions';
 import { openAsync, closeAsync } from './serial-port-async';
 import EventEmitter from 'node:events';
-import { parseString } from './ascii-table-parse';
+import { parseFromString } from './ascii-table-parse';
+import escapeStringRegexp from 'escape-string-regexp';
 
 async function getFlipperZeroDevice() {
   const serialDevices = await SerialPort.list();
@@ -22,73 +26,118 @@ async function waitForFlipperZeroDevice() {
 
 export class TotpAppClient extends EventEmitter {
   #serialPort = null;
+  static #executeCommandDefaultOptions = {
+    skipFirstLine: true,
+    trimCommandEndSignature: true,
+    trimEmptyLines: true,
+    trimTerminalControlCommands: true,
+    commandEndSign: FlipperCliEndOfCommand
+  };
 
-  constructor(serialPort) {
+  constructor() {
     super();
-    this.#serialPort = serialPort;
-    this.#serialPort.on('close', e => this.emit('close', e));
   }
 
-  static async createForFirstFoundDevice() {
-    let serialPort = null;
-    do {
-      let flipperZeroDevice = await waitForFlipperZeroDevice();
-      serialPort = new SerialPort({ path: flipperZeroDevice.path, baudRate: 230400, autoOpen: false });
-      try {
-        await openAsync(serialPort);
-      } catch (e) {
-        console.warn(e);
-        serialPort = null;
-        await delay(1000);
-      }
-      if (serialPort != null) {
+  async #getSerialPort() {
+    if (this.#serialPort == null) {
+      let serialPort = null;
+
+      do {
+        this.emit(TotpEventNameConnecting, this);
+        let flipperZeroDevice = await waitForFlipperZeroDevice();
+        serialPort = new SerialPort({ path: flipperZeroDevice.path, baudRate: 115200, autoOpen: false });
         try {
-          await readUntil(serialPort, FlipperCliEndOfCommand, 1000);
-        } catch {
+          await openAsync(serialPort);
+        } catch (e) {
           console.warn(e);
-          await closeAsync(serialPort);
           serialPort = null;
           await delay(1000);
         }
-      }
-    } while (serialPort == null);
+        if (serialPort != null) {
+          try {
+            await readUntil(serialPort, FlipperCliEndOfCommand, 1000);
+          } catch {
+            console.warn(e);
+            await closeAsync(serialPort);
+            serialPort = null;
+            await delay(1000);
+          }
+        }
+      } while (serialPort == null);
 
-    return new TotpAppClient(serialPort);
+      serialPort.on('close', () => {
+        this.#serialPort = null;
+      });
+      this.#serialPort = serialPort;
+      this.emit(TotpEventNameConnected, this);
+    }
+
+    return this.#serialPort;
+  }
+
+  async #executeCommand(command, options = {}) {
+    const opts = Object.assign({}, TotpAppClient.#executeCommandDefaultOptions, options);
+    let commandFound = false;
+    let response;
+    const commandEndOutputSignRegex = new RegExp(`(${escapeStringRegexp(opts.commandEndSign)})|(${escapeStringRegexp(TotpAskForPin)})|(${escapeStringRegexp(TotpCommandCancelled)})`, 'gi');
+    do {
+      await writeAndDrain(await this.#getSerialPort(), command);
+      if (opts.skipFirstLine) {
+        await readUntil(await this.#getSerialPort(), '\r\n', 1000);
+      }
+
+      response = await readUntil(await this.#getSerialPort(), commandEndOutputSignRegex, 5000);
+
+      commandFound = !response.includes(FlipperCliCommandNotFound);
+      if (commandFound) {
+        if (response.includes(TotpAskForPin)) {
+          this.emit(TotpEventNamePinRequested, this);
+          response = await readUntil(await this.#getSerialPort(), commandEndOutputSignRegex);
+        }
+      } else {
+        await delay(1000);
+      }
+    } while (!commandFound);
+
+    if (response.includes(TotpCommandCancelled)) {
+      response = null;
+    } else {
+      if (opts.trimCommandEndSignature) {
+        response = response.replace(opts.commandEndSign, '');
+      }
+
+      if (opts.trimTerminalControlCommands) {
+        response = response.replace(/(\x1b\[(\d+m|A|2K))|(\b \b)\r?/g, '');
+      }
+
+      if (opts.trimEmptyLines) {
+        response = response.replace(/^\s*\r?\n?$/gm, '');
+      }
+    }
+
+    return response;
   }
 
   async waitForApp() {
-    let ready = false;
-    do {
-      await writeAndDrain(this.#serialPort, `${TotpCommand} ?\r`);
-      const response = await readUntil(this.#serialPort, FlipperCliEndOfCommand, 1000);
-      ready = !response.includes('command not found');
-      console.log(response);
-      if (!ready) {
-        await delay(1000);
-      }
-    } while (!ready)
+    await this.#executeCommand(`${TotpCommand} ?\r`);
+  }
+
+  async waitForDevice() {
+    if (!this.#serialPort) {
+      await this.#getSerialPort();
+    }
   }
 
   async listTokens() {
-    let done = false;
-    let response;
-    do {
-      await writeAndDrain(this.#serialPort, `${TotpCommand} ls\r`);
-      await readUntil(this.#serialPort, '\r\n', 1000);
-      response = await readUntil(this.#serialPort, FlipperCliEndOfCommand, 1000);
-      done = !response.includes('command not found');
-      console.log(response);
-      if (!done) {
-        await delay(1000);
-      }
-    } while (!done);
-
-    return parseString(response, { header: true, multiline: false });
+    let response = await this.#executeCommand(`${TotpCommand} ls\r`);
+    return parseFromString(response, { header: true, multiline: false });
   }
 
   async close() {
     if (this.#serialPort) {
       await closeAsync(this.#serialPort);
     }
+
+    this.emit(TotpEventNameClose, this);
   }
 }

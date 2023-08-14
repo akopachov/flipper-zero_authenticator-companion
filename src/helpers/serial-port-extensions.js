@@ -1,34 +1,47 @@
-import { DelimiterParser } from '@serialport/parser-delimiter';
-import { RegexParser } from '@serialport/parser-regex'
 import delay from 'delay';
 import { writeAsync, drainAsync } from './serial-port-async';
+import { SmartBuffer } from 'smart-buffer';
 
-export function readUntil(port, end, timeout=0) {
-  return new Promise((resolve, reject) => {
-    let parser;
+export async function readUntil(port, end, timeout=0) {
+  let timeoutAbortController = null;
+  let timeoutExpired = false;
+  if (timeout && timeout > 0) {
+    timeoutAbortController = new AbortController();
+    delay(timeout, { signal: timeoutAbortController.signal }).then(() => {
+      timeoutExpired = true;
+    }, () => {});
+  }
+
+  const buffer = new SmartBuffer();
+  let matchFound = false;
+  let result = null;
+  do {
+    const readResult = port.read(1);
+    if (!readResult) {
+      await delay(100, { signal: timeoutAbortController ? timeoutAbortController.signal : null });
+      continue;
+    }
+
+    buffer.writeBuffer(readResult);
+    result = buffer.toString('ascii');
     if (end instanceof RegExp) {
-      parser = port.pipe(new RegexParser({ regex: end }));
+      matchFound = end.test(result);
     } else {
-      parser = port.pipe(new DelimiterParser({ delimiter: end }));
+      matchFound = result.includes(end);
     }
+  } while (!matchFound && !timeoutExpired);
 
-    let timeoutAbortController = null;
-    if (timeout && timeout > 0) {
-      timeoutAbortController = new AbortController();
-      delay(timeout, { signal: timeoutAbortController.signal }).then(() => {
-        port.unpipe(parser);
-        reject('Timeout');
-      }, () => {});
-    }
-    
-    parser.on('data', data => {
-      if (timeoutAbortController) {
-        timeoutAbortController.abort();
-      }
-      port.unpipe(parser);
-      resolve(data.toString());
-    });
-  });
+  if (timeoutAbortController) {
+    timeoutAbortController.abort();
+  }
+
+  buffer.destroy();
+
+  if (timeoutExpired) {
+    throw 'Timeout expired';
+  }
+
+  return result;
 }
 
 export async function writeAndDrain (port, data) {

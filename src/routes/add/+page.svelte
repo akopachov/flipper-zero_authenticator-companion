@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Accordion, { Content, Header, Panel } from '@smui-extra/accordion';
   import { rpcToMain } from '$lib/electron-rpc/electron-rpc_renderer';
   import Button from '@smui/button';
   import QrScanner from 'qr-scanner';
@@ -22,9 +23,20 @@
   }
 </script>
 
-<Button on:click={async () => await tryScanQrCode()}>Scan QR code</Button>
-{#if scannedData}
-  <p>{scannedData}</p>
-{/if}
+<Accordion>
+  <Panel open={true}>
+    <Header>Scan QR code</Header>
+    <Content>
+      <Button on:click={async () => await tryScanQrCode()}>Scan QR code</Button>
+      {#if scannedData}
+        <p>{scannedData}</p>
+      {/if}
+    </Content>
+  </Panel>
+  <Panel>
+    <Header>Enter details manually</Header>
+    <Content>TBD</Content>
+  </Panel>
+</Accordion>
 
 <style></style>

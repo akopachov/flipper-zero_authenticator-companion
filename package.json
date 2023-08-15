@@ -29,6 +29,7 @@
 	"devDependencies": {
 		"@fontsource/material-icons": "^5.0.7",
 		"@fontsource/roboto": "^5.0.8",
+		"@smui-extra/accordion": "^7.0.0-beta.14",
 		"@smui/button": "^7.0.0-beta.14",
 		"@smui/icon-button": "^7.0.0-beta.14",
 		"@smui/list": "^7.0.0-beta.14",

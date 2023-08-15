@@ -642,6 +642,22 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-4.6.0.tgz#3c7c9c46e678feefe7a2e5bb609d3dbd665ffb3f"
   integrity sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==
 
+"@smui-extra/accordion@^7.0.0-beta.14":
+  version "7.0.0-beta.14"
+  resolved "https://registry.yarnpkg.com/@smui-extra/accordion/-/accordion-7.0.0-beta.14.tgz#8522b8bfdaf330b48ab383fdd5aa6f25a692b685"
+  integrity sha512-9AkMG3EOJngfKwhkufyUvo+VkS42dRRRbc09UpcW6r1lvbnmfinZfc8EYWQl5ijKCepwnRl1vUsnjH+V+XfByg==
+  dependencies:
+    "@material/animation" "^14.0.0"
+    "@material/elevation" "^14.0.0"
+    "@material/feature-targeting" "^14.0.0"
+    "@material/ripple" "^14.0.0"
+    "@material/theme" "^14.0.0"
+    "@material/typography" "^14.0.0"
+    "@smui/common" "^7.0.0-beta.14"
+    "@smui/paper" "^7.0.0-beta.14"
+    "@smui/ripple" "^7.0.0-beta.14"
+    svelte2tsx "^0.6.15"
+
 "@smui/button@^7.0.0-beta.14":
   version "7.0.0-beta.14"
   resolved "https://registry.yarnpkg.com/@smui/button/-/button-7.0.0-beta.14.tgz#7f5f80c36807db8b3e822b2474023ebb29cde900"
@@ -686,6 +702,19 @@
     "@material/list" "^14.0.0"
     "@smui/common" "^7.0.0-beta.14"
     "@smui/ripple" "^7.0.0-beta.14"
+    svelte2tsx "^0.6.15"
+
+"@smui/paper@^7.0.0-beta.14":
+  version "7.0.0-beta.14"
+  resolved "https://registry.yarnpkg.com/@smui/paper/-/paper-7.0.0-beta.14.tgz#e18beba452923468955a6ff1a94bee751728ac0b"
+  integrity sha512-qz8lge3p0oJIIazTCMOfjdmEeilO5vMlU2bAmsQtbPqqP6v+wV5K+f/zXnSHtziIYd4fjlTW9bgxmkmf7r4uEA==
+  dependencies:
+    "@material/elevation" "^14.0.0"
+    "@material/feature-targeting" "^14.0.0"
+    "@material/shape" "^14.0.0"
+    "@material/theme" "^14.0.0"
+    "@material/typography" "^14.0.0"
+    "@smui/common" "^7.0.0-beta.14"
     svelte2tsx "^0.6.15"
 
 "@smui/ripple@^7.0.0-beta.14":

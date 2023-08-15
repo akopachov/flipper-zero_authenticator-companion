@@ -1,5 +1,5 @@
 const windowStateManager = require('electron-window-state');
-const { app, BrowserWindow, desktopCapturer } = require('electron');
+const { app, BrowserWindow } = require('electron');
 const serve = require('electron-serve');
 const path = require('path');
 const { rpcHandle } = require('./lib/electron-rpc/electron-rpc_main.cjs');
@@ -88,8 +88,3 @@ app.on('activate', () => {
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') app.quit();
 });
-
-rpcHandle(() => mainWindow, 'screenshot:capture', async () => {
-  const sources = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: screenSize });
-  return sources[0].thumbnail.toDataURL(); 
-})

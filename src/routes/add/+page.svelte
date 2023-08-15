@@ -1,23 +1,30 @@
 <script lang="ts">
   import Accordion, { Content, Header, Panel } from '@smui-extra/accordion';
-  import { rpcToMain } from '$lib/electron-rpc/electron-rpc_renderer';
+  import { Screenshots } from 'node-screenshots';
   import Button from '@smui/button';
   import QrScanner from 'qr-scanner';
 
   let scannedData: string | null = null;
 
   async function tryScanQrCode() {
-    const screenshot = await rpcToMain<string>('screenshot:capture');
-    let scanResult;
-    try {
-      scanResult = await QrScanner.scanImage(screenshot, { returnDetailedScanResult: true });
-    } catch (e) {
-      console.warn(e);
+    scannedData = null;
+    for (const capture of Screenshots.all()) {
+      const screenshot = await capture.capture();
+      let scanResult;
+      try {
+        const blob = new Blob([screenshot]);
+        scanResult = await QrScanner.scanImage(blob, { returnDetailedScanResult: true });
+      } catch (e) {
+        console.warn(e);
+      }
+
+      if (scanResult) {
+        scannedData = scanResult.data;
+        break;
+      }
     }
 
-    if (scanResult) {
-      scannedData = scanResult.data;
-    } else {
+    if (!scannedData) {
       scannedData = 'No QR code found';
     }
   }

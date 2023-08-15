@@ -9,7 +9,8 @@ const config = {
     renderer({
       resolve: {
         // C/C++ modules must be pre-bundle
-        serialport: { type: 'cjs' }
+        serialport: { type: 'cjs' },
+        'node-screenshots': { type: 'cjs' }
       },
     })
   ],
@@ -19,6 +20,7 @@ const config = {
     rollupOptions: {
       external: [
         'serialport',
+        'node-screenshots',
         'electron',
       ],
     },

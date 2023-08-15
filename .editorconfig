@@ -4,7 +4,7 @@ root = true
 end_of_line = unset
 insert_final_newline = false
 
-[*.{js,mjs,json,yaml,svelte,html,scss,ts}]
+[*.{js,mjs,json,yaml,svelte,html,scss,ts,cjs}]
 charset = utf-8
 indent_style = space
 indent_size = 2

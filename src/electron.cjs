@@ -1,9 +1,8 @@
 const windowStateManager = require('electron-window-state');
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, desktopCapturer } = require('electron');
 const serve = require('electron-serve');
 const path = require('path');
-//let totpAppClient;
-//import('./electron/totp-client.js').then(({TotpAppClient}) => totpAppClient = new TotpAppClient());
+const { rpcHandle } = require('./lib/electron-rpc/electron-rpc_main.cjs');
 
 try {
 	require('electron-reloader')(module);
@@ -15,6 +14,7 @@ const serveURL = serve({ directory: '.' });
 const port = process.env.PORT || 5173;
 const dev = !app.isPackaged;
 let mainWindow;
+let screenSize;
 
 function createWindow() {
 	let windowState = windowStateManager({
@@ -65,6 +65,11 @@ function loadVite(port) {
 }
 
 function createMainWindow() {
+  const { screen } = require('electron');
+
+  const primaryDisplay = screen.getPrimaryDisplay();
+  screenSize = primaryDisplay.workAreaSize;
+
 	mainWindow = createWindow();
 	mainWindow.once('close', () => {
 		mainWindow = null;
@@ -84,6 +89,7 @@ app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') app.quit();
 });
 
-// TODO: expose
-// https://github.com/frankwallis/electron-ipc-proxy
-
+rpcHandle(() => mainWindow, 'screenshot:capture', async () => {
+  const sources = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: screenSize });
+  return sources[0].thumbnail.toDataURL(); 
+})

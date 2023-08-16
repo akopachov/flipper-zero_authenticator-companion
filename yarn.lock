@@ -359,6 +359,19 @@
     "@material/typography" "^14.0.0"
     tslib "^2.1.0"
 
+"@material/circular-progress@^14.0.0":
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/@material/circular-progress/-/circular-progress-14.0.0.tgz#95c2859900a0b7dba1f5acb68d6d08923c6c7d2d"
+  integrity sha512-7EdkP6ty54g6qs6zzlsw29vWlUyrcSWr9b4pGGx4D/iNJww+eyxXZ07iWoNOr4uLgguauWEft2axpQiFCwFD0g==
+  dependencies:
+    "@material/animation" "^14.0.0"
+    "@material/base" "^14.0.0"
+    "@material/feature-targeting" "^14.0.0"
+    "@material/progress-indicator" "^14.0.0"
+    "@material/rtl" "^14.0.0"
+    "@material/theme" "^14.0.0"
+    tslib "^2.1.0"
+
 "@material/density@^14.0.0":
   version "14.0.0"
   resolved "https://registry.yarnpkg.com/@material/density/-/density-14.0.0.tgz#584c4f3468c86c96e361ebe7ba6723f4aa6cd548"
@@ -433,6 +446,43 @@
     "@material/shape" "^14.0.0"
     "@material/theme" "^14.0.0"
     "@material/typography" "^14.0.0"
+    tslib "^2.1.0"
+
+"@material/menu-surface@^14.0.0":
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/@material/menu-surface/-/menu-surface-14.0.0.tgz#0cd264f34af42ec2450e7baf08ec51ec6c8c4f7d"
+  integrity sha512-wRz3UCrhJ4kRrijJEbvIPRa0mqA5qkQmKXjBH4Xu1ApedZruP+OM3Qb2Bj4XugCA3eCXpiohg+gdyTAX3dVQyw==
+  dependencies:
+    "@material/animation" "^14.0.0"
+    "@material/base" "^14.0.0"
+    "@material/elevation" "^14.0.0"
+    "@material/feature-targeting" "^14.0.0"
+    "@material/rtl" "^14.0.0"
+    "@material/shape" "^14.0.0"
+    "@material/theme" "^14.0.0"
+    tslib "^2.1.0"
+
+"@material/menu@^14.0.0":
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/@material/menu/-/menu-14.0.0.tgz#7afad215de05df9b601652c93d344f4cb59eea0c"
+  integrity sha512-oU6GjbYnkG6a5nX9HUSege5OQByf6yUteEij8fpf0ci3f5BWf/gr39dnQ+rfl+q119cW0WIEmVK2YJ/BFxMzEQ==
+  dependencies:
+    "@material/base" "^14.0.0"
+    "@material/dom" "^14.0.0"
+    "@material/elevation" "^14.0.0"
+    "@material/feature-targeting" "^14.0.0"
+    "@material/list" "^14.0.0"
+    "@material/menu-surface" "^14.0.0"
+    "@material/ripple" "^14.0.0"
+    "@material/rtl" "^14.0.0"
+    "@material/theme" "^14.0.0"
+    tslib "^2.1.0"
+
+"@material/progress-indicator@^14.0.0":
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/@material/progress-indicator/-/progress-indicator-14.0.0.tgz#638e46207746d24e87b7794c0492ee11764481db"
+  integrity sha512-09JRTuIySxs670Tcy4jVlqCUbyrO+Ad6z3nHnAi8pYl74duco4n/9jTROV0mlFdr9NIFifnd08lKbiFLDmfJGQ==
+  dependencies:
     tslib "^2.1.0"
 
 "@material/ripple@^14.0.0":
@@ -673,6 +723,15 @@
     "@smui/ripple" "^7.0.0-beta.14"
     svelte2tsx "^0.6.15"
 
+"@smui/circular-progress@^7.0.0-beta.14":
+  version "7.0.0-beta.14"
+  resolved "https://registry.yarnpkg.com/@smui/circular-progress/-/circular-progress-7.0.0-beta.14.tgz#b8ea31de38709fb400074d548f9a52f32b0f5edc"
+  integrity sha512-RrPeqgh7RbSmaT6rZ8VqagbnOIYF+XseLemV383l3OtdFFxeQYIq5xWDzoy5lm578CGbxYLPmeTskU9cnDtQ2w==
+  dependencies:
+    "@material/circular-progress" "^14.0.0"
+    "@smui/common" "^7.0.0-beta.14"
+    svelte2tsx "^0.6.15"
+
 "@smui/common@^7.0.0-beta.14":
   version "7.0.0-beta.14"
   resolved "https://registry.yarnpkg.com/@smui/common/-/common-7.0.0-beta.14.tgz#e55ac24d96fd33c37c450ff93051d8a4a982e90e"
@@ -702,6 +761,28 @@
     "@material/list" "^14.0.0"
     "@smui/common" "^7.0.0-beta.14"
     "@smui/ripple" "^7.0.0-beta.14"
+    svelte2tsx "^0.6.15"
+
+"@smui/menu-surface@^7.0.0-beta.14":
+  version "7.0.0-beta.14"
+  resolved "https://registry.yarnpkg.com/@smui/menu-surface/-/menu-surface-7.0.0-beta.14.tgz#40c48f8595d2e4bcc14d1446506cc9f897ff5061"
+  integrity sha512-2wo7GXNt6+JRiWjy+ocwnkLaFwRMQ0glJusZl/azPO9qCNyjMCisL2iU9wSGExCkjUnCGutCre0Zb63BwRhiQw==
+  dependencies:
+    "@material/animation" "^14.0.0"
+    "@material/menu-surface" "^14.0.0"
+    "@smui/common" "^7.0.0-beta.14"
+    svelte2tsx "^0.6.15"
+
+"@smui/menu@^7.0.0-beta.14":
+  version "7.0.0-beta.14"
+  resolved "https://registry.yarnpkg.com/@smui/menu/-/menu-7.0.0-beta.14.tgz#8f9289abb2eef099be75daed9d2ca46be29ddb65"
+  integrity sha512-CdHdvy9X+qYTzARD+k3op/j90fSQCKkDINog8Y7O1WNxU6sFIhVTVlQWPq6y94VoOIBENJIsukjpGUuEmjZQZw==
+  dependencies:
+    "@material/dom" "^14.0.0"
+    "@material/menu" "^14.0.0"
+    "@smui/common" "^7.0.0-beta.14"
+    "@smui/list" "^7.0.0-beta.14"
+    "@smui/menu-surface" "^7.0.0-beta.14"
     svelte2tsx "^0.6.15"
 
 "@smui/paper@^7.0.0-beta.14":

@@ -3,7 +3,9 @@
   import { Screenshots } from 'node-screenshots';
   import Button from '@smui/button';
   import QrScanner from 'qr-scanner';
+  import { onDestroy } from 'svelte';
 
+  let abortController = new AbortController();
   let scannedData: string | null = null;
 
   async function tryScanQrCode() {
@@ -28,6 +30,8 @@
       scannedData = 'No QR code found';
     }
   }
+
+  onDestroy(() => abortController.abort());
 </script>
 
 <Accordion>

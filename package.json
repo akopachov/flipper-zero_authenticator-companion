@@ -15,8 +15,10 @@
 		"build:svelte": "vite build",
 		"build:electron": "electron-builder -mwl --config build.config.json",
 		"prepare": "npm run smui-theme-light && npm run smui-theme-dark",
-		"smui-theme-light": "smui-theme compile static/smui.css -i src/theme",
-		"smui-theme-dark": "smui-theme compile static/smui-dark.css -i src/theme/dark"
+		"smui-theme-light": "smui-theme compile static/smui.css -i src/theme -i node_modules",
+		"smui-theme-dark": "smui-theme compile static/smui-dark.css -i src/theme/dark -i node_modules",
+		"lint": "eslint src/",
+		"lint:fix": "eslint src/ --fix"
 	},
 	"browserslist": [
 		"Chrome 89"
@@ -32,6 +34,7 @@
 		"@smui-extra/accordion": "^7.0.0-beta.14",
 		"@smui/button": "^7.0.0-beta.14",
 		"@smui/circular-progress": "^7.0.0-beta.14",
+		"@smui/drawer": "^7.0.0-beta.14",
 		"@smui/icon-button": "^7.0.0-beta.14",
 		"@smui/list": "^7.0.0-beta.14",
 		"@smui/menu": "^7.0.0-beta.14",
@@ -55,11 +58,13 @@
 		"escape-string-regexp": "^5.0.0",
 		"eslint": "^8.36.0",
 		"eslint-config-prettier": "^9.0.0",
-		"eslint-plugin-svelte3": "^4.0.0",
+		"eslint-plugin-prettier": "^5.0.0",
+		"eslint-plugin-svelte": "^2.32.4",
 		"node-screenshots": "^0.1.6",
+		"normalize.css": "^8.0.1",
 		"npm-run-all": "^4.1.5",
 		"papaparse": "^5.4.1",
-		"prettier": "^3.0.1",
+		"prettier": "^3.0.2",
 		"prettier-plugin-svelte": "^3.0.3",
 		"qr-scanner": "^1.4.2",
 		"rollup-plugin-node-externals": "^6.1.1",

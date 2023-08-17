@@ -1,4 +1,5 @@
-import { SerialPortAsync} from './serial-port-async';
+import { SerialPortAsync } from './serial-port-async';
+import type { PortInfo } from '@serialport/bindings-interface';
 import EventEmitter from 'node:events';
 import { parseFromString } from './ascii-table-parse';
 import escapeStringRegexp from 'escape-string-regexp';
@@ -13,7 +14,7 @@ enum TotpCommandOutput {
   EndOfCommand = '>: ',
   AskForPin = 'Pleases enter PIN on your flipper device',
   CommandCancelled = 'Cancelled by user',
-  CommandNotFound = 'command not found'
+  CommandNotFound = 'command not found',
 }
 
 export enum TotpClientEvents {
@@ -21,32 +22,32 @@ export enum TotpClientEvents {
   WaitForApp = 'totp-client:wait-for-app',
   Close = 'totp-client:close',
   Connecting = 'totp-client:connecting',
-  Connected= 'totp-client:connected',
+  Connected = 'totp-client:connected',
   CommandExecuting = 'totp-client:command:executing',
   CommandExecuted = 'totp-client:command:executied',
 }
 
 async function getFlipperZeroDevice() {
   const serialDevices = await SerialPortAsync.list();
-  return serialDevices.find(p => p.vendorId == FlipperVendorId && p.productId == FlipperProductId);
+  return serialDevices.find(p => p.vendorId == FlipperVendorId && p.productId == FlipperProductId) || null;
 }
 
 async function waitForFlipperZeroDevice(signal?: AbortSignal) {
-  let flipperZeroDevice = null;
+  let flipperZeroDevice: PortInfo | null = null;
   while ((flipperZeroDevice = await getFlipperZeroDevice()) == null) {
-    await delay(1000, {signal: signal});
+    await delay(1000, { signal: signal });
   }
 
   return flipperZeroDevice;
 }
 
 interface ExecuteCommandOptions {
-  skipFirstLine: boolean,
-  trimCommandEndSignature: boolean,
-  trimEmptyLines: boolean,
-  trimTerminalControlCommands: boolean,
-  commandEndSign: string | RegExp,
-  signal: AbortSignal | undefined
+  skipFirstLine: boolean;
+  trimCommandEndSignature: boolean;
+  trimEmptyLines: boolean;
+  trimTerminalControlCommands: boolean;
+  commandEndSign: string | RegExp;
+  signal: AbortSignal | undefined;
 }
 
 const ExecuteCommandDefaultOptions: ExecuteCommandOptions = {
@@ -55,7 +56,7 @@ const ExecuteCommandDefaultOptions: ExecuteCommandOptions = {
   trimEmptyLines: true,
   trimTerminalControlCommands: true,
   commandEndSign: TotpCommandOutput.EndOfCommand,
-  signal: undefined
+  signal: undefined,
 };
 
 export class TotpAppClient extends EventEmitter {
@@ -68,12 +69,12 @@ export class TotpAppClient extends EventEmitter {
 
   async #getSerialPort(signal?: AbortSignal): Promise<SerialPortAsync> {
     if (this.#serialPort == null) {
-      let serialPort = null;
+      let serialPort: SerialPortAsync | null = null;
 
       do {
         if (signal?.aborted) break;
         this.emit(TotpClientEvents.Connecting, this);
-        let flipperZeroDevice = await waitForFlipperZeroDevice();
+        const flipperZeroDevice = await waitForFlipperZeroDevice();
         serialPort = new SerialPortAsync({ path: flipperZeroDevice.path, baudRate: 115200, autoOpen: false });
         try {
           await serialPort.openAsync();
@@ -84,7 +85,7 @@ export class TotpAppClient extends EventEmitter {
         }
         if (serialPort != null) {
           try {
-            await serialPort.readUntil(TotpCommandOutput.EndOfCommand, { timeout: 1000, signal: signal});
+            await serialPort.readUntil(TotpCommandOutput.EndOfCommand, { timeout: 1000, signal: signal });
           } catch (e) {
             console.warn(e);
             await serialPort.closeAsync();
@@ -126,7 +127,12 @@ export class TotpAppClient extends EventEmitter {
     }
 
     await (await this.#getSerialPort(opts.signal)).drainAsync();
-    const commandEndOutputSignRegex = new RegExp(`(${commandEndSignForRegex})|(${escapeStringRegexp(TotpCommandOutput.AskForPin)})|(${escapeStringRegexp(TotpCommandOutput.CommandCancelled)})`, 'gi');
+    const commandEndOutputSignRegex = new RegExp(
+      `(${commandEndSignForRegex})|(${escapeStringRegexp(TotpCommandOutput.AskForPin)})|(${escapeStringRegexp(
+        TotpCommandOutput.CommandCancelled,
+      )})`,
+      'gi',
+    );
     let waitForAppEventEmitted = false;
     do {
       await (await this.#getSerialPort(opts.signal)).writeAndDrain(command);
@@ -134,13 +140,17 @@ export class TotpAppClient extends EventEmitter {
         await (await this.#getSerialPort(opts.signal)).readUntil('\r\n', { timeout: 1000, signal: opts.signal });
       }
 
-      response = await (await this.#getSerialPort(opts.signal)).readUntil(commandEndOutputSignRegex, { timeout: 5000, signal: opts.signal});
+      response = await (
+        await this.#getSerialPort(opts.signal)
+      ).readUntil(commandEndOutputSignRegex, { timeout: 5000, signal: opts.signal });
 
       commandFound = !!response && !response.includes(TotpCommandOutput.CommandNotFound);
       if (commandFound) {
         if (response?.includes(TotpCommandOutput.AskForPin)) {
           this.emit(TotpClientEvents.PinRequested, this);
-          response = await (await this.#getSerialPort(opts.signal)).readUntil(commandEndOutputSignRegex, { signal: opts.signal });
+          response = await (
+            await this.#getSerialPort(opts.signal)
+          ).readUntil(commandEndOutputSignRegex, { signal: opts.signal });
         }
       } else {
         if (!waitForAppEventEmitted) {
@@ -161,6 +171,7 @@ export class TotpAppClient extends EventEmitter {
       }
 
       if (opts.trimTerminalControlCommands) {
+        // eslint-disable-next-line no-control-regex
         response = response.replace(/(\x1b\[(\d+m|A|2K))|(\b \b)\r?/g, '');
       }
 
@@ -189,7 +200,7 @@ export class TotpAppClient extends EventEmitter {
   }
 
   async listTokens(signal?: AbortSignal) {
-    let response = await this.#executeCommand(`${TotpCommand} ls\r`, { signal: signal });
+    const response = await this.#executeCommand(`${TotpCommand} ls\r`, { signal: signal });
     return response ? parseFromString(response) : [];
   }
 
@@ -201,5 +212,3 @@ export class TotpAppClient extends EventEmitter {
     this.emit(TotpClientEvents.Close, this);
   }
 }
-
-export const SharedTotpAppClient = new TotpAppClient();

@@ -30,7 +30,8 @@
 			"$lib/*": ["src/lib/*"],
 			"$app/*": [".svelte/dev/runtime/app/*", ".svelte/build/runtime/app/*"]
 		},
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noImplicitAny": false
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.svelte", "src/electron.js"]
 }

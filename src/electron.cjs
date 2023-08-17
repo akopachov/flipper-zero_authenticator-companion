@@ -2,7 +2,6 @@ const windowStateManager = require('electron-window-state');
 const { app, BrowserWindow } = require('electron');
 const serve = require('electron-serve');
 const path = require('path');
-const { rpcHandle } = require('./lib/electron-rpc/electron-rpc_main.cjs');
 
 try {
 	require('electron-reloader')(module);
@@ -14,7 +13,6 @@ const serveURL = serve({ directory: '.' });
 const port = process.env.PORT || 5173;
 const dev = !app.isPackaged;
 let mainWindow;
-let screenSize;
 
 function createWindow() {
 	let windowState = windowStateManager({
@@ -39,6 +37,7 @@ function createWindow() {
 		y: windowState.y,
 		width: windowState.width,
 		height: windowState.height,
+    icon: path.join(__dirname, '../static/favicon.png'),
 	});
 
 	windowState.manage(mainWindow);
@@ -65,11 +64,6 @@ function loadVite(port) {
 }
 
 function createMainWindow() {
-  const { screen } = require('electron');
-
-  const primaryDisplay = screen.getPrimaryDisplay();
-  screenSize = primaryDisplay.workAreaSize;
-
 	mainWindow = createWindow();
 	mainWindow.once('close', () => {
 		mainWindow = null;

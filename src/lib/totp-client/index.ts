@@ -1,1 +1,1 @@
-export * from './totp-client'
+export * from './totp-client';

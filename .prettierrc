@@ -1,12 +1,15 @@
 {
-	"svelteSortOrder": "scripts-markup-styles",
+	"plugins": ["prettier-plugin-svelte"],
+	"svelteSortOrder": "scripts-markup-styles-options",
 	"htmlWhitespaceSensitivity": "ignore",
 	"trailingComma": "all",
 	"requirePragma": false,
 	"bracketSpacing": true,
+	"bracketSameLine": true,
 	"singleQuote": true,
-	"printWidth": 100,
+	"printWidth": 120,
 	"useTabs": false,
 	"tabWidth": 2,
-	"semi": true
+	"semi": true,
+	"arrowParens": "avoid"
 }

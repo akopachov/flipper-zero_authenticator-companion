@@ -1,18 +1,10 @@
 <script lang="ts">
-  import { SharedTotpAppClient } from '$lib/totp-client';
+  import { SharedTotpAppClient } from '../stores/totp-shared-client';
   import { findIcon } from '$lib/totp-icons';
-  import List, {
-    Graphic,
-    Item,
-    Meta,
-    PrimaryText,
-    SecondaryText,
-    Text,
-    Separator,
-  } from '@smui/list';
+  import List, { Graphic, Item, Meta, PrimaryText, SecondaryText, Text, Separator } from '@smui/list';
   import Menu from '@smui/menu';
   import IconButton from '@smui/icon-button';
-  import { onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import delay from 'delay';
 
   let abortController = new AbortController();
@@ -21,7 +13,7 @@
   let totpListItemMenuAnchorEl: Element;
 
   async function main() {
-    totpList = await SharedTotpAppClient.listTokens(abortController.signal);
+    totpList = await $SharedTotpAppClient.listTokens(abortController.signal);
     console.log(totpList);
   }
 
@@ -30,7 +22,7 @@
     return `./totp-icons/${iconFileName}`;
   }
 
-  async function onTotpListItemMenuClicked(event: UIEvent) {
+  async function onTotpListItemMenuClicked(event: CustomEvent) {
     totpListItemMenu.setOpen(false);
     await delay(90);
     totpListItemMenuAnchorEl = event.target as Element;
@@ -38,8 +30,7 @@
   }
 
   onDestroy(() => abortController.abort());
-
-  main();
+  onMount(() => main());
 </script>
 
 {#if totpList}
@@ -54,9 +45,7 @@
           <SecondaryText>{item.Name}</SecondaryText>
         </Text>
         <Meta>
-          <IconButton class="material-icons" on:click={onTotpListItemMenuClicked}>
-            more_vert
-          </IconButton>
+          <IconButton class="material-icons" on:click={e => onTotpListItemMenuClicked(e)}>more_vert</IconButton>
         </Meta>
       </Item>
     {/each}
@@ -68,8 +57,7 @@
   anchor={true}
   bind:anchorElement={totpListItemMenuAnchorEl}
   fixed={true}
-  anchorCorner="BOTTOM_LEFT"
->
+  anchorCorner="BOTTOM_LEFT">
   <List>
     <Item>
       <Graphic class="material-icons">edit</Graphic>

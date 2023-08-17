@@ -11,6 +11,8 @@
   $error: color-palette.$red-700
 );
 
+@import "normalize.css/normalize";
+
 html,
 body {
   background-color: #000;

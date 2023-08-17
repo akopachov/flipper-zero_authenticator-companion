@@ -2,5 +2,8 @@
   "[svelte]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "svelte.svelte-vscode"
-  }
+  },
+  "eslint.validate": [
+    "javascript", "javascriptreact", "svelte"
+  ]
 }

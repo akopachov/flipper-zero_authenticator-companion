@@ -3,10 +3,10 @@ import delay from 'delay';
 import { SmartBuffer } from 'smart-buffer';
 import { tryDelay } from './try-delay';
 
-export interface ReadUntilOptions {
+export type ReadUntilOptions = {
   timeout: number;
   signal: AbortSignal;
-}
+};
 
 export class SerialPortAsync extends SerialPort {
   flushAsync() {

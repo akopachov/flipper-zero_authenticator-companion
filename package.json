@@ -35,6 +35,7 @@
 		"@smui/button": "^7.0.0-beta.14",
 		"@smui/circular-progress": "^7.0.0-beta.14",
 		"@smui/drawer": "^7.0.0-beta.14",
+		"@smui/fab": "^7.0.0-beta.14",
 		"@smui/icon-button": "^7.0.0-beta.14",
 		"@smui/list": "^7.0.0-beta.14",
 		"@smui/menu": "^7.0.0-beta.14",

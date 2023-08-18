@@ -41,14 +41,14 @@ async function waitForFlipperZeroDevice(signal?: AbortSignal) {
   return flipperZeroDevice;
 }
 
-interface ExecuteCommandOptions {
+type ExecuteCommandOptions = {
   skipFirstLine: boolean;
   trimCommandEndSignature: boolean;
   trimEmptyLines: boolean;
   trimTerminalControlCommands: boolean;
   commandEndSign: string | RegExp;
   signal: AbortSignal | undefined;
-}
+};
 
 const ExecuteCommandDefaultOptions: ExecuteCommandOptions = {
   skipFirstLine: true,

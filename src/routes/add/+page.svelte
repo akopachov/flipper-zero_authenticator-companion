@@ -1,7 +1,6 @@
 <script lang="ts">
-  import Accordion, { Content, Header, Panel } from '@smui-extra/accordion';
+  import Fab, { Icon, Label } from '@smui/fab';
   import { Screenshots } from 'node-screenshots';
-  import Button from '@smui/button';
   import QrScanner from 'qr-scanner';
   import { onDestroy } from 'svelte';
 
@@ -34,20 +33,22 @@
   onDestroy(() => abortController.abort());
 </script>
 
-<Accordion>
-  <Panel open={true}>
-    <Header>Scan QR code</Header>
-    <Content>
-      <Button on:click={async () => await tryScanQrCode()}>Scan QR code</Button>
-      {#if scannedData}
-        <p>{scannedData}</p>
-      {/if}
-    </Content>
-  </Panel>
-  <Panel>
-    <Header>Enter details manually</Header>
-    <Content>TBD</Content>
-  </Panel>
-</Accordion>
+<div class="container">
+  <div class="scan-qr-container">
+    <Fab color="primary" on:click={async () => await tryScanQrCode()} extended>
+      <Icon class="material-icons">qr_code_scanner</Icon>
+      <Label>Scan QR Code</Label>
+    </Fab>
+  </div>
+  <form class="token-info"></form>
+</div>
 
-<style></style>
+<style lang="scss">
+  .container {
+    .scan-qr-container {
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+    }
+  }
+</style>

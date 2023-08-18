@@ -33,5 +33,5 @@
     "resolveJsonModule": true,
     "noImplicitAny": false
 	},
-	"include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.svelte", "src/electron.js"]
+	"include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.svelte"]
 }

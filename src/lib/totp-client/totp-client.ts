@@ -343,6 +343,17 @@ export class TotpAppClient extends EventEmitter {
     }
   }
 
+  async syncTime(signal?: AbortSignal) {
+    const currentDate = new Date();
+    await this.#executeCommand(
+      `date ${currentDate.getFullYear()}-${
+        currentDate.getMonth() + 1
+      }-${currentDate.getDate()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()} ${currentDate.getDay()}\r`,
+      { signal: signal },
+    );
+    await this.#executeCommand(`${TotpCommand} tz ${-currentDate.getTimezoneOffset() / 60}\r`, { signal: signal });
+  }
+
   async close() {
     if (this.#serialPort) {
       await this.#serialPort.closeAsync();

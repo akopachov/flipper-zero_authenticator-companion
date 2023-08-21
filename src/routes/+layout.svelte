@@ -117,18 +117,20 @@
 <style lang="scss">
   .drawer-container {
     display: flex;
-    min-height: 100%;
+    height: 100%;
     width: 100%;
 
     :global(.app-content) {
-      min-height: 100%;
+      height: 100%;
       min-width: 100%;
+      overflow: hidden;
     }
 
     .app-content-container {
-      min-height: calc(100% - 64px);
+      height: calc(100% - 64px);
       min-width: 100%;
       display: flex;
+      overflow: auto;
 
       :global(> *) {
         flex-basis: 100%;

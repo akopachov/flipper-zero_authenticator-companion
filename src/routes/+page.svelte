@@ -6,15 +6,18 @@
   import IconButton from '@smui/icon-button';
   import { onDestroy, onMount } from 'svelte';
   import delay from 'delay';
+  import type { TokenInfoBase } from '../models/token-info';
+  import { GlobalCommonDialog } from '../stores/global-common-dialog';
+  import { CommonSnackbarType, GlobalCommonSnackbar } from '../stores/global-common-snackbar';
 
   let abortController = new AbortController();
-  let totpList: any[] | null = null;
+  let totpList: TokenInfoBase[] | null = null;
   let totpListItemMenu: Menu;
   let totpListItemMenuAnchorEl: Element;
+  let totpListCurrentItem: TokenInfoBase | null = null;
 
-  async function main() {
+  async function updateTokenList() {
     totpList = await $SharedTotpAppClient.listTokens(abortController.signal);
-    console.log(totpList);
   }
 
   function getIcon(name: string) {
@@ -22,15 +25,43 @@
     return `./totp-icons/${iconFileName}`;
   }
 
-  async function onTotpListItemMenuClicked(event: CustomEvent) {
+  async function onTotpListItemMenuClicked(event: CustomEvent, currentItem: TokenInfoBase) {
     totpListItemMenu.setOpen(false);
     await delay(90);
+    totpListCurrentItem = currentItem;
     totpListItemMenuAnchorEl = event.target as Element;
     totpListItemMenu.setOpen(true);
   }
 
+  async function onListItemDeleteClick() {
+    if (totpListCurrentItem) {
+      const confirmDeleteActionResult = 'yes';
+      const actionResult = await GlobalCommonDialog.show(
+        'Confirmation',
+        `Do you really want to delete token "${totpListCurrentItem.name}"?`,
+        [
+          { text: 'Yes', action: confirmDeleteActionResult },
+          { text: 'No', action: 'no' },
+        ],
+      );
+      if (actionResult == confirmDeleteActionResult) {
+        try {
+          await $SharedTotpAppClient.removeToken(totpListCurrentItem.id, abortController.signal);
+          await updateTokenList();
+          GlobalCommonSnackbar.show(
+            `Token ${totpListCurrentItem.name} has been successfully removed`,
+            CommonSnackbarType.Success,
+          );
+        } catch (e) {
+          GlobalCommonSnackbar.show('An error occurred during token removal', CommonSnackbarType.Error);
+          console.error(e);
+        }
+      }
+    }
+  }
+
   onDestroy(() => abortController.abort());
-  onMount(() => main());
+  onMount(() => updateTokenList());
 </script>
 
 {#if totpList}
@@ -38,14 +69,14 @@
     {#each totpList as item}
       <Item>
         <Graphic>
-          <img src={getIcon(item.Name)} alt="icon" />
+          <img src={getIcon(item.name)} alt="icon" />
         </Graphic>
         <Text>
-          <PrimaryText>{item.Name}</PrimaryText>
-          <SecondaryText>{item.Name}</SecondaryText>
+          <PrimaryText>{item.name}</PrimaryText>
+          <SecondaryText>{item.hashingAlgo}</SecondaryText>
         </Text>
         <Meta>
-          <IconButton class="material-icons" on:click={e => onTotpListItemMenuClicked(e)}>more_vert</IconButton>
+          <IconButton class="material-icons" on:click={e => onTotpListItemMenuClicked(e, item)}>more_vert</IconButton>
         </Meta>
       </Item>
     {/each}
@@ -64,7 +95,7 @@
       <Text>Edit</Text>
     </Item>
     <Separator />
-    <Item>
+    <Item on:click={onListItemDeleteClick}>
       <Graphic class="material-icons">delete</Graphic>
       <Text>Delete</Text>
     </Item>

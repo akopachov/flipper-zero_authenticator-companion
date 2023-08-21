@@ -24,7 +24,7 @@ const config = {
         'electron',
       ],
     },
-  },
+  }
 };
 
 export default config;

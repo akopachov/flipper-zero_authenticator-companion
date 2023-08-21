@@ -1,21 +1,21 @@
 <script lang="ts">
   import '@fontsource/roboto';
   import '@fontsource/material-icons';
-  import { fade } from 'svelte/transition';
   import TopAppBar, { Row, Title, Section } from '@smui/top-app-bar';
   import Drawer, { Content, AppContent, Scrim } from '@smui/drawer';
   import List, { Item, Graphic, Text } from '@smui/list';
-  import CircularProgress from '@smui/circular-progress';
   import IconButton from '@smui/icon-button';
   import { onMount } from 'svelte';
   import { SharedTotpAppClient } from '../stores/totp-shared-client';
+  import { GlobalPreloader } from '../stores/global-preloader';
   import { goto } from '$app/navigation';
   import { navigating, page } from '$app/stores';
   import { TotpClientEvents } from '$lib/totp-client';
+  import CommonDialog from '$lib/common-dialog/common-dialog.svelte';
+  import CommonSnackbar from '$lib/common-snackbar/common-snackbar.svelte';
+  import CommonPreloader from '$lib/common-preloader/common-preloader.svelte';
 
   let ready = false;
-  let processingRequest = 0;
-  let processingRequestDetails = '';
   let isMenuOpen = false;
   let activePath = $page.url.pathname;
 
@@ -34,7 +34,7 @@
   }
 
   async function addTokenClicked() {
-    await goto('/add');
+    await goto('/update');
   }
 
   async function activateMenuItem(route: string) {
@@ -43,29 +43,27 @@
   }
 
   $SharedTotpAppClient.on(TotpClientEvents.Connecting, () => {
-    processingRequestDetails = 'Connecting to Flipper Zero device';
+    GlobalPreloader.setDescription('Connecting to Flipper Zero device');
   });
 
   $SharedTotpAppClient.on(TotpClientEvents.Connected, () => {
-    processingRequestDetails = '';
+    GlobalPreloader.clearDescription();
   });
 
   $SharedTotpAppClient.on(TotpClientEvents.CommandExecuting, () => {
-    processingRequest++;
-    processingRequestDetails = 'Executing command on Flipper Zero device';
+    GlobalPreloader.show('Executing command on Flipper Zero device');
   });
 
   $SharedTotpAppClient.on(TotpClientEvents.CommandExecuted, () => {
-    processingRequest--;
-    processingRequestDetails = '';
+    GlobalPreloader.hide();
   });
 
   $SharedTotpAppClient.on(TotpClientEvents.PinRequested, () => {
-    processingRequestDetails = 'PIN is requested on Flipper Zero device';
+    GlobalPreloader.setDescription('PIN is requested on Flipper Zero device');
   });
 
   $SharedTotpAppClient.on(TotpClientEvents.WaitForApp, () => {
-    processingRequestDetails = 'Waiting for Authenticator app top be launched on Flipper Zero device';
+    GlobalPreloader.setDescription('Waiting for Authenticator app top be launched on Flipper Zero device');
   });
 </script>
 
@@ -76,7 +74,10 @@
     <Drawer variant="modal" fixed={false} bind:open={isMenuOpen}>
       <Content>
         <List>
-          <Item href="javascript:void(0)" on:click={() => activateMenuItem('/add')} activated={activePath === '/add'}>
+          <Item
+            href="javascript:void(0)"
+            on:click={() => activateMenuItem('/update')}
+            activated={activePath === '/update'}>
             <Graphic class="material-icons" aria-hidden="true">add</Graphic>
             <Text>Add new token</Text>
           </Item>
@@ -88,7 +89,7 @@
       </Content>
     </Drawer>
     <Scrim fixed={false} />
-    <AppContent>
+    <AppContent class="app-content">
       <TopAppBar variant="static">
         <Row>
           <Section>
@@ -102,34 +103,36 @@
           </Section>
         </Row>
       </TopAppBar>
-      <slot />
+      <div class="app-content-container">
+        <slot />
+      </div>
     </AppContent>
   </div>
-  {#if processingRequest > 0}
-    <div out:fade={{ duration: 300 }} class="processing-request">
-      <CircularProgress class="progress" style="height: 128px; width: 128px;" indeterminate />
-      <h5 class="description">{processingRequestDetails}</h5>
-    </div>
-  {/if}
+
+  <CommonPreloader></CommonPreloader>
+  <CommonDialog></CommonDialog>
+  <CommonSnackbar></CommonSnackbar>
 {/if}
 
 <style lang="scss">
-  .processing-request {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 999;
-    background-color: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
+  .drawer-container {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+    min-height: 100%;
+    width: 100%;
 
-    .description {
-      text-align: center;
+    :global(.app-content) {
+      min-height: 100%;
+      min-width: 100%;
+    }
+
+    .app-content-container {
+      min-height: calc(100% - 64px);
+      min-width: 100%;
+      display: flex;
+
+      :global(> *) {
+        flex-basis: 100%;
+      }
     }
   }
 </style>

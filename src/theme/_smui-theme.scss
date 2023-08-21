@@ -15,8 +15,8 @@
 
 html,
 body {
-  background-color: theme.$surface;
   color: theme.$on-surface;
+  background-image: linear-gradient(to left top, #ecf0f1, #f1f4f5, #f6f7f8, #fbfbfc, #ffffff);
 }
 
 a {
@@ -24,6 +24,10 @@ a {
 }
 a:visited {
   color: color.scale(#40b3ff, $lightness: -35%);
+}
+
+:root {
+  --preloader-background: rgba(255, 255, 255, 0.55)
 }
 
 @import "typography";

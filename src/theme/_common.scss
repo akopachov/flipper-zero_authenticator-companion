@@ -1,3 +1,8 @@
+@use '@smui/snackbar/style' as smui-snackabar;
+@use '@material/snackbar/mixins' as snackbar;
+@use '@material/theme/color-palette';
+@use '@material/theme/theme-color';
+
 .material-icons {
   font-family: 'Material Icons';
   font-weight: normal;
@@ -12,4 +17,33 @@
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
+}
+
+html, body {
+  height: 100%;
+}
+
+.mdc-snackbar {
+  z-index: 999!important;
+}
+
+.mdc-snackbar.snackbar-warning {
+  @include snackbar.fill-color(color-palette.$orange-500);
+  @include snackbar.label-ink-color(
+    theme-color.accessible-ink-color(color-palette.$orange-500)
+  );
+}
+
+.mdc-snackbar.snackbar-error {
+  @include snackbar.fill-color(color-palette.$red-500);
+  @include snackbar.label-ink-color(
+    theme-color.accessible-ink-color(color-palette.$red-500)
+  );
+}
+
+.mdc-snackbar.snackbar-success {
+  @include snackbar.fill-color(color-palette.$green-500);
+  @include snackbar.label-ink-color(
+    theme-color.accessible-ink-color(color-palette.$green-500)
+  );
 }

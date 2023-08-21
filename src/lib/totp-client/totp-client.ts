@@ -5,6 +5,9 @@ import { parseFromString } from './ascii-table-parse';
 import escapeStringRegexp from 'escape-string-regexp';
 import { tryDelay } from './try-delay';
 import delay from 'delay';
+import { TokenInfo, TokenInfoBase } from '../../models/token-info';
+import { tokenLengthFromNumber } from '../../models/token-length';
+import { tokenHashingAlgoFromString } from '../../models/token-hashing-algo';
 
 const FlipperVendorId = '0483';
 const FlipperProductId = '5740';
@@ -15,6 +18,11 @@ enum TotpCommandOutput {
   AskForPin = 'Pleases enter PIN on your flipper device',
   CommandCancelled = 'Cancelled by user',
   CommandNotFound = 'command not found',
+  AskForSecret = 'Enter token secret and confirm with [ENTER]:',
+  AskForYesNoConfirmation = 'Confirm? [y/n]',
+  TokenHasBeenSuccessfulyAdded = 'has been successfully added',
+  TokenHasBeenSuccessfulyUpdated = 'has been successfully updated',
+  TokenHasBeenSucecssfullyDeleted = 'has been successfully deleted',
 }
 
 export enum TotpClientEvents {
@@ -172,11 +180,11 @@ export class TotpAppClient extends EventEmitter {
 
       if (opts.trimTerminalControlCommands) {
         // eslint-disable-next-line no-control-regex
-        response = response.replace(/(\x1b\[(\d+m|A|2K))|(\b \b)\r?/g, '');
+        response = response.replace(/(\x1b\[(\d+m|A|2K))|(\x08 \x08)\r?/g, '');
       }
 
       if (opts.trimEmptyLines) {
-        response = response.replace(/^\s*\r?\n?$/gm, '');
+        response = response.replace(/(\r\n|\r|\n)\s*\1/g, '').trim();
       }
     }
 
@@ -201,7 +209,89 @@ export class TotpAppClient extends EventEmitter {
 
   async listTokens(signal?: AbortSignal) {
     const response = await this.#executeCommand(`${TotpCommand} ls\r`, { signal: signal });
-    return response ? parseFromString(response) : [];
+    if (!response) return [];
+    return parseFromString(response).map(
+      m =>
+        new TokenInfoBase({
+          id: Number(m['#']),
+          name: m['Name'],
+          duration: Number(m['Dur']),
+          length: tokenLengthFromNumber(Number(m['Ln'])),
+          hashingAlgo: tokenHashingAlgoFromString(m['Algo']),
+        }),
+    );
+  }
+
+  async updateToken(tokenInfo: TokenInfo, signal?: AbortSignal) {
+    const isNewToken = tokenInfo.id <= 0;
+    const tokenSecretUpdateNeeded = isNewToken || tokenInfo.secret;
+    const baseCommand = isNewToken ? 'add' : `update ${tokenInfo.id}`;
+    let fullCommand = `${TotpCommand} ${baseCommand} "${tokenInfo.name}" -a ${tokenInfo.hashingAlgo} -e ${tokenInfo.secretEncoding} -d ${tokenInfo.length} -l ${tokenInfo.duration}`;
+    if (!isNewToken && tokenSecretUpdateNeeded) {
+      fullCommand += ' -s';
+    }
+
+    if (tokenInfo.automationFeatures.length > 0) {
+      fullCommand += ' ' + tokenInfo.automationFeatures.map(f => `-b ${f}`).join(' ');
+    }
+    let response = await this.#executeCommand(`${fullCommand}\r`, {
+      signal: signal,
+      skipFirstLine: true,
+      trimCommandEndSignature: false,
+      trimEmptyLines: true,
+      trimTerminalControlCommands: true,
+      commandEndSign: new RegExp(
+        `${TotpCommandOutput.EndOfCommand}|${escapeStringRegexp(TotpCommandOutput.AskForSecret)}`,
+        'gi',
+      ),
+    });
+
+    if (tokenSecretUpdateNeeded) {
+      if (response != TotpCommandOutput.AskForSecret) {
+        throw `Unexpected response ${response}`;
+      }
+
+      response = await this.#executeCommand(`${tokenInfo.secret}\r`, {
+        signal: signal,
+        skipFirstLine: false,
+        trimEmptyLines: false,
+        trimTerminalControlCommands: false,
+      });
+    }
+
+    if (isNewToken && !response?.includes(TotpCommandOutput.TokenHasBeenSuccessfulyAdded)) {
+      throw `Unsuccessfull response ${response}`;
+    } else if (!isNewToken && !response?.includes(TotpCommandOutput.TokenHasBeenSuccessfulyUpdated)) {
+      throw `Unsuccessfull response ${response}`;
+    }
+  }
+
+  async removeToken(id: number, signal?: AbortSignal) {
+    let response = await this.#executeCommand(`${TotpCommand} rm ${id}\r`, {
+      signal: signal,
+      skipFirstLine: true,
+      trimCommandEndSignature: false,
+      trimEmptyLines: false,
+      trimTerminalControlCommands: false,
+      commandEndSign: new RegExp(
+        `${TotpCommandOutput.EndOfCommand}|${escapeStringRegexp(TotpCommandOutput.AskForYesNoConfirmation)}`,
+        'gi',
+      ),
+    });
+
+    if (!response?.endsWith(TotpCommandOutput.AskForYesNoConfirmation)) {
+      throw `Unexpected response ${response}`;
+    }
+
+    response = await this.#executeCommand('y', {
+      signal: signal,
+      skipFirstLine: false,
+      trimCommandEndSignature: true,
+    });
+
+    if (!response?.endsWith(TotpCommandOutput.TokenHasBeenSucecssfullyDeleted)) {
+      throw `Unsuccessfull response ${response}`;
+    }
   }
 
   async close() {

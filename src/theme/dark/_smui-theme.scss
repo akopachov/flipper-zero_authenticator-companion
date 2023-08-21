@@ -6,7 +6,7 @@
 @use '@material/theme/index' as theme with (
   $primary: #ff3e00,
   $secondary: color.scale(#676778, $whiteness: -10%),
-  $surface: color.adjust(color-palette.$grey-900, $blue: +4),
+  $surface: #2d3436,
   $background: #000,
   $error: color-palette.$red-700
 );
@@ -15,7 +15,7 @@
 
 html,
 body {
-  background-color: #000;
+  background-image: linear-gradient(to left top, #2f3640, #303742, #323944, #333a46, #353b48);
   color: theme.$on-surface;
 }
 
@@ -24,6 +24,10 @@ a {
 }
 a:visited {
   color: color.scale(#40b3ff, $lightness: -35%);
+}
+
+:root {
+  --preloader-background: rgba(0, 0, 0, 0.55)
 }
 
 @import "../typography";

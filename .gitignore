@@ -11,6 +11,5 @@ package
 !.env.example
 
 yarn-error.log
-pnpm-lock.yaml
 
 .DS_Store

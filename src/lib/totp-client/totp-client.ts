@@ -208,7 +208,7 @@ export class TotpAppClient extends EventEmitter {
   }
 
   async listTokens(signal?: AbortSignal) {
-    const response = await this.#executeCommand(`${TotpCommand} ls\r`, { signal: signal });
+    const response = await this.#executeCommand(`${TotpCommand} ls --tsv\r`, { signal: signal });
     if (!response) return [];
     return parseFromString(response).map(
       m =>

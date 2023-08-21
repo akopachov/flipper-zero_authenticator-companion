@@ -3,7 +3,6 @@ import { parse } from 'papaparse';
 export function parseFromString(input: string): { [key: string]: string }[] {
   const csvLike = input.replace(/^\+[-+]+\+\r?\n?$/gm, '').replace(/(^\|\s*)|(\s*\|$)/gm, '');
   return parse<{ [key: string]: string }>(csvLike, {
-    delimiter: '|',
     dynamicTyping: false,
     header: true,
     skipEmptyLines: true,

@@ -23,6 +23,12 @@
 	"browserslist": [
 		"Chrome 89"
 	],
+  "engines": {
+    "node": ">=18.17.1",
+    "pnpm": ">=8",
+    "npm": "please-use-pnpm",
+    "yarn": "please-use-pnpm"
+  },
 	"dependencies": {
 		"electron-reloader": "^1.2.3",
 		"electron-serve": "^1.1.0",

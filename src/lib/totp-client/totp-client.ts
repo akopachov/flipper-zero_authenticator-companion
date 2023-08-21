@@ -8,6 +8,7 @@ import delay from 'delay';
 import { TokenInfo, TokenInfoBase } from '../../models/token-info';
 import { tokenLengthFromNumber } from '../../models/token-length';
 import { tokenHashingAlgoFromString } from '../../models/token-hashing-algo';
+import { TokenAutomationFeature } from '../../models/token-automation-feature';
 
 const FlipperVendorId = '0483';
 const FlipperProductId = '5740';
@@ -222,11 +223,58 @@ export class TotpAppClient extends EventEmitter {
     );
   }
 
+  async getTokenDetails(id: number, signal?: AbortSignal) {
+    const response = await this.#executeCommand(`${TotpCommand} cat ${id} --tsv\r`, { signal: signal });
+    if (!response) {
+      throw 'Unexpected empty response';
+    }
+
+    const csvResponse = parseFromString(response);
+    const tokenInfo = new TokenInfo();
+    for (const row of csvResponse) {
+      const property = row['Property'];
+      const value = row['Value'];
+      switch (property) {
+        case 'Index':
+          tokenInfo.id = Number(value);
+          break;
+
+        case 'Name':
+          tokenInfo.name = value;
+          break;
+
+        case 'Hashing algorithm':
+          tokenInfo.hashingAlgo = tokenHashingAlgoFromString(value);
+          break;
+
+        case 'Number of digits':
+          tokenInfo.length = tokenLengthFromNumber(Number(value));
+          break;
+
+        case 'Token lifetime':
+          tokenInfo.duration = parseInt(value, 10);
+          break;
+
+        case '':
+        case 'Automation features':
+          if (value == 'Type <Enter> key at the end') {
+            tokenInfo.automationFeatures.push(TokenAutomationFeature.Enter);
+          } else if (value == 'Type <Tab> key at the end') {
+            tokenInfo.automationFeatures.push(TokenAutomationFeature.Tab);
+          } else if (value == 'Type slower') {
+            tokenInfo.automationFeatures.push(TokenAutomationFeature.Slower);
+          }
+      }
+    }
+
+    return tokenInfo;
+  }
+
   async updateToken(tokenInfo: TokenInfo, signal?: AbortSignal) {
     const isNewToken = tokenInfo.id <= 0;
     const tokenSecretUpdateNeeded = isNewToken || tokenInfo.secret;
-    const baseCommand = isNewToken ? 'add' : `update ${tokenInfo.id}`;
-    let fullCommand = `${TotpCommand} ${baseCommand} "${tokenInfo.name}" -a ${tokenInfo.hashingAlgo} -e ${tokenInfo.secretEncoding} -d ${tokenInfo.length} -l ${tokenInfo.duration}`;
+    const baseCommand = isNewToken ? `add "${tokenInfo.name}"` : `update ${tokenInfo.id} -n "${tokenInfo.name}"`;
+    let fullCommand = `${TotpCommand} ${baseCommand} -a ${tokenInfo.hashingAlgo} -e ${tokenInfo.secretEncoding} -d ${tokenInfo.length} -l ${tokenInfo.duration} -b none`;
     if (!isNewToken && tokenSecretUpdateNeeded) {
       fullCommand += ' -s';
     }
@@ -234,6 +282,7 @@ export class TotpAppClient extends EventEmitter {
     if (tokenInfo.automationFeatures.length > 0) {
       fullCommand += ' ' + tokenInfo.automationFeatures.map(f => `-b ${f}`).join(' ');
     }
+
     let response = await this.#executeCommand(`${fullCommand}\r`, {
       signal: signal,
       skipFirstLine: true,

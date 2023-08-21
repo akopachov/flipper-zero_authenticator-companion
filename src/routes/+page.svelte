@@ -9,6 +9,7 @@
   import type { TokenInfoBase } from '../models/token-info';
   import { GlobalCommonDialog } from '../stores/global-common-dialog';
   import { CommonSnackbarType, GlobalCommonSnackbar } from '../stores/global-common-snackbar';
+  import { goto } from '$app/navigation';
 
   let abortController = new AbortController();
   let totpList: TokenInfoBase[] | null = null;
@@ -60,6 +61,12 @@
     }
   }
 
+  async function onListItemUpdateClick() {
+    if (totpListCurrentItem) {
+      await goto(`/update/${totpListCurrentItem.id}`);
+    }
+  }
+
   onDestroy(() => abortController.abort());
   onMount(() => updateTokenList());
 </script>
@@ -90,7 +97,7 @@
   fixed={true}
   anchorCorner="BOTTOM_LEFT">
   <List>
-    <Item>
+    <Item on:click={onListItemUpdateClick}>
       <Graphic class="material-icons">edit</Graphic>
       <Text>Edit</Text>
     </Item>

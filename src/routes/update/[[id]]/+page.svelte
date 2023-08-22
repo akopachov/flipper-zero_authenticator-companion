@@ -4,8 +4,8 @@
   import Button, { Label as ButtonLabel } from '@smui/button';
   import Accordion, { Panel, Header, Content } from '@smui-extra/accordion';
   import Select, { Option } from '@smui/select';
-  import Checkbox from '@smui/checkbox';
-  import List, { Item, Graphic, Label as ListLabel } from '@smui/list';
+  import Switch from '@smui/switch';
+  import FormField from '@smui/form-field';
   import { Screenshots } from 'node-screenshots';
   import QrScanner from 'qr-scanner';
   import { GlobalPreloader } from '../../../stores/global-preloader';
@@ -176,16 +176,14 @@
         <Panel>
           <Header>Automation settings</Header>
           <Content>
-            <List checkList>
-              {#each availableTokenAutomationFeatures as [displayName, feature]}
-                <Item>
-                  <Graphic>
-                    <Checkbox bind:group={tokenInfo.automationFeatures} value={feature} />
-                  </Graphic>
-                  <ListLabel>{displayName}</ListLabel>
-                </Item>
-              {/each}
-            </List>
+            {#each availableTokenAutomationFeatures as [displayName, feature]}
+              <div>
+                <FormField>
+                  <Switch bind:group={tokenInfo.automationFeatures} value={feature} />
+                  <span slot="label">{displayName}</span>
+                </FormField>
+              </div>
+            {/each}
           </Content>
         </Panel>
       </Accordion>
@@ -216,6 +214,8 @@
 <style lang="scss">
   .container {
     display: flex;
+    height: max-content;
+    min-height: 100%;
 
     .input-type-container {
       margin: 0 auto;
@@ -241,9 +241,10 @@
       }
 
       .action-controls {
-        margin: 20px auto;
         display: flex;
         justify-content: center;
+        margin: 20px auto 0 auto;
+
         :global(.save) {
           margin-left: auto;
           margin-right: -70px;

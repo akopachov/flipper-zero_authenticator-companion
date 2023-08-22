@@ -3,7 +3,7 @@
   import '@fontsource/material-icons';
   import TopAppBar, { Row, Title, Section } from '@smui/top-app-bar';
   import Drawer, { Content, AppContent, Scrim } from '@smui/drawer';
-  import List, { Item, Graphic, Text } from '@smui/list';
+  import List, { Item, Graphic, Text, Separator } from '@smui/list';
   import IconButton from '@smui/icon-button';
   import { onMount } from 'svelte';
   import { SharedTotpAppClient } from '../stores/totp-shared-client';
@@ -71,7 +71,7 @@
 
 {#if ready}
   <div class="drawer-container">
-    <Drawer variant="modal" fixed={false} bind:open={isMenuOpen}>
+    <Drawer class="main-menu" variant="modal" fixed={false} bind:open={isMenuOpen}>
       <Content>
         <List>
           <Item
@@ -84,6 +84,14 @@
           <Item href="javascript:void(0)" on:click={() => activateMenuItem('/')} activated={activePath === '/'}>
             <Graphic class="material-icons" aria-hidden="true">list</Graphic>
             <Text>List</Text>
+          </Item>
+          <Separator />
+          <Item
+            href="javascript:void(0)"
+            on:click={() => activateMenuItem('/settings')}
+            activated={activePath === '/settings'}>
+            <Graphic class="material-icons" aria-hidden="true">settings</Graphic>
+            <Text>Settings</Text>
           </Item>
         </List>
       </Content>
@@ -119,6 +127,10 @@
     display: flex;
     height: 100%;
     width: 100%;
+
+    :global(.main-menu) {
+      width: 285px;
+    }
 
     :global(.app-content) {
       height: 100%;

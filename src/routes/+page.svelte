@@ -19,7 +19,7 @@
 
   async function updateTokenList() {
     try {
-      await $SharedTotpAppClient.syncTime(abortController.signal);
+      //await $SharedTotpAppClient.syncTime(abortController.signal);
       totpList = await $SharedTotpAppClient.listTokens(abortController.signal);
     } catch (e) {
       GlobalCommonSnackbar.show('An error occurred during querying token list', CommonSnackbarType.Error);

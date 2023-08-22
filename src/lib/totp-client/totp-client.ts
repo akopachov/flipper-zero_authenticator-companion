@@ -9,6 +9,7 @@ import { TokenInfo, TokenInfoBase } from '../../models/token-info';
 import { tokenLengthFromNumber } from '../../models/token-length';
 import { tokenHashingAlgoFromString } from '../../models/token-hashing-algo';
 import { TokenAutomationFeature } from '../../models/token-automation-feature';
+import type { DeviceAppSettings } from '../../models/device-app-settings';
 
 const FlipperVendorId = '0483';
 const FlipperProductId = '5740';
@@ -20,7 +21,6 @@ enum TotpCommandOutput {
   CommandCancelled = 'Cancelled by user',
   CommandNotFound = 'command not found',
   AskForSecret = 'Enter token secret and confirm with [ENTER]:',
-  AskForYesNoConfirmation = 'Confirm? [y/n]',
   TokenHasBeenSuccessfulyAdded = 'has been successfully added',
   TokenHasBeenSuccessfulyUpdated = 'has been successfully updated',
   TokenHasBeenSucecssfullyDeleted = 'has been successfully deleted',
@@ -316,26 +316,8 @@ export class TotpAppClient extends EventEmitter {
   }
 
   async removeToken(id: number, signal?: AbortSignal) {
-    let response = await this.#executeCommand(`${TotpCommand} rm ${id}\r`, {
+    const response = await this.#executeCommand(`${TotpCommand} rm ${id} -f\r`, {
       signal: signal,
-      skipFirstLine: true,
-      trimCommandEndSignature: false,
-      trimEmptyLines: false,
-      trimTerminalControlCommands: false,
-      commandEndSign: new RegExp(
-        `${TotpCommandOutput.EndOfCommand}|${escapeStringRegexp(TotpCommandOutput.AskForYesNoConfirmation)}`,
-        'gi',
-      ),
-    });
-
-    if (!response?.endsWith(TotpCommandOutput.AskForYesNoConfirmation)) {
-      throw `Unexpected response ${response}`;
-    }
-
-    response = await this.#executeCommand('y', {
-      signal: signal,
-      skipFirstLine: false,
-      trimCommandEndSignature: true,
     });
 
     if (!response?.endsWith(TotpCommandOutput.TokenHasBeenSucecssfullyDeleted)) {
@@ -343,15 +325,19 @@ export class TotpAppClient extends EventEmitter {
     }
   }
 
-  async syncTime(signal?: AbortSignal) {
-    const currentDate = new Date();
+  async setDeviceDatetime(date: Date, signal?: AbortSignal) {
     await this.#executeCommand(
-      `date ${currentDate.getFullYear()}-${
-        currentDate.getMonth() + 1
-      }-${currentDate.getDate()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()} ${currentDate.getDay()}\r`,
+      `date ${date.getFullYear()}-${
+        date.getMonth() + 1
+      }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} ${date.getDay()}\r`,
       { signal: signal },
     );
-    await this.#executeCommand(`${TotpCommand} tz ${-currentDate.getTimezoneOffset() / 60}\r`, { signal: signal });
+  }
+
+  async updateAppSettings(settings: DeviceAppSettings, signal?: AbortSignal) {
+    await this.#executeCommand(`${TotpCommand} tz ${settings.timezoneOffset}\r`, { signal: signal });
+    await this.#executeCommand(`${TotpCommand} notify ${settings.notification.join(' ')}\r`, { signal: signal });
+    await this.#executeCommand(`${TotpCommand} automation ${settings.automation.join(' ')}\r`, { signal: signal });
   }
 
   async close() {

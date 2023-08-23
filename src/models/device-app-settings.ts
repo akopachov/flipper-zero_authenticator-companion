@@ -10,8 +10,14 @@ export enum DeviceAppAutomation {
   Bluetooth = 'bt',
 }
 
+export enum DeviceAppAutomationKeyboardLayout {
+  QWERTY = 'qwerty',
+  AZERTY = 'azerty',
+}
+
 export class DeviceAppSettings {
   notification: DeviceAppNotification[] = [];
   automation: DeviceAppAutomation[] = [];
+  automationKeyboardLayout: DeviceAppAutomationKeyboardLayout = DeviceAppAutomationKeyboardLayout.QWERTY;
   timezoneOffset: number = 0;
 }

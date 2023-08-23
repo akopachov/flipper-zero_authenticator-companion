@@ -2,6 +2,7 @@ const windowStateManager = require('electron-window-state');
 const { app, BrowserWindow } = require('electron');
 const serve = require('electron-serve');
 const path = require('path');
+const Store = require('electron-store');
 
 try {
   require('electron-reloader')(module);
@@ -82,3 +83,5 @@ app.on('activate', () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+
+Store.initRenderer()

@@ -1,4 +1,4 @@
 export interface TimeProvider {
   name: string;
-  getCurrentTime(): Date;
+  getCurrentTime(signal?: AbortSignal): Promise<Date>;
 }

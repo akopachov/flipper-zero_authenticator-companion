@@ -15,6 +15,11 @@ const config = {
 		adapter: adapter({
 			fallback: 'index.html',
 		}),
+    alias: {
+      $components: "src/components",
+      $models: "src/models",
+      $stores: "src/stores"
+    },
 		prerender: {
 			crawl: false,
 			entries: []

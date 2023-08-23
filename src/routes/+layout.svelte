@@ -6,14 +6,14 @@
   import List, { Item, Graphic, Text, Separator } from '@smui/list';
   import IconButton from '@smui/icon-button';
   import { onMount } from 'svelte';
-  import { SharedTotpAppClient } from '../stores/totp-shared-client';
-  import { GlobalPreloader } from '../stores/global-preloader';
+  import { SharedTotpAppClient } from '$stores/totp-shared-client';
+  import { GlobalPreloader } from '$stores/global-preloader';
   import { goto } from '$app/navigation';
   import { navigating, page } from '$app/stores';
   import { TotpClientEvents } from '$lib/totp-client';
-  import CommonDialog from '$lib/common-dialog/common-dialog.svelte';
-  import CommonSnackbar from '$lib/common-snackbar/common-snackbar.svelte';
-  import CommonPreloader from '$lib/common-preloader/common-preloader.svelte';
+  import CommonDialog from '$components/common-dialog/common-dialog.svelte';
+  import CommonSnackbar from '$components/common-snackbar/common-snackbar.svelte';
+  import CommonPreloader from '$components/common-preloader/common-preloader.svelte';
 
   let ready = false;
   let isMenuOpen = false;
@@ -25,44 +25,36 @@
 
   $: {
     if ($navigating) {
+      isMenuOpen = false;
       activePath = $navigating.to?.url.pathname || '/';
     }
   }
 
   function closeTotpAppClient() {
-    $SharedTotpAppClient.close();
+    SharedTotpAppClient.close();
   }
 
-  async function addTokenClicked() {
-    await goto('/update');
-  }
-
-  async function activateMenuItem(route: string) {
-    isMenuOpen = false;
-    await goto(route);
-  }
-
-  $SharedTotpAppClient.on(TotpClientEvents.Connecting, () => {
+  SharedTotpAppClient.on(TotpClientEvents.Connecting, () => {
     GlobalPreloader.setDescription('Connecting to Flipper Zero device');
   });
 
-  $SharedTotpAppClient.on(TotpClientEvents.Connected, () => {
+  SharedTotpAppClient.on(TotpClientEvents.Connected, () => {
     GlobalPreloader.clearDescription();
   });
 
-  $SharedTotpAppClient.on(TotpClientEvents.CommandExecuting, () => {
+  SharedTotpAppClient.on(TotpClientEvents.CommandExecuting, () => {
     GlobalPreloader.show('Executing command on Flipper Zero device');
   });
 
-  $SharedTotpAppClient.on(TotpClientEvents.CommandExecuted, () => {
+  SharedTotpAppClient.on(TotpClientEvents.CommandExecuted, () => {
     GlobalPreloader.hide();
   });
 
-  $SharedTotpAppClient.on(TotpClientEvents.PinRequested, () => {
+  SharedTotpAppClient.on(TotpClientEvents.PinRequested, () => {
     GlobalPreloader.setDescription('PIN is requested on Flipper Zero device');
   });
 
-  $SharedTotpAppClient.on(TotpClientEvents.WaitForApp, () => {
+  SharedTotpAppClient.on(TotpClientEvents.WaitForApp, () => {
     GlobalPreloader.setDescription('Waiting for Authenticator app top be launched on Flipper Zero device');
   });
 </script>
@@ -75,21 +67,18 @@
       <Content>
         <List>
           <Item
-            href="javascript:void(0)"
-            on:click={() => activateMenuItem('/update')}
-            activated={activePath === '/update'}>
+            href="/update"
+            activated={activePath === '/update'}
+            data-sveltekit-reload={activePath.startsWith('/update/')}>
             <Graphic class="material-icons" aria-hidden="true">add</Graphic>
             <Text>Add new token</Text>
           </Item>
-          <Item href="javascript:void(0)" on:click={() => activateMenuItem('/')} activated={activePath === '/'}>
+          <Item href="/" activated={activePath === '/'}>
             <Graphic class="material-icons" aria-hidden="true">list</Graphic>
             <Text>List</Text>
           </Item>
           <Separator />
-          <Item
-            href="javascript:void(0)"
-            on:click={() => activateMenuItem('/settings')}
-            activated={activePath === '/settings'}>
+          <Item href="/settings" activated={activePath === '/settings'}>
             <Graphic class="material-icons" aria-hidden="true">settings</Graphic>
             <Text>Settings</Text>
           </Item>
@@ -105,7 +94,11 @@
             <Title>Flipper Authenticator Companion</Title>
           </Section>
           <Section align="end" toolbar>
-            <IconButton class="material-icons" aria-label="Add" on:click={async () => await addTokenClicked()}>
+            <IconButton
+              class="material-icons"
+              aria-label="Add"
+              href="/update"
+              data-sveltekit-reload={activePath.startsWith('/update/')}>
               add
             </IconButton>
           </Section>

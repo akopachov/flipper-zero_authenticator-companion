@@ -28,7 +28,13 @@
 		"paths": {
 			"$lib": ["src/lib"],
 			"$lib/*": ["src/lib/*"],
-			"$app/*": [".svelte/dev/runtime/app/*", ".svelte/build/runtime/app/*"]
+			"$app/*": [".svelte/dev/runtime/app/*", ".svelte/build/runtime/app/*"],
+      "$stores": ["src/stores"],
+      "$stores/*": ["src/stores/*"],
+      "$models": ["src/models"],
+      "$models/*": ["src/models/*"],
+      "$components": ["src/components"],
+      "$components/*": ["src/components/*"],
 		},
     "resolveJsonModule": true,
     "noImplicitAny": false

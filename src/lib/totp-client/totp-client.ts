@@ -9,7 +9,7 @@ import { TokenInfo, TokenInfoBase } from '../../models/token-info';
 import { tokenLengthFromNumber } from '../../models/token-length';
 import { tokenHashingAlgoFromString } from '../../models/token-hashing-algo';
 import { TokenAutomationFeature } from '../../models/token-automation-feature';
-import type { DeviceAppSettings } from '../../models/device-app-settings';
+import { DeviceAppAutomation, DeviceAppAutomationKeyboardLayout, DeviceAppNotification, DeviceAppSettings } from '../../models/device-app-settings';
 
 const FlipperVendorId = '0483';
 const FlipperProductId = '5740';
@@ -24,6 +24,9 @@ enum TotpCommandOutput {
   TokenHasBeenSuccessfulyAdded = 'has been successfully added',
   TokenHasBeenSuccessfulyUpdated = 'has been successfully updated',
   TokenHasBeenSucecssfullyDeleted = 'has been successfully deleted',
+  CurrentTimezoneOffset = 'Current timezone offset is',
+  CurrentNotifyMethod = 'Current notification method is',
+  CurrentAutomationMethod = 'Current automation method is',
 }
 
 export enum TotpClientEvents {
@@ -81,7 +84,7 @@ export class TotpAppClient extends EventEmitter {
       let serialPort: SerialPortAsync | null = null;
 
       do {
-        if (signal?.aborted) break;
+        signal?.throwIfAborted();
         this.emit(TotpClientEvents.Connecting, this);
         const flipperZeroDevice = await waitForFlipperZeroDevice();
         serialPort = new SerialPortAsync({ path: flipperZeroDevice.path, baudRate: 115200, autoOpen: false });
@@ -109,17 +112,13 @@ export class TotpAppClient extends EventEmitter {
         signal.throwIfAborted();
       }
 
-      if (serialPort) {
-        serialPort.on('close', () => {
-          this.#serialPort = null;
-        });
-        this.emit(TotpClientEvents.Connected, this);
-      }
+      serialPort.on('close', () => {
+        this.#serialPort = null;
+      });
+      this.emit(TotpClientEvents.Connected, this);
 
       this.#serialPort = serialPort;
     }
-
-    if (!this.#serialPort) throw 'Shutup TypeScript! This will never happen';
 
     return this.#serialPort;
   }
@@ -226,7 +225,7 @@ export class TotpAppClient extends EventEmitter {
   async getTokenDetails(id: number, signal?: AbortSignal) {
     const response = await this.#executeCommand(`${TotpCommand} cat ${id} --tsv\r`, { signal: signal });
     if (!response) {
-      throw 'Unexpected empty response';
+      throw new Error('Unexpected empty response');
     }
 
     const csvResponse = parseFromString(response);
@@ -297,7 +296,7 @@ export class TotpAppClient extends EventEmitter {
 
     if (tokenSecretUpdateNeeded) {
       if (response != TotpCommandOutput.AskForSecret) {
-        throw `Unexpected response ${response}`;
+        throw new Error(`Unexpected response ${response}`);
       }
 
       response = await this.#executeCommand(`${tokenInfo.secret}\r`, {
@@ -309,9 +308,9 @@ export class TotpAppClient extends EventEmitter {
     }
 
     if (isNewToken && !response?.includes(TotpCommandOutput.TokenHasBeenSuccessfulyAdded)) {
-      throw `Unsuccessfull response ${response}`;
+      throw new Error(`Unsuccessfull response ${response}`);
     } else if (!isNewToken && !response?.includes(TotpCommandOutput.TokenHasBeenSuccessfulyUpdated)) {
-      throw `Unsuccessfull response ${response}`;
+      throw new Error(`Unsuccessfull response ${response}`);
     }
   }
 
@@ -321,7 +320,7 @@ export class TotpAppClient extends EventEmitter {
     });
 
     if (!response?.endsWith(TotpCommandOutput.TokenHasBeenSucecssfullyDeleted)) {
-      throw `Unsuccessfull response ${response}`;
+      throw new Error(`Unsuccessfull response ${response}`);
     }
   }
 
@@ -334,10 +333,91 @@ export class TotpAppClient extends EventEmitter {
     );
   }
 
+  async getAppSettings(signal?: AbortSignal) {
+    const settings = new DeviceAppSettings();
+    const tzCommandResponse = await this.#executeCommand(`${TotpCommand} tz\r`, { signal: signal });
+    let tzParsed = false;
+    if (tzCommandResponse) {
+      const tzRegex = new RegExp(
+        `${escapeStringRegexp(TotpCommandOutput.CurrentTimezoneOffset)}\\s+(-?\\d+(\\.\\d+)?)`,
+        'gi',
+      );
+      const tzExecResult = tzRegex.exec(tzCommandResponse);
+      if (tzExecResult && tzExecResult.length > 0) {
+        settings.timezoneOffset = Number(tzExecResult[1]);
+        tzParsed = true;
+      }
+    }
+
+    if (!tzParsed) {
+      throw new Error(`Unable to get timezone setting from device given response ${tzCommandResponse}`);
+    }
+
+    const notifyCommandResponse = await this.#executeCommand(`${TotpCommand} notify\r`, { signal: signal });
+    let notifySettingsParsed = false;
+    if (notifyCommandResponse) {
+      const notifyRegex = new RegExp(
+        `${escapeStringRegexp(TotpCommandOutput.CurrentNotifyMethod)}\\s+(.+?)(\\r|\\n|$)`,
+        'gi',
+      );
+      const notifyExecResult = notifyRegex.exec(notifyCommandResponse);
+      if (notifyExecResult && notifyExecResult.length > 0) {
+        notifySettingsParsed = true;
+        if (notifyExecResult[1].includes(`"${DeviceAppNotification.Sound}"`)) {
+          settings.notification.push(DeviceAppNotification.Sound);
+        }
+
+        if (notifyExecResult[1].includes(`"${DeviceAppNotification.Vibro}"`)) {
+          settings.notification.push(DeviceAppNotification.Vibro);
+        }
+      }
+    }
+
+    if (!notifySettingsParsed) {
+      throw new Error(`Unable to get notification setting from device given response ${notifyCommandResponse}`);
+    }
+
+    const automationCommandResponse = await this.#executeCommand(`${TotpCommand} automation\r`, { signal: signal });
+    let automationSettingsParsed = false;
+    if (automationCommandResponse) {
+      const automationRegex = new RegExp(
+        `${escapeStringRegexp(TotpCommandOutput.CurrentAutomationMethod)}\\s+(.+?)(\\r|\\n|$)`,
+        'gi',
+      );
+      const automationExecResult = automationRegex.exec(automationCommandResponse);
+      if (automationExecResult && automationExecResult.length > 0) {
+        automationSettingsParsed = true;
+        if (automationExecResult[1].includes(`"${DeviceAppAutomation.USB}"`)) {
+          settings.automation.push(DeviceAppAutomation.USB);
+        }
+
+        if (automationExecResult[1].includes(`"${DeviceAppAutomation.Bluetooth}"`)) {
+          settings.automation.push(DeviceAppAutomation.Bluetooth);
+        }
+
+        if (automationExecResult[1].includes(`(${DeviceAppAutomationKeyboardLayout.QWERTY})`)) {
+          settings.automationKeyboardLayout = DeviceAppAutomationKeyboardLayout.QWERTY;
+        } else if (automationExecResult[1].includes(`(${DeviceAppAutomationKeyboardLayout.AZERTY})`)) {
+          settings.automationKeyboardLayout = DeviceAppAutomationKeyboardLayout.AZERTY;
+        }
+      }
+    }
+
+    if (!automationSettingsParsed) {
+      throw new Error(`Unable to get automation setting from device given response ${automationCommandResponse}`);
+    }
+
+    return settings;
+  }
+
   async updateAppSettings(settings: DeviceAppSettings, signal?: AbortSignal) {
     await this.#executeCommand(`${TotpCommand} tz ${settings.timezoneOffset}\r`, { signal: signal });
-    await this.#executeCommand(`${TotpCommand} notify ${settings.notification.join(' ')}\r`, { signal: signal });
-    await this.#executeCommand(`${TotpCommand} automation ${settings.automation.join(' ')}\r`, { signal: signal });
+    const notifyArg = settings.notification.length > 0 ? settings.notification.join(' ') : DeviceAppNotification.None;
+    await this.#executeCommand(`${TotpCommand} notify ${notifyArg}\r`, { signal: signal });
+    const automationArg = settings.automation.length > 0 ? settings.automation.join(' ') : DeviceAppAutomation.None;
+    await this.#executeCommand(`${TotpCommand} automation ${automationArg} -k ${settings.automationKeyboardLayout}\r`, {
+      signal: signal,
+    });
   }
 
   async close() {

@@ -6,9 +6,9 @@
   import IconButton from '@smui/icon-button';
   import { onDestroy, onMount } from 'svelte';
   import delay from 'delay';
-  import type { TokenInfoBase } from '../models/token-info';
-  import { GlobalCommonDialog } from '../stores/global-common-dialog';
-  import { CommonSnackbarType, GlobalCommonSnackbar } from '../stores/global-common-snackbar';
+  import type { TokenInfoBase } from '$models/token-info';
+  import { GlobalCommonDialog } from '$stores/global-common-dialog';
+  import { CommonSnackbarType, GlobalCommonSnackbar } from '$stores/global-common-snackbar';
   import { goto } from '$app/navigation';
 
   let abortController = new AbortController();
@@ -19,8 +19,7 @@
 
   async function updateTokenList() {
     try {
-      //await $SharedTotpAppClient.syncTime(abortController.signal);
-      totpList = await $SharedTotpAppClient.listTokens(abortController.signal);
+      totpList = await SharedTotpAppClient.listTokens(abortController.signal);
     } catch (e) {
       GlobalCommonSnackbar.show('An error occurred during querying token list', CommonSnackbarType.Error);
       console.error(e);
@@ -53,7 +52,7 @@
       );
       if (actionResult == confirmDeleteActionResult) {
         try {
-          await $SharedTotpAppClient.removeToken(totpListCurrentItem.id, abortController.signal);
+          await SharedTotpAppClient.removeToken(totpListCurrentItem.id, abortController.signal);
           await updateTokenList();
           GlobalCommonSnackbar.show(
             `Token ${totpListCurrentItem.name} has been successfully removed`,
@@ -64,12 +63,6 @@
           console.error(e);
         }
       }
-    }
-  }
-
-  async function onListItemUpdateClick() {
-    if (totpListCurrentItem) {
-      await goto(`/update/${totpListCurrentItem.id}`);
     }
   }
 
@@ -102,17 +95,19 @@
   bind:anchorElement={totpListItemMenuAnchorEl}
   fixed={true}
   anchorCorner="BOTTOM_LEFT">
-  <List>
-    <Item on:click={onListItemUpdateClick}>
-      <Graphic class="material-icons">edit</Graphic>
-      <Text>Edit</Text>
-    </Item>
-    <Separator />
-    <Item on:click={onListItemDeleteClick}>
-      <Graphic class="material-icons">delete</Graphic>
-      <Text>Delete</Text>
-    </Item>
-  </List>
+  {#if totpListCurrentItem}
+    <List>
+      <Item tag="a" href="/update/{totpListCurrentItem.id}">
+        <Graphic class="material-icons">edit</Graphic>
+        <Text>Edit</Text>
+      </Item>
+      <Separator />
+      <Item on:click={onListItemDeleteClick}>
+        <Graphic class="material-icons">delete</Graphic>
+        <Text>Delete</Text>
+      </Item>
+    </List>
+  {/if}
 </Menu>
 
 <style>

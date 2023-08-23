@@ -8,18 +8,19 @@
   import FormField from '@smui/form-field';
   import { Screenshots } from 'node-screenshots';
   import QrScanner from 'qr-scanner';
-  import { GlobalPreloader } from '../../../stores/global-preloader';
+  import { GlobalPreloader } from '$stores/global-preloader';
   import { onDestroy, onMount } from 'svelte';
-  import { TokenInfo } from '../../../models/token-info';
-  import { TokenHashingAlgo, tokenHashingAlgoFromString } from '../../../models/token-hashing-algo';
-  import { TokenLength, tokenLengthFromNumber } from '../../../models/token-length';
-  import { TokenSecretEncoding } from '../../../models/token-secret-encoding';
-  import { TokenAutomationFeature } from '../../../models/token-automation-feature';
+  import { TokenInfo } from '$models/token-info';
+  import { TokenHashingAlgo, tokenHashingAlgoFromString } from '$models/token-hashing-algo';
+  import { TokenLength, tokenLengthFromNumber } from '$models/token-length';
+  import { TokenSecretEncoding } from '$models/token-secret-encoding';
+  import { TokenAutomationFeature } from '$models/token-automation-feature';
   import { goto } from '$app/navigation';
   import { parse } from 'url-otpauth-ng';
-  import { SharedTotpAppClient } from '../../../stores/totp-shared-client';
-  import { CommonSnackbarType, GlobalCommonSnackbar } from '../../../stores/global-common-snackbar';
+  import { SharedTotpAppClient } from '$stores/totp-shared-client';
+  import { CommonSnackbarType, GlobalCommonSnackbar } from '$stores/global-common-snackbar';
   import { page } from '$app/stores';
+  import { blur, slide } from 'svelte/transition';
 
   let abortController = new AbortController();
   let scannedData: string | null = null;
@@ -85,32 +86,23 @@
     tokenInfo = new TokenInfo();
   }
 
-  async function onSaveTokenClicked() {
-    let done = false;
+  async function saveToken() {
     if (tokenInfo) {
       try {
-        await $SharedTotpAppClient.updateToken(tokenInfo, abortController.signal);
-        done = true;
+        await SharedTotpAppClient.updateToken(tokenInfo, abortController.signal);
+        await goto('/');
+        GlobalCommonSnackbar.show(`Token ${tokenInfo.name} has been successfully added`, CommonSnackbarType.Success);
       } catch (e) {
         GlobalCommonSnackbar.show('An error occurred during token saving', CommonSnackbarType.Error);
         console.error(e);
       }
     }
-
-    if (tokenInfo && done) {
-      await goto('/');
-      GlobalCommonSnackbar.show(`Token ${tokenInfo.name} has been successfully added`, CommonSnackbarType.Success);
-    }
-  }
-
-  async function onCancelClicked() {
-    await goto('/');
   }
 
   async function loadTokenInfoIfEdit() {
     if ($page.params.id) {
       try {
-        tokenInfo = await $SharedTotpAppClient.getTokenDetails(Number($page.params.id), abortController.signal);
+        tokenInfo = await SharedTotpAppClient.getTokenDetails(Number($page.params.id), abortController.signal);
       } catch (e) {
         console.error(e);
         await goto('/');
@@ -125,7 +117,7 @@
 
 <div class="container">
   {#if tokenInfo}
-    <form class="token-info-form" on:submit={onSaveTokenClicked}>
+    <form class="token-info-form" on:submit={saveToken} transition:blur>
       <Textfield class="input-element" label="Name" type="text" variant="outlined" required bind:value={tokenInfo.name}
       ></Textfield>
       <Textfield
@@ -191,7 +183,7 @@
         <Button class="save" variant="unelevated" type="submit">
           <ButtonLabel>Save</ButtonLabel>
         </Button>
-        <Button class="cancel" type="reset" on:click={onCancelClicked}>
+        <Button class="cancel" type="reset" href="/">
           <ButtonLabel>Cancel</ButtonLabel>
         </Button>
       </div>

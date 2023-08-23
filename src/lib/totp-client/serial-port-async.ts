@@ -115,7 +115,7 @@ export class SerialPortAsync extends SerialPort {
     options.signal?.throwIfAborted();
 
     if (timeoutExpired) {
-      throw 'Timeout expired';
+      throw new Error('Timeout expired');
     }
 
     return result;

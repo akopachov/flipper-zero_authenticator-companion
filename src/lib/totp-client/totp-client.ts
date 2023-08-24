@@ -9,7 +9,12 @@ import { TokenInfo, TokenInfoBase } from '../../models/token-info';
 import { tokenLengthFromNumber } from '../../models/token-length';
 import { tokenHashingAlgoFromString } from '../../models/token-hashing-algo';
 import { TokenAutomationFeature } from '../../models/token-automation-feature';
-import { DeviceAppAutomation, DeviceAppAutomationKeyboardLayout, DeviceAppNotification, DeviceAppSettings } from '../../models/device-app-settings';
+import {
+  DeviceAppAutomation,
+  DeviceAppAutomationKeyboardLayout,
+  DeviceAppNotification,
+  DeviceAppSettings,
+} from '../../models/device-app-settings';
 
 const FlipperVendorId = '0483';
 const FlipperProductId = '5740';
@@ -123,7 +128,7 @@ export class TotpAppClient extends EventEmitter {
     return this.#serialPort;
   }
 
-  async #_executeCommand(command: string, options: Partial<ExecuteCommandOptions> = {}) {
+  async #_executeCommand(command: string, options: Partial<ExecuteCommandOptions>) {
     const opts: ExecuteCommandOptions = Object.assign({}, ExecuteCommandDefaultOptions, options);
     let commandFound = false;
     let response;
@@ -320,6 +325,16 @@ export class TotpAppClient extends EventEmitter {
     });
 
     if (!response?.endsWith(TotpCommandOutput.TokenHasBeenSucecssfullyDeleted)) {
+      throw new Error(`Unsuccessfull response ${response}`);
+    }
+  }
+
+  async moveToken(fromId: number, toId: number, signal?: AbortSignal) {
+    const response = await this.#executeCommand(`${TotpCommand} mv ${fromId} ${toId}\r`, {
+      signal: signal,
+    });
+
+    if (!response?.endsWith(TotpCommandOutput.TokenHasBeenSuccessfulyUpdated)) {
       throw new Error(`Unsuccessfull response ${response}`);
     }
   }

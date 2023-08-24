@@ -20,7 +20,7 @@
   import { SharedTotpAppClient } from '$stores/totp-shared-client';
   import { CommonSnackbarType, GlobalCommonSnackbar } from '$stores/global-common-snackbar';
   import { page } from '$app/stores';
-  import { blur, slide } from 'svelte/transition';
+  import { blur } from 'svelte/transition';
 
   let abortController = new AbortController();
   let scannedData: string | null = null;

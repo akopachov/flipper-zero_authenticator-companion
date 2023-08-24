@@ -1,15 +1,13 @@
 <script lang="ts">
   import { SharedTotpAppClient } from '../stores/totp-shared-client';
-  import { findIcon } from '$lib/totp-icons';
-  import List, { Graphic, Item, Meta, PrimaryText, SecondaryText, Text, Separator } from '@smui/list';
+  import List, { Graphic, Item, Text, Separator } from '@smui/list';
   import Menu from '@smui/menu';
-  import IconButton from '@smui/icon-button';
   import { onDestroy, onMount } from 'svelte';
   import delay from 'delay';
   import type { TokenInfoBase } from '$models/token-info';
   import { GlobalCommonDialog } from '$stores/global-common-dialog';
   import { CommonSnackbarType, GlobalCommonSnackbar } from '$stores/global-common-snackbar';
-  import { goto } from '$app/navigation';
+  import TotpList from '$components/totp-list/totp-list.svelte';
 
   let abortController = new AbortController();
   let totpList: TokenInfoBase[] | null = null;
@@ -26,16 +24,12 @@
     }
   }
 
-  function getIcon(name: string) {
-    const iconFileName = findIcon(name) || 'Key.svg';
-    return `./totp-icons/${iconFileName}`;
-  }
-
-  async function onTotpListItemMenuClicked(event: CustomEvent, currentItem: TokenInfoBase) {
+  async function onTotpListItemMenuClicked(e: CustomEvent<{ element: Element; token: TokenInfoBase }>) {
+    const { token, element } = e.detail;
     totpListItemMenu.setOpen(false);
     await delay(90);
-    totpListCurrentItem = currentItem;
-    totpListItemMenuAnchorEl = event.target as Element;
+    totpListCurrentItem = token;
+    totpListItemMenuAnchorEl = element;
     totpListItemMenu.setOpen(true);
   }
 
@@ -66,32 +60,29 @@
     }
   }
 
+  async function moveToken(e: CustomEvent<{ from: number; to: number }>) {
+    const { from, to } = e.detail;
+    if (totpList && from != to) {
+      try {
+        await SharedTotpAppClient.moveToken(totpList[from].id, totpList[to].id, abortController.signal);
+      } catch (e) {
+        GlobalCommonSnackbar.show('An error occurred during token movement', CommonSnackbarType.Error);
+        console.error(e);
+      }
+      await updateTokenList();
+    }
+  }
+
   onDestroy(() => abortController.abort());
   onMount(() => updateTokenList());
 </script>
 
 {#if totpList}
-  <List twoLine avatarList nonInteractive>
-    {#each totpList as item}
-      <Item>
-        <Graphic>
-          <img src={getIcon(item.name)} alt="icon" />
-        </Graphic>
-        <Text>
-          <PrimaryText>{item.name}</PrimaryText>
-          <SecondaryText>{item.hashingAlgo}</SecondaryText>
-        </Text>
-        <Meta>
-          <IconButton class="material-icons" on:click={e => onTotpListItemMenuClicked(e, item)}>more_vert</IconButton>
-        </Meta>
-      </Item>
-    {/each}
-  </List>
+  <TotpList list={totpList} on:tokenmenu={e => onTotpListItemMenuClicked(e)} on:move={e => moveToken(e)} />
 {/if}
 
 <Menu
   bind:this={totpListItemMenu}
-  anchor={true}
   bind:anchorElement={totpListItemMenuAnchorEl}
   fixed={true}
   anchorCorner="BOTTOM_LEFT">
@@ -109,6 +100,3 @@
     </List>
   {/if}
 </Menu>
-
-<style>
-</style>

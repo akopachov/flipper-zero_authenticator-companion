@@ -79,6 +79,9 @@ devDependencies:
   '@sveltejs/kit':
     specifier: 1.22.6
     version: 1.22.6(svelte@4.2.0)(vite@4.4.9)
+  '@types/lodash-es':
+    specifier: ^4.17.8
+    version: 4.17.8
   '@types/node':
     specifier: ^20.5.2
     version: 20.5.2
@@ -139,6 +142,9 @@ devDependencies:
   eslint-plugin-svelte:
     specifier: ^2.33.0
     version: 2.33.0(eslint@8.47.0)(svelte@4.2.0)
+  lodash-es:
+    specifier: ^4.17.21
+    version: 4.17.21
   node-screenshots:
     specifier: ^0.1.6
     version: 0.1.6
@@ -178,6 +184,9 @@ devDependencies:
   svelte-check:
     specifier: ^3.5.0
     version: 3.5.0(postcss@8.4.28)(sass@1.66.1)(svelte@4.2.0)
+  svelte-dnd-action:
+    specifier: ^0.9.26
+    version: 0.9.26(svelte@4.2.0)
   svelte-preprocess:
     specifier: ^5.0.4
     version: 5.0.4(postcss@8.4.28)(sass@1.66.1)(svelte@4.2.0)(typescript@5.1.6)
@@ -1631,6 +1640,16 @@ packages:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
       '@types/node': 20.5.2
+    dev: true
+
+  /@types/lodash-es@4.17.8:
+    resolution: {integrity: sha512-euY3XQcZmIzSy7YH5+Unb3b2X12Wtk54YWINBvvGQ5SmMvwb11JQskGsfkH/5HXK77Kr8GF0wkVDIxzAisWtog==}
+    dependencies:
+      '@types/lodash': 4.14.197
+    dev: true
+
+  /@types/lodash@4.14.197:
+    resolution: {integrity: sha512-BMVOiWs0uNxHVlHBgzTIqJYmj+PgCo4euloGF+5m4okL3rEYzM2EEv78mw8zWSMM57dM7kVIgJ2QDvwHSoCI5g==}
     dev: true
 
   /@types/ms@0.7.31:
@@ -3729,6 +3748,10 @@ packages:
     dependencies:
       p-locate: 5.0.0
 
+  /lodash-es@4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+    dev: true
+
   /lodash.escaperegexp@4.1.2:
     resolution: {integrity: sha512-TM9YBvyC84ZxE3rgfefxUWiQKLilstD6k7PTGt6wfbtXF8ixIJLOL3VYyV/z+ZiPLsVxAsKAFVwWlWeb2Y8Yyw==}
     dev: true
@@ -4942,6 +4965,14 @@ packages:
       - sass
       - stylus
       - sugarss
+    dev: true
+
+  /svelte-dnd-action@0.9.26(svelte@4.2.0):
+    resolution: {integrity: sha512-tTRiURPX4SHM3NDcnHniMu3LeLVWhfajgODZLmukBuBWpMmMHskLlCjEZGc91bzqaHr95agWWuvcpoSMmLbbRg==}
+    peerDependencies:
+      svelte: '>=3.23.0'
+    dependencies:
+      svelte: 4.2.0
     dev: true
 
   /svelte-eslint-parser@0.33.0(svelte@4.2.0):

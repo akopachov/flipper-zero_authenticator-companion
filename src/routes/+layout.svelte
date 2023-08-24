@@ -8,7 +8,6 @@
   import { onMount } from 'svelte';
   import { SharedTotpAppClient } from '$stores/totp-shared-client';
   import { GlobalPreloader } from '$stores/global-preloader';
-  import { goto } from '$app/navigation';
   import { navigating, page } from '$app/stores';
   import { TotpClientEvents } from '$lib/totp-client';
   import CommonDialog from '$components/common-dialog/common-dialog.svelte';

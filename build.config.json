@@ -1,9 +1,10 @@
 {
-	"appId": "com.example.app",
+	"appId": "com.flipper.authenticator.companion.app",
 	"productName": "Flipper Authenticator Companion",
 	"directories": {
 		"output": "dist"
 	},
+  "asar": true,
 	"files": [
 		"src/electron.cjs",
 		"src/preload.cjs",
@@ -11,5 +12,10 @@
 			"from": "build",
 			"to": ""
 		}
-	]
+	],
+  "nsis": {
+    "oneClick": false,
+    "deleteAppDataOnUninstall": true,
+    "allowToChangeInstallationDirectory": true
+  }
 }

@@ -29,8 +29,8 @@
     }
   }
 
-  function closeTotpAppClient() {
-    SharedTotpAppClient.close();
+  async function closeTotpAppClient() {
+    await SharedTotpAppClient.close();
   }
 
   SharedTotpAppClient.on(TotpClientEvents.Connecting, () => {

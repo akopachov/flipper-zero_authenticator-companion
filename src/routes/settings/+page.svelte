@@ -6,6 +6,7 @@
   import FormField from '@smui/form-field';
   import Paper, { Title, Content } from '@smui/paper';
   import Select, { Option } from '@smui/select';
+  import Tooltip, { Wrapper } from '@smui/tooltip';
   import {
     DeviceAppSettings,
     DeviceAppNotification,
@@ -97,12 +98,18 @@
                 <Option value={utcOffset.minutes / 60}>{utcOffset.offset}</Option>
               {/each}
             </Select>
-            <IconButton class="sync-from-local" on:click={syncTimezoneFromLocal} type="button">
-              <IconButtonIcon class="material-icons">sync</IconButtonIcon>
-            </IconButton>
-            <IconButton class="sync-from-local" on:click={syncTimezoneFromCloud} type="button">
-              <IconButtonIcon class="material-icons">cloud_sync</IconButtonIcon>
-            </IconButton>
+            <Wrapper>
+              <IconButton class="sync-from-local" on:click={syncTimezoneFromLocal} type="button">
+                <IconButtonIcon class="material-icons">sync</IconButtonIcon>
+              </IconButton>
+              <Tooltip>Get from local machine</Tooltip>
+            </Wrapper>
+            <Wrapper>
+              <IconButton class="sync-from-local" on:click={syncTimezoneFromCloud} type="button">
+                <IconButtonIcon class="material-icons">cloud_sync</IconButtonIcon>
+              </IconButton>
+              <Tooltip>Get from cloud</Tooltip>
+            </Wrapper>
           </div>
         </Content>
       </Paper>

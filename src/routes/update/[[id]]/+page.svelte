@@ -42,6 +42,7 @@
 
   async function onScanQrCodeClicked() {
     GlobalPreloader.show('Looking for QR code');
+    // https://gist.github.com/kcramer/c6148fb906e116d84e4bde7b2ab56992
     scannedData = null;
     tokenInfo = null;
     for (const capture of Screenshots.all()) {

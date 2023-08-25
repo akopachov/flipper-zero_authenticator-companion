@@ -43,6 +43,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     needs: set-new-version
+
+    env:
+      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     
     steps:
       - uses: actions/checkout@v3

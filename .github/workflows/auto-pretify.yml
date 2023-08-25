@@ -1,4 +1,4 @@
-name: Auto CLang format
+name: Auto Pretify code
 
 on:
   pull_request:

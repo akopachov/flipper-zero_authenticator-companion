@@ -40,6 +40,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: set-new-version
     steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: "${{needs.set-new-version.outputs.commit_hash}}"
+          fetch-depth: 0
+
       - uses: ncipollo/release-action@v1.12.0
         with:
           bodyFile: ".github/release-body.md"
@@ -67,7 +72,6 @@ jobs:
         with:
           ref: "${{needs.set-new-version.outputs.commit_hash}}"
           fetch-depth: 0
-          submodules: 'recursive'
 
       - name: Install Node.js
         uses: actions/setup-node@v3

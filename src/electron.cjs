@@ -38,7 +38,7 @@ function createWindow() {
     y: windowState.y,
     width: windowState.width,
     height: windowState.height,
-    icon: path.join(__dirname, '../static/favicon.png'),
+    icon: path.join(__dirname, '../static/icon.png'),
   });
 
   windowState.manage(mainWindow);

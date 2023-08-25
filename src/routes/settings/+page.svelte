@@ -1,4 +1,5 @@
 <script lang="ts">
+  import log from 'electron-log';
   import SegmentedButton, { Segment, Label } from '@smui/segmented-button';
   import IconButton, { Icon as IconButtonIcon } from '@smui/icon-button';
   import Button, { Label as ButtonLabel } from '@smui/button';
@@ -49,7 +50,7 @@
       GlobalCommonSnackbar.show('Settings have been successfully updated', CommonSnackbarType.Success);
     } catch (e) {
       GlobalCommonSnackbar.show('An error occurred during updating settings', CommonSnackbarType.Error);
-      console.error(e);
+      log.error(e);
     }
   }
 

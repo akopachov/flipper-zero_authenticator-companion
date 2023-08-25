@@ -1,4 +1,5 @@
 <script lang="ts">
+  import log from 'electron-log';
   import { SharedTotpAppClient } from '../stores/totp-shared-client';
   import List, { Graphic, Item, Text, Separator } from '@smui/list';
   import Menu from '@smui/menu';
@@ -20,7 +21,7 @@
       totpList = await SharedTotpAppClient.listTokens(abortController.signal);
     } catch (e) {
       GlobalCommonSnackbar.show('An error occurred during querying token list', CommonSnackbarType.Error);
-      console.error(e);
+      log.error(e);
     }
   }
 
@@ -54,7 +55,7 @@
           );
         } catch (e) {
           GlobalCommonSnackbar.show('An error occurred during token removal', CommonSnackbarType.Error);
-          console.error(e);
+          log.error(e);
         }
       }
     }
@@ -67,7 +68,7 @@
         await SharedTotpAppClient.moveToken(totpList[from].id, totpList[to].id, abortController.signal);
       } catch (e) {
         GlobalCommonSnackbar.show('An error occurred during token movement', CommonSnackbarType.Error);
-        console.error(e);
+        log.error(e);
       }
       await updateTokenList();
     }

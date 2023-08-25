@@ -3,11 +3,12 @@ const { app, BrowserWindow } = require('electron');
 const serve = require('electron-serve');
 const path = require('path');
 const Store = require('electron-store');
+const log = require('electron-log');
 
 try {
   require('electron-reloader')(module);
 } catch (e) {
-  console.error(e);
+  log.error(e);
 }
 
 const serveURL = serve({ directory: '.' });
@@ -57,7 +58,7 @@ function createWindow() {
 
 function loadVite(port) {
   mainWindow.loadURL(`http://localhost:${port}`).catch(e => {
-    console.log('Error loading URL, retrying', e);
+    log.log('Error loading URL, retrying', e);
     setTimeout(() => {
       loadVite(port);
     }, 200);

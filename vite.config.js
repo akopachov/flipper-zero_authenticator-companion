@@ -8,7 +8,8 @@ const config = {
       resolve: {
         // C/C++ modules must be pre-bundle
         serialport: { type: 'cjs' },
-        'node-screenshots': { type: 'cjs' }
+        'node-screenshots': { type: 'cjs' },
+        'electron-log': { type: 'cjs' }
       },
     })
   ],

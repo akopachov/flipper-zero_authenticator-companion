@@ -1,4 +1,5 @@
 <script lang="ts">
+  import log from 'electron-log';
   import Fab, { Icon, Label } from '@smui/fab';
   import Textfield from '@smui/textfield';
   import Button, { Label as ButtonLabel } from '@smui/button';
@@ -72,7 +73,7 @@
           hashingAlgo: tokenHashingAlgoFromString(parsedTotpUri.algorithm),
         });
       } catch (e) {
-        console.error(e);
+        log.error(e);
       }
     }
 
@@ -95,7 +96,7 @@
         GlobalCommonSnackbar.show(`Token ${tokenInfo.name} has been successfully added`, CommonSnackbarType.Success);
       } catch (e) {
         GlobalCommonSnackbar.show('An error occurred during token saving', CommonSnackbarType.Error);
-        console.error(e);
+        log.error(e);
       }
     }
   }
@@ -105,7 +106,7 @@
       try {
         tokenInfo = await SharedTotpAppClient.getTokenDetails(Number($page.params.id), abortController.signal);
       } catch (e) {
-        console.error(e);
+        log.error(e);
         await goto('/');
         GlobalCommonSnackbar.show(`Unable to load token details`, CommonSnackbarType.Error);
       }

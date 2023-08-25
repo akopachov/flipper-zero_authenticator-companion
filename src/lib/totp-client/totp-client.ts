@@ -81,7 +81,6 @@ export class TotpAppClient extends EventEmitter {
 
   constructor() {
     super();
-    console.log('Constructor');
   }
 
   async #getSerialPort(signal?: AbortSignal): Promise<SerialPortAsync> {
@@ -96,7 +95,6 @@ export class TotpAppClient extends EventEmitter {
         try {
           await serialPort.openAsync();
         } catch (e) {
-          console.warn(e);
           serialPort = null;
           await tryDelay(1000, { signal: signal });
         }
@@ -104,7 +102,6 @@ export class TotpAppClient extends EventEmitter {
           try {
             await serialPort.readUntil(TotpCommandOutput.EndOfCommand, { timeout: 1000, signal: signal });
           } catch (e) {
-            console.warn(e);
             await serialPort.closeAsync();
             serialPort = null;
             await tryDelay(1000, { signal: signal });

@@ -1,0 +1,57 @@
+name: Auto CLang format
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: ['master']
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: ${{ github.head_ref }}
+
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: lts/*
+
+    - uses: pnpm/action-setup@v2
+      name: Install pnpm
+      with:
+        version: latest
+        run_install: false
+
+    - name: Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - uses: actions/cache@v3
+      name: Setup pnpm cache
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Format code
+      run: pnpm lint:fix
+
+    - name: Update Permissions
+      run: sudo chown --recursive $USER .
+
+    - uses: stefanzweifel/git-auto-commit-action@v4.16.0
+      with:
+        commit_message: Code formatting changes
+        branch: ${{ github.head_ref }}

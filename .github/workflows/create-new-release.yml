@@ -1,0 +1,85 @@
+name: Create new release
+
+on:
+  workflow_dispatch:
+    inputs:
+      new_version:
+        description: 'New version'
+        required: true
+        type: string
+
+jobs:
+  set-new-version:
+    runs-on: ubuntu-latest
+    outputs:
+      commit_hash: ${{steps.commit_new_version.outputs.commit_hash}}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set new version format
+        run: |
+          if [[ "${{ inputs.new_version }}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; 
+          then 
+            echo "New version looks okay";
+            MAJOR="${BASH_REMATCH[1]}"
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
+            sed -r -i "s/\"version\": *\"[0-9]+\\.[0-9]+\\.[0-9]+\"/\"version\": \"$MAJOR.$MINOR.$PATCH\"/g" package.json
+          else 
+            echo "Invalid version format";
+            exit 1
+          fi
+
+      - id: commit_new_version
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          commit_message: Updated version
+          push_options: '--force'
+
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+    needs: set-new-version
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: "${{needs.set-new-version.outputs.commit_hash}}"
+          fetch-depth: 0
+          submodules: 'recursive'
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+    
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: latest
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: |
+          pnpm config set node-linker hoisted --location project
+          pnpm install
+
+      - name: Build
+        run: |
+          pnpm build

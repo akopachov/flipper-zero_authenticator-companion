@@ -122,8 +122,8 @@
 
 <style lang="scss">
   .drag-handle {
-    cursor: grab;
     margin-left: -12px;
     margin-right: 6px;
+    cursor: move;
   }
 </style>

@@ -112,6 +112,9 @@ devDependencies:
   '@typescript-eslint/parser':
     specifier: ^6.4.1
     version: 6.4.1(eslint@8.47.0)(typescript@5.2.2)
+  async-sema:
+    specifier: ^3.1.1
+    version: 3.1.1
   concurrently:
     specifier: ^8.2.1
     version: 8.2.1
@@ -2035,6 +2038,10 @@ packages:
 
   /async-limiter@1.0.1:
     resolution: {integrity: sha512-csOlWGAcRFJaI6m+F2WKdnMKr4HhdhFVBk0H/QbJFMCr+uO2kwohwXQPxw/9OCxp05r5ghVBFSyioixx3gfkNQ==}
+    dev: true
+
+  /async-sema@3.1.1:
+    resolution: {integrity: sha512-tLRNUXati5MFePdAk8dw7Qt7DpxPB60ofAgn8WRhW6a2rcimZnYBP9oxHiv0OHy+Wz7kPMG+t4LGdt31+4EmGg==}
     dev: true
 
   /async@3.2.4:

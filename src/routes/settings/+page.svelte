@@ -15,24 +15,21 @@
     DeviceAppAutomationKeyboardLayout,
   } from '../../models/device-app-settings';
   import { getOffsets, type UTCOffsetInfo } from 'utc-offsets';
-  import { type TimeProvider, LocalTimeProvider, CloudTimeProvider } from '$lib/time-providers';
-  import Store from 'electron-store';
+  import { AvailableTimeProviders, type TimeProvider } from '$lib/time-providers';
   import { SharedTotpAppClient } from '$stores/totp-shared-client';
   import { onDestroy, onMount } from 'svelte';
   import { CommonSnackbarType, GlobalCommonSnackbar } from '$stores/global-common-snackbar';
-  import { CloudTimezoneProvider, LocalTimezoneProvider } from '$lib/timezone-providers';
   import { slide } from 'svelte/transition';
+  import { GlobalAppSettings } from '$stores/global-app-settings';
+  import { AvailableTimezoneProviders, type TimezoneProvider } from '$lib/timezone-providers';
+  import { LocalTimezoneProvider } from '$lib/timezone-providers/local-timezone-provider';
+  import { CloudTimezoneProvider } from '$lib/timezone-providers/cloud-timezone-provider';
 
   const abortController = new AbortController();
-  const timeProviderStoreKey = 'time.provider';
-  const appSettingsStore = new Store();
   let deviceAppSettings: DeviceAppSettings;
   let availableUtcOffsets: UTCOffsetInfo[] = getOffsets();
-  let availableTimeProviders: TimeProvider[] = [new LocalTimeProvider(), new CloudTimeProvider()];
-  let selectedTimeProvider: TimeProvider =
-    availableTimeProviders[
-      Math.min(availableTimeProviders.length - 1, appSettingsStore.get(timeProviderStoreKey, 0) as number)
-    ];
+  let selectedTimeProvider: TimeProvider = AvailableTimeProviders[GlobalAppSettings.dateTime.provider];
+  let selectedTimezoneProvider: TimezoneProvider = AvailableTimezoneProviders[GlobalAppSettings.timezone.provider];
   let availableKeyboardLayouts: DeviceAppAutomationKeyboardLayout[] = Object.values(DeviceAppAutomationKeyboardLayout);
 
   async function loadSettings() {
@@ -41,7 +38,9 @@
 
   async function saveSettings() {
     try {
-      appSettingsStore.set(timeProviderStoreKey, availableTimeProviders.indexOf(selectedTimeProvider));
+      GlobalAppSettings.dateTime.provider = AvailableTimeProviders.indexOf(selectedTimeProvider);
+      GlobalAppSettings.timezone.provider = AvailableTimezoneProviders.indexOf(selectedTimezoneProvider);
+      GlobalAppSettings.commit();
       await SharedTotpAppClient.setDeviceDatetime(
         await selectedTimeProvider.getCurrentTime(abortController.signal),
         abortController.signal,
@@ -63,7 +62,10 @@
   }
 
   onMount(() => loadSettings());
-  onDestroy(() => abortController.abort());
+  onDestroy(() => {
+    abortController.abort();
+    GlobalAppSettings.revert();
+  });
 </script>
 
 {#if deviceAppSettings}
@@ -75,7 +77,7 @@
           <label class="time-provider-label" for="timeProvider">Sync device time with</label>
           <SegmentedButton
             id="timeProvider"
-            segments={availableTimeProviders}
+            segments={AvailableTimeProviders}
             let:segment
             singleSelect
             bind:selected={selectedTimeProvider}>
@@ -83,34 +85,61 @@
               <Label>{segment.name}</Label>
             </Segment>
           </SegmentedButton>
+          <div>
+            <FormField class="sync-at-start">
+              <Switch bind:checked={GlobalAppSettings.dateTime.syncAtStartup} />
+              <span slot="label">Sync at startup</span>
+            </FormField>
+          </div>
         </Content>
       </Paper>
       <Paper variant="outlined" class="section">
         <Title>Timezone</Title>
         <Content>
           <div class="timezone-container">
-            <Select
-              class="input-element"
-              variant="outlined"
-              bind:value={deviceAppSettings.timezoneOffset}
-              label="UTC offset"
-              key={value => `${value}`}>
-              {#each availableUtcOffsets as utcOffset}
-                <Option value={utcOffset.minutes / 60}>{utcOffset.offset}</Option>
-              {/each}
-            </Select>
-            <Wrapper>
-              <IconButton class="sync-from-local" on:click={syncTimezoneFromLocal} type="button">
-                <IconButtonIcon class="material-icons">sync</IconButtonIcon>
-              </IconButton>
-              <Tooltip>Get from local machine</Tooltip>
-            </Wrapper>
-            <Wrapper>
-              <IconButton class="sync-from-local" on:click={syncTimezoneFromCloud} type="button">
-                <IconButtonIcon class="material-icons">cloud_sync</IconButtonIcon>
-              </IconButton>
-              <Tooltip>Get from cloud</Tooltip>
-            </Wrapper>
+            <div class="timezone-select">
+              <Select
+                class="input-element"
+                variant="outlined"
+                bind:value={deviceAppSettings.timezoneOffset}
+                label="UTC offset"
+                key={value => `${value}`}>
+                {#each availableUtcOffsets as utcOffset}
+                  <Option value={utcOffset.minutes / 60}>{utcOffset.offset}</Option>
+                {/each}
+              </Select>
+              <Wrapper>
+                <IconButton class="sync-from-local" on:click={syncTimezoneFromLocal} type="button">
+                  <IconButtonIcon class="material-icons">sync</IconButtonIcon>
+                </IconButton>
+                <Tooltip>Get from local machine</Tooltip>
+              </Wrapper>
+              <Wrapper>
+                <IconButton class="sync-from-local" on:click={syncTimezoneFromCloud} type="button">
+                  <IconButtonIcon class="material-icons">cloud_sync</IconButtonIcon>
+                </IconButton>
+                <Tooltip>Get from cloud</Tooltip>
+              </Wrapper>
+            </div>
+            <div>
+              <FormField class="sync-at-start">
+                <Switch bind:checked={GlobalAppSettings.timezone.syncAtStartup} />
+                <span slot="label">Sync at startup</span>
+              </FormField>
+              {#if GlobalAppSettings.timezone.syncAtStartup}
+                <div>
+                  <SegmentedButton
+                    segments={AvailableTimezoneProviders}
+                    let:segment
+                    singleSelect
+                    bind:selected={selectedTimezoneProvider}>
+                    <Segment {segment} type="button">
+                      <Label>{segment.name}</Label>
+                    </Segment>
+                  </SegmentedButton>
+                </div>
+              {/if}
+            </div>
           </div>
         </Content>
       </Paper>
@@ -190,9 +219,19 @@
         display: block;
       }
 
+      :global(.sync-at-start) {
+        margin: 10px 0 0 0;
+      }
+
       .timezone-container {
-        display: flex;
-        align-items: center;
+        .timezone-select {
+          display: flex;
+          align-items: center;
+        }
+
+        :global(.sync-at-start) {
+          margin: 10px 0;
+        }
       }
 
       .kb-layout-container {

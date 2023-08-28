@@ -1,5 +1,6 @@
 import { SerialPortAsync } from './serial-port-async';
 import type { PortInfo } from '@serialport/bindings-interface';
+import { Sema } from 'async-sema';
 import EventEmitter from 'node:events';
 import { parseFromString } from './ascii-table-parse';
 import escapeStringRegexp from 'escape-string-regexp';
@@ -42,6 +43,7 @@ export enum TotpClientEvents {
   Connected = 'totp-client:connected',
   CommandExecuting = 'totp-client:command:executing',
   CommandExecuted = 'totp-client:command:executied',
+  ConnectionError = 'totp-client:connection-error',
 }
 
 async function getFlipperZeroDevice() {
@@ -78,9 +80,11 @@ const ExecuteCommandDefaultOptions: ExecuteCommandOptions = {
 
 export class TotpAppClient extends EventEmitter {
   #serialPort: SerialPortAsync | null = null;
+  #semaphore: Sema;
 
   constructor() {
     super();
+    this.#semaphore = new Sema(1);
   }
 
   async #getSerialPort(signal?: AbortSignal): Promise<SerialPortAsync> {
@@ -95,6 +99,7 @@ export class TotpAppClient extends EventEmitter {
         try {
           await serialPort.openAsync();
         } catch (e) {
+          this.emit(TotpClientEvents.ConnectionError, this, e);
           serialPort = null;
           await tryDelay(1000, { signal: signal });
         }
@@ -102,6 +107,7 @@ export class TotpAppClient extends EventEmitter {
           try {
             await serialPort.readUntil(TotpCommandOutput.EndOfCommand, { timeout: 1000, signal: signal });
           } catch (e) {
+            this.emit(TotpClientEvents.ConnectionError, this, e);
             await serialPort.closeAsync();
             serialPort = null;
             await tryDelay(1000, { signal: signal });
@@ -197,8 +203,10 @@ export class TotpAppClient extends EventEmitter {
     this.emit(TotpClientEvents.CommandExecuting, this);
     let result: string | null;
     try {
+      await this.#semaphore.acquire();
       result = await this.#_executeCommand(command, options);
     } finally {
+      this.#semaphore.release();
       this.emit(TotpClientEvents.CommandExecuted, this);
     }
 
@@ -422,8 +430,12 @@ export class TotpAppClient extends EventEmitter {
     return settings;
   }
 
+  async setAppTimezone(timezoneOffset: number, signal?: AbortSignal) {
+    await this.#executeCommand(`${TotpCommand} tz ${timezoneOffset}\r`, { signal: signal });
+  }
+
   async updateAppSettings(settings: DeviceAppSettings, signal?: AbortSignal) {
-    await this.#executeCommand(`${TotpCommand} tz ${settings.timezoneOffset}\r`, { signal: signal });
+    this.setAppTimezone(settings.timezoneOffset, signal);
     const notifyArg = settings.notification.length > 0 ? settings.notification.join(' ') : DeviceAppNotification.None;
     await this.#executeCommand(`${TotpCommand} notify ${notifyArg}\r`, { signal: signal });
     const automationArg = settings.automation.length > 0 ? settings.automation.join(' ') : DeviceAppAutomation.None;

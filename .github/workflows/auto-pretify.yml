@@ -6,7 +6,7 @@ on:
     branches: ['master']
 
 jobs:
-  clang-format:
+  code-pretify:
     runs-on: ubuntu-latest
 
     permissions:
@@ -43,7 +43,7 @@ jobs:
           ${{ runner.os }}-pnpm-store-
 
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm install --ignore-scripts
 
     - name: Format code
       run: pnpm lint:fix

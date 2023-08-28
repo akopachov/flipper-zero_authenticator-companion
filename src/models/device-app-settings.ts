@@ -13,6 +13,7 @@ export enum DeviceAppAutomation {
 export enum DeviceAppAutomationKeyboardLayout {
   QWERTY = 'qwerty',
   AZERTY = 'azerty',
+  QWERTZ = 'qwertz',
 }
 
 export class DeviceAppSettings {

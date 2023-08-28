@@ -1,6 +1,7 @@
 <script lang="ts">
   import '@fontsource/roboto';
   import '@fontsource/material-icons';
+  import log from 'electron-log';
   import TopAppBar, { Row, Title, Section } from '@smui/top-app-bar';
   import Drawer, { Content, AppContent, Scrim } from '@smui/drawer';
   import List, { Item, Graphic, Text, Separator } from '@smui/list';
@@ -13,13 +14,26 @@
   import CommonDialog from '$components/common-dialog/common-dialog.svelte';
   import CommonSnackbar from '$components/common-snackbar/common-snackbar.svelte';
   import CommonPreloader from '$components/common-preloader/common-preloader.svelte';
+  import { GlobalAppSettings } from '$stores/global-app-settings';
+  import { AvailableTimeProviders } from '$lib/time-providers';
+  import { AvailableTimezoneProviders } from '$lib/timezone-providers';
 
   let ready = false;
   let isMenuOpen = false;
   let activePath = $page.url.pathname;
 
-  onMount(() => {
+  onMount(async () => {
     ready = true;
+    if (GlobalAppSettings.dateTime.syncAtStartup) {
+      await SharedTotpAppClient.setDeviceDatetime(
+        await AvailableTimeProviders[GlobalAppSettings.dateTime.provider].getCurrentTime(),
+      );
+    }
+    if (GlobalAppSettings.timezone.syncAtStartup) {
+      await SharedTotpAppClient.setAppTimezone(
+        await AvailableTimezoneProviders[GlobalAppSettings.timezone.provider].getCurrentTimezoneOffset(),
+      );
+    }
   });
 
   $: {
@@ -55,6 +69,10 @@
 
   SharedTotpAppClient.on(TotpClientEvents.WaitForApp, () => {
     GlobalPreloader.setDescription('Waiting for Authenticator app top be launched on Flipper Zero device');
+  });
+
+  SharedTotpAppClient.on(TotpClientEvents.ConnectionError, (_, e) => {
+    log.debug('Error occurred during connecting to Flipper device', e);
   });
 </script>
 

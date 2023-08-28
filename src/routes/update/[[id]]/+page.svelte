@@ -27,7 +27,7 @@
   let scannedData: string | null = null;
   let tokenInfo: TokenInfo | null | undefined;
   let availableTokenHashingAlgo: [string, TokenHashingAlgo][] = Object.entries(TokenHashingAlgo);
-  let availableTokenLength: TokenLength[] = [TokenLength.SixDigits, TokenLength.EightDigits];
+  let availableTokenLength: TokenLength[] = Object.values(TokenLength);
   let availableTokenSecretEncoding: [string, TokenSecretEncoding][] = Object.entries(TokenSecretEncoding);
   let availableTokenAutomationFeatures: [string, TokenAutomationFeature][] = [
     ['Type slower', TokenAutomationFeature.Slower],

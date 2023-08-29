@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getAppSettings } from '$stores/global-app-settings';
+  import { getAppSettings } from '$stores/app-settings';
   import { autoModeWatcher, setInitialClassState } from './lightswitch';
 
   autoModeWatcher();

@@ -1,5 +1,5 @@
-import { ThemeColorSchemePreference } from '$models/app-settings';
-import { getAppSettings } from '$stores/global-app-settings';
+import { ThemeColorSchemePreference } from '$lib/app-settings/theme-settings';
+import { getAppSettings } from '$stores/app-settings';
 import { get, writable } from 'svelte/store';
 
 export const modeUserPrefers = writable<ThemeColorSchemePreference>(getAppSettings().theme.colorScheme);

@@ -5,7 +5,7 @@
   import { AvailableTimeProviders } from '$lib/time-providers';
   import { SharedTotpAppClient } from '$stores/totp-shared-client';
   import { onDestroy, onMount } from 'svelte';
-  import { getAppSettings } from '$stores/global-app-settings';
+  import { getAppSettings } from '$stores/app-settings';
   import { AvailableTimezoneProviders } from '$lib/timezone-providers';
   import { CommonToastType, GlobalCommonToast } from '$stores/global-common-toast';
   import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';

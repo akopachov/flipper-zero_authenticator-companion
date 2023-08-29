@@ -1,4 +1,4 @@
-import { getAppSettings } from '$stores/global-app-settings';
+import { getAppSettings } from '$stores/app-settings';
 import type { TimezoneProvider } from './timezone-provider';
 
 export class FromConfigTimezoneProvider implements TimezoneProvider {

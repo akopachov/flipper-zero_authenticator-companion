@@ -9,7 +9,7 @@
   import { initializeStores } from '@skeletonlabs/skeleton';
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
   import { AppBar, AppShell, Drawer, storePopup, getDrawerStore, Modal, Toast } from '@skeletonlabs/skeleton';
-  import { getAppSettings } from '$stores/global-app-settings';
+  import { getAppSettings } from '$stores/app-settings';
   import { AvailableTimeProviders } from '$lib/time-providers';
   import { AvailableTimezoneProviders } from '$lib/timezone-providers';
   import CommonPreloader from '$components/common-preloader/common-preloader.svelte';

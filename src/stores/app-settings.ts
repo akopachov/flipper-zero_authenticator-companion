@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import { AppSettings } from '$models/app-settings';
+import { AppSettings } from '$lib/app-settings';
 
 const store = new Store();
 

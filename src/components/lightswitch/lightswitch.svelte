@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { ThemeColorSchemePreference } from '$models/app-settings';
-  import { getAppSettings } from '$stores/global-app-settings';
+  import { ThemeColorSchemePreference } from '$lib/app-settings/theme-settings';
+  import { getAppSettings } from '$stores/app-settings';
   import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
   import { modeUserPrefers } from './lightswitch';
 

@@ -5,13 +5,14 @@
   import type { TokenInfoBase } from '$models/token-info';
   import { findIcon } from '$lib/totp-icons';
   import { debounce } from 'lodash-es';
-  import { popup, type ModalSettings, type PopupSettings, modalStore } from '@skeletonlabs/skeleton';
+  import { popup, type ModalSettings, type PopupSettings, getModalStore } from '@skeletonlabs/skeleton';
 
   type ListItemWrapper = {
     id: string;
     item: TokenInfoBase;
   };
 
+  const modalStore = getModalStore();
   const dispatch = createEventDispatcher();
   export let list: TokenInfoBase[] = [];
   let flipAnimationMs = 200;

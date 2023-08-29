@@ -17,6 +17,8 @@
   import { CommonToastType, GlobalCommonToast } from '$stores/global-common-toast';
   import { Accordion, AccordionItem, RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
 
+  GlobalCommonToast.initialize();
+
   let abortController = new AbortController();
   let scannedData: string | null = null;
   let tokenInfo: TokenInfo | null | undefined;

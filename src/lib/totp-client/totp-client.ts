@@ -80,52 +80,61 @@ const ExecuteCommandDefaultOptions: ExecuteCommandOptions = {
 
 export class TotpAppClient extends EventEmitter {
   #serialPort: SerialPortAsync | null = null;
-  #semaphore: Sema;
+  #executionSemaphore: Sema;
+  #getPortSemaphore: Sema;
 
   constructor() {
     super();
-    this.#semaphore = new Sema(1);
+    this.#executionSemaphore = new Sema(1);
+    this.#getPortSemaphore = new Sema(1);
   }
 
   async #getSerialPort(signal?: AbortSignal): Promise<SerialPortAsync> {
     if (this.#serialPort == null) {
-      let serialPort: SerialPortAsync | null = null;
+      await this.#getPortSemaphore.acquire();
+      try {
+        if (this.#serialPort == null) {
+          let serialPort: SerialPortAsync | null = null;
 
-      do {
-        signal?.throwIfAborted();
-        this.emit(TotpClientEvents.Connecting, this);
-        const flipperZeroDevice = await waitForFlipperZeroDevice();
-        serialPort = new SerialPortAsync({ path: flipperZeroDevice.path, baudRate: 115200, autoOpen: false });
-        try {
-          await serialPort.openAsync();
-        } catch (e) {
-          this.emit(TotpClientEvents.ConnectionError, this, e);
-          serialPort = null;
-          await tryDelay(1000, { signal: signal });
-        }
-        if (serialPort != null) {
-          try {
-            await serialPort.readUntil(TotpCommandOutput.EndOfCommand, { timeout: 1000, signal: signal });
-          } catch (e) {
-            this.emit(TotpClientEvents.ConnectionError, this, e);
-            await serialPort.closeAsync();
-            serialPort = null;
-            await tryDelay(1000, { signal: signal });
+          do {
+            signal?.throwIfAborted();
+            this.emit(TotpClientEvents.Connecting, this);
+            const flipperZeroDevice = await waitForFlipperZeroDevice();
+            serialPort = new SerialPortAsync({ path: flipperZeroDevice.path, baudRate: 115200, autoOpen: false });
+            try {
+              await serialPort.openAsync();
+            } catch (e) {
+              this.emit(TotpClientEvents.ConnectionError, this, e);
+              serialPort = null;
+              await tryDelay(1000, { signal: signal });
+            }
+            if (serialPort != null) {
+              try {
+                await serialPort.readUntil(TotpCommandOutput.EndOfCommand, { timeout: 1000, signal: signal });
+              } catch (e) {
+                this.emit(TotpClientEvents.ConnectionError, this, e);
+                await serialPort.closeAsync();
+                serialPort = null;
+                await tryDelay(1000, { signal: signal });
+              }
+            }
+          } while (serialPort == null);
+
+          if (signal?.aborted) {
+            serialPort?.close();
+            signal.throwIfAborted();
           }
+
+          serialPort.on('close', () => {
+            this.#serialPort = null;
+          });
+          this.emit(TotpClientEvents.Connected, this);
+
+          this.#serialPort = serialPort;
         }
-      } while (serialPort == null);
-
-      if (signal?.aborted) {
-        serialPort?.close();
-        signal.throwIfAborted();
+      } finally {
+        this.#getPortSemaphore.release();
       }
-
-      serialPort.on('close', () => {
-        this.#serialPort = null;
-      });
-      this.emit(TotpClientEvents.Connected, this);
-
-      this.#serialPort = serialPort;
     }
 
     return this.#serialPort;
@@ -203,10 +212,10 @@ export class TotpAppClient extends EventEmitter {
     this.emit(TotpClientEvents.CommandExecuting, this);
     let result: string | null;
     try {
-      await this.#semaphore.acquire();
+      await this.#executionSemaphore.acquire();
       result = await this.#_executeCommand(command, options);
     } finally {
-      this.#semaphore.release();
+      this.#executionSemaphore.release();
       this.emit(TotpClientEvents.CommandExecuted, this);
     }
 

@@ -1,11 +1,6 @@
 <script lang="ts">
   import log from 'electron-log';
-  import {
-    DeviceAppSettings,
-    DeviceAppNotification,
-    DeviceAppAutomation,
-    DeviceAppAutomationKeyboardLayout,
-  } from '../../models/device-app-settings';
+  import { DeviceAppSettings, DeviceAppAutomationKeyboardLayout } from '../../models/device-app-settings';
   import { getOffsets, type UTCOffsetInfo } from 'utc-offsets';
   import { AvailableTimeProviders } from '$lib/time-providers';
   import { SharedTotpAppClient } from '$stores/totp-shared-client';
@@ -16,6 +11,8 @@
   import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
   import { FromConfigTimezoneProvider } from '$lib/timezone-providers/from-config-timezone-provider';
   import { slide } from 'svelte/transition';
+
+  GlobalCommonToast.initialize();
 
   const abortController = new AbortController();
   let deviceAppSettings: DeviceAppSettings;
@@ -145,7 +142,8 @@
         {/if}
       </div>
       <div class="m-4 flex justify-center">
-        <button type="submit" class="btn variant-filled-primary">Save</button>
+        <button type="submit" class="btn variant-filled-primary ml-auto w-20 -mr-20">Save</button>
+        <a href="/" type="reset" class="btn variant-ghost ml-auto">Cancel</a>
       </div>
     </form>
   </div>

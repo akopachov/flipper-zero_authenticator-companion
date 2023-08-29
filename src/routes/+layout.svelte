@@ -1,6 +1,4 @@
 <script lang="ts">
-  import '@skeletonlabs/skeleton/themes/theme-skeleton.css';
-  import '@skeletonlabs/skeleton/styles/skeleton.css';
   import '../app.postcss';
   import log from 'electron-log';
   import { onMount } from 'svelte';
@@ -8,13 +6,19 @@
   import { GlobalPreloader } from '$stores/global-preloader';
   import { navigating, page } from '$app/stores';
   import { TotpClientEvents } from '$lib/totp-client';
+  import { initializeStores } from '@skeletonlabs/skeleton';
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-  import { AppBar, AppShell, Drawer, storePopup, drawerStore, Modal, Toast } from '@skeletonlabs/skeleton';
+  import { AppBar, AppShell, Drawer, storePopup, getDrawerStore, Modal, Toast } from '@skeletonlabs/skeleton';
   import { GlobalAppSettings } from '$stores/global-app-settings';
   import { AvailableTimeProviders } from '$lib/time-providers';
   import { AvailableTimezoneProviders } from '$lib/timezone-providers';
   import CommonPreloader from '$components/common-preloader/common-preloader.svelte';
+  import Lightswitch from '$components/lightswitch/lightswitch.svelte';
+  import LightswitchDemon from '$components/lightswitch/lightswitch-demon.svelte';
 
+  initializeStores();
+
+  const drawerStore = getDrawerStore();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
   let ready = false;
@@ -82,16 +86,17 @@
 </script>
 
 <svelte:window on:beforeunload={closeTotpAppClient} />
+<LightswitchDemon />
 
 {#if ready}
   <Modal />
   <Toast />
   <CommonPreloader />
   <Drawer>
-    <nav class="list-nav p-2">
-      <ul>
+    <nav class="list-nav p-2 h-full">
+      <ul class="h-full flex flex-col">
         <li>
-          <a href="/update" class="{classesActivePage('/update')} focus:!text-base-token">
+          <a href="/update" class="{classesActivePage('/update')} focus:!bg-inherit focus:!text-inherit">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -104,8 +109,6 @@
             <span class="flex-auto">Add new token</span>
           </a>
         </li>
-      </ul>
-      <ul>
         <li>
           <a href="/" class={classesActivePage('/')}>
             <svg
@@ -123,8 +126,6 @@
             <span class="flex-auto">List</span>
           </a>
         </li>
-      </ul>
-      <ul>
         <li>
           <a href="/settings" class={classesActivePage('/settings')}>
             <svg
@@ -142,6 +143,9 @@
             </svg>
             <span class="flex-auto">Settings</span>
           </a>
+        </li>
+        <li class="!mt-auto text-center">
+          <Lightswitch />
         </li>
       </ul>
     </nav>

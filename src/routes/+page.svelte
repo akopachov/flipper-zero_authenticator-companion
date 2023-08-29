@@ -9,6 +9,8 @@
   let abortController = new AbortController();
   let totpList: TokenInfoBase[] | null = null;
 
+  GlobalCommonToast.initialize();
+
   async function updateTokenList() {
     try {
       totpList = await SharedTotpAppClient.listTokens(abortController.signal);

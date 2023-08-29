@@ -97,11 +97,11 @@ class TimezoneSettings extends BaseSettings {
   }
 
   get #SYNC_AT_STARTUP_STORE_KEY() {
-    return 'timezone.syncAtStartup';
+    return 'syncAtStartup';
   }
 
   get #MANUAL_TIMEZONE_OFFSET_KEY() {
-    return 'timezone.manualOffset';
+    return 'manualOffset';
   }
 
   get provider() {
@@ -132,14 +132,48 @@ class TimezoneSettings extends BaseSettings {
   }
 }
 
+export enum ThemeColorSchemePreference {
+  Light = 'light',
+  Dark = 'dark',
+  System = 'os',
+}
+
+class ThemeSettings extends BaseSettings {
+  get #COLOR_SCHEME_STORE_KEY() {
+    return 'colorScheme';
+  }
+
+  constructor(store: Store) {
+    super(store, 'theme');
+  }
+
+  get colorScheme() {
+    return this.get<ThemeColorSchemePreference>(
+      this.#COLOR_SCHEME_STORE_KEY,
+      v => {
+        if (v == ThemeColorSchemePreference.Light) return ThemeColorSchemePreference.Light;
+        if (v == ThemeColorSchemePreference.Dark) return ThemeColorSchemePreference.Dark;
+        return ThemeColorSchemePreference.System;
+      },
+      ThemeColorSchemePreference.System,
+    );
+  }
+
+  set colorScheme(value: ThemeColorSchemePreference) {
+    this.set(this.#COLOR_SCHEME_STORE_KEY, value);
+  }
+}
+
 export class AppSettings extends BaseSettings {
   #dateTimeSettings: DatetimeSettings;
   #timezoneSettings: TimezoneSettings;
+  #themeSettings: ThemeSettings;
 
   constructor(store: Store) {
     super(store);
     this.#dateTimeSettings = new DatetimeSettings(store);
     this.#timezoneSettings = new TimezoneSettings(store);
+    this.#themeSettings = new ThemeSettings(store);
   }
 
   get dateTime() {
@@ -150,15 +184,21 @@ export class AppSettings extends BaseSettings {
     return this.#timezoneSettings;
   }
 
+  get theme() {
+    return this.#themeSettings;
+  }
+
   override commit() {
     this.#dateTimeSettings.commit();
     this.#timezoneSettings.commit();
+    this.#themeSettings.commit();
     super.commit();
   }
 
   override revert() {
     this.#dateTimeSettings.revert();
     this.#timezoneSettings.revert();
+    this.#themeSettings.revert();
     super.revert();
   }
 

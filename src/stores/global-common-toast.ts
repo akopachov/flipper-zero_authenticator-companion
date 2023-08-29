@@ -1,4 +1,4 @@
-import { toastStore } from '@skeletonlabs/skeleton';
+import { getToastStore } from '@skeletonlabs/skeleton';
 
 export enum CommonToastType {
   Info = 'info',
@@ -14,7 +14,12 @@ const BackgroundClasses = {
   [CommonToastType.Error]: 'variant-filled-error',
 };
 
+let toastStore;
+
 export class GlobalCommonToast {
+  static initialize() {
+    toastStore = getToastStore();
+  }
   static show(text: string, type: CommonToastType) {
     toastStore.trigger({
       message: text,

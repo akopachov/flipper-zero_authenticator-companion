@@ -1,50 +1,40 @@
 <script lang="ts">
-  import '@fontsource/roboto';
-  import '@fontsource/material-icons';
+  import '@skeletonlabs/skeleton/themes/theme-skeleton.css';
+  import '@skeletonlabs/skeleton/styles/skeleton.css';
+  import '../app.postcss';
   import log from 'electron-log';
-  import TopAppBar, { Row, Title, Section } from '@smui/top-app-bar';
-  import Drawer, { Content, AppContent, Scrim } from '@smui/drawer';
-  import List, { Item, Graphic, Text, Separator } from '@smui/list';
-  import IconButton from '@smui/icon-button';
   import { onMount } from 'svelte';
   import { SharedTotpAppClient } from '$stores/totp-shared-client';
   import { GlobalPreloader } from '$stores/global-preloader';
   import { navigating, page } from '$app/stores';
   import { TotpClientEvents } from '$lib/totp-client';
-  import CommonDialog from '$components/common-dialog/common-dialog.svelte';
-  import CommonSnackbar from '$components/common-snackbar/common-snackbar.svelte';
-  import CommonPreloader from '$components/common-preloader/common-preloader.svelte';
+  import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+  import { AppBar, AppShell, Drawer, storePopup, drawerStore, Modal, Toast } from '@skeletonlabs/skeleton';
   import { GlobalAppSettings } from '$stores/global-app-settings';
   import { AvailableTimeProviders } from '$lib/time-providers';
   import { AvailableTimezoneProviders } from '$lib/timezone-providers';
+  import CommonPreloader from '$components/common-preloader/common-preloader.svelte';
+
+  storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
   let ready = false;
-  let isMenuOpen = false;
-  let activePath = $page.url.pathname;
 
   onMount(async () => {
     ready = true;
-    if (GlobalAppSettings.dateTime.syncAtStartup) {
-      await SharedTotpAppClient.setDeviceDatetime(
-        await AvailableTimeProviders[GlobalAppSettings.dateTime.provider].getCurrentTime(),
-      );
-    }
-    if (GlobalAppSettings.timezone.syncAtStartup) {
-      await SharedTotpAppClient.setAppTimezone(
-        await AvailableTimezoneProviders[GlobalAppSettings.timezone.provider].getCurrentTimezoneOffset(),
-      );
-    }
   });
 
-  $: {
-    if ($navigating) {
-      isMenuOpen = false;
-      activePath = $navigating.to?.url.pathname || '/';
-    }
-  }
+  $: $navigating && drawerStore.close();
+
+  $: classesActivePage = (href: string) => (href === $page.url.pathname ? '!bg-primary-500' : '');
 
   async function closeTotpAppClient() {
     await SharedTotpAppClient.close();
+  }
+
+  function openMainMenu() {
+    drawerStore.open({
+      width: 'w-[280px]',
+    });
   }
 
   SharedTotpAppClient.on(TotpClientEvents.Connecting, () => {
@@ -74,89 +64,121 @@
   SharedTotpAppClient.on(TotpClientEvents.ConnectionError, (_, e) => {
     log.debug('Error occurred during connecting to Flipper device', e);
   });
+
+  async function sync() {
+    if (GlobalAppSettings.dateTime.syncAtStartup) {
+      await SharedTotpAppClient.setDeviceDatetime(
+        await AvailableTimeProviders[GlobalAppSettings.dateTime.provider].getCurrentTime(),
+      );
+    }
+    if (GlobalAppSettings.timezone.syncAtStartup) {
+      await SharedTotpAppClient.setAppTimezone(
+        await AvailableTimezoneProviders[GlobalAppSettings.timezone.provider].getCurrentTimezoneOffset(),
+      );
+    }
+  }
+
+  sync();
 </script>
 
 <svelte:window on:beforeunload={closeTotpAppClient} />
 
 {#if ready}
-  <div class="drawer-container">
-    <Drawer class="main-menu" variant="modal" fixed={false} bind:open={isMenuOpen}>
-      <Content>
-        <List>
-          <Item
-            href="/update"
-            activated={activePath === '/update'}
-            data-sveltekit-reload={activePath.startsWith('/update/')}>
-            <Graphic class="material-icons" aria-hidden="true">add</Graphic>
-            <Text>Add new token</Text>
-          </Item>
-          <Item href="/" activated={activePath === '/'}>
-            <Graphic class="material-icons" aria-hidden="true">list</Graphic>
-            <Text>List</Text>
-          </Item>
-          <Separator />
-          <Item href="/settings" activated={activePath === '/settings'}>
-            <Graphic class="material-icons" aria-hidden="true">settings</Graphic>
-            <Text>Settings</Text>
-          </Item>
-        </List>
-      </Content>
-    </Drawer>
-    <Scrim fixed={false} />
-    <AppContent class="app-content">
-      <TopAppBar variant="static">
-        <Row>
-          <Section>
-            <IconButton class="material-icons" on:click={() => (isMenuOpen = true)}>menu</IconButton>
-            <Title>Flipper Authenticator Companion</Title>
-          </Section>
-          <Section align="end" toolbar>
-            <IconButton
-              class="material-icons"
-              aria-label="Add"
-              href="/update"
-              data-sveltekit-reload={activePath.startsWith('/update/')}>
-              add
-            </IconButton>
-          </Section>
-        </Row>
-      </TopAppBar>
-      <div class="app-content-container">
-        <slot />
-      </div>
-    </AppContent>
-  </div>
+  <Modal />
+  <Toast />
+  <CommonPreloader />
+  <Drawer>
+    <nav class="list-nav p-2">
+      <ul>
+        <li>
+          <a href="/update" class="{classesActivePage('/update')} focus:!text-base-token">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span class="flex-auto">Add new token</span>
+          </a>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <a href="/" class={classesActivePage('/')}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+            <span class="flex-auto">List</span>
+          </a>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <a href="/settings" class={classesActivePage('/settings')}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="flex-auto">Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </Drawer>
+  <AppShell>
+    <svelte:fragment slot="header">
+      <AppBar>
+        <svelte:fragment slot="lead">
+          <button type="button" class="btn-icon bg-initial btn-lg" on:click={openMainMenu}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-8 h-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+        </svelte:fragment>
+        <h1 class="h3">Flipper Authenticator Companion</h1>
+        <svelte:fragment slot="trail">
+          <a href="/update" class="btn-icon bg-initial btn-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </a>
+        </svelte:fragment>
+      </AppBar>
+    </svelte:fragment>
 
-  <CommonPreloader></CommonPreloader>
-  <CommonDialog></CommonDialog>
-  <CommonSnackbar></CommonSnackbar>
+    <slot />
+  </AppShell>
 {/if}
-
-<style lang="scss">
-  .drawer-container {
-    display: flex;
-    height: 100%;
-    width: 100%;
-
-    :global(.main-menu) {
-      width: 285px;
-    }
-
-    :global(.app-content) {
-      height: 100%;
-      min-width: 100%;
-      overflow: hidden;
-    }
-
-    .app-content-container {
-      height: calc(100% - 64px);
-      min-width: 100%;
-      display: flex;
-      overflow: auto;
-
-      :global(> *) {
-        flex-basis: 100%;
-      }
-    }
-  }
-</style>

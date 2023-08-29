@@ -1,12 +1,5 @@
 <script lang="ts">
   import log from 'electron-log';
-  import Fab, { Icon, Label } from '@smui/fab';
-  import Textfield from '@smui/textfield';
-  import Button, { Label as ButtonLabel } from '@smui/button';
-  import Accordion, { Panel, Header, Content } from '@smui-extra/accordion';
-  import Select, { Option } from '@smui/select';
-  import Switch from '@smui/switch';
-  import FormField from '@smui/form-field';
   import { Screenshots } from 'node-screenshots';
   import QrScanner from 'qr-scanner';
   import { GlobalPreloader } from '$stores/global-preloader';
@@ -19,9 +12,10 @@
   import { goto } from '$app/navigation';
   import { parse } from 'url-otpauth-ng';
   import { SharedTotpAppClient } from '$stores/totp-shared-client';
-  import { CommonSnackbarType, GlobalCommonSnackbar } from '$stores/global-common-snackbar';
   import { page } from '$app/stores';
   import { blur } from 'svelte/transition';
+  import { CommonToastType, GlobalCommonToast } from '$stores/global-common-toast';
+  import { Accordion, AccordionItem, RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
 
   let abortController = new AbortController();
   let scannedData: string | null = null;
@@ -78,7 +72,7 @@
     }
 
     if (!tokenInfo) {
-      GlobalCommonSnackbar.show('No valid QR code found', CommonSnackbarType.Warning);
+      GlobalCommonToast.show('No valid QR code found', CommonToastType.Warning);
     }
 
     GlobalPreloader.hide();
@@ -93,9 +87,9 @@
       try {
         await SharedTotpAppClient.updateToken(tokenInfo, abortController.signal);
         await goto('/');
-        GlobalCommonSnackbar.show(`Token ${tokenInfo.name} has been successfully added`, CommonSnackbarType.Success);
+        GlobalCommonToast.show(`Token ${tokenInfo.name} has been successfully added`, CommonToastType.Success);
       } catch (e) {
-        GlobalCommonSnackbar.show('An error occurred during token saving', CommonSnackbarType.Error);
+        GlobalCommonToast.show('An error occurred during token saving', CommonToastType.Error);
         log.error(e);
       }
     }
@@ -108,7 +102,7 @@
       } catch (e) {
         log.error(e);
         await goto('/');
-        GlobalCommonSnackbar.show(`Unable to load token details`, CommonSnackbarType.Error);
+        GlobalCommonToast.show(`Unable to load token details`, CommonToastType.Error);
       }
     }
   }
@@ -117,137 +111,123 @@
   onMount(() => loadTokenInfoIfEdit());
 </script>
 
-<div class="container">
+<div class="flex h-max min-h-full">
   {#if tokenInfo}
-    <form class="token-info-form" on:submit={saveToken} transition:blur>
-      <Textfield class="input-element" label="Name" type="text" variant="outlined" required bind:value={tokenInfo.name}
-      ></Textfield>
-      <Textfield
-        class="input-element"
-        label="Secret"
+    <form class="w-full p-4" on:submit={saveToken} transition:blur>
+      <input class="input mb-3" type="text" placeholder="Name" required bind:value={tokenInfo.name} />
+      <input
+        class="input mb-3"
         type="password"
-        variant="outlined"
+        placeholder="Secret"
         required={tokenInfo.id <= 0}
-        bind:value={tokenInfo.secret}></Textfield>
-      <Accordion multiple>
-        <Panel>
-          <Header>Additional settings</Header>
-          <Content>
-            <Select
-              class="input-element"
-              variant="outlined"
-              bind:value={tokenInfo.hashingAlgo}
-              label="Hashing algorithm">
-              {#each availableTokenHashingAlgo as [name, algo]}
-                <Option value={algo}>{name}</Option>
-              {/each}
-            </Select>
-            <Select class="input-element" variant="outlined" bind:value={tokenInfo.length} label="Length">
-              {#each availableTokenLength as len}
-                <Option value={len}>{len} digits</Option>
-              {/each}
-            </Select>
-            <Textfield
-              class="input-element"
-              label="Duration"
-              type="number"
-              min="15"
-              max="255"
-              variant="outlined"
-              required
-              bind:value={tokenInfo.duration}></Textfield>
-            <Select
-              class="input-element"
-              variant="outlined"
-              bind:value={tokenInfo.secretEncoding}
-              label="Secret encoding">
-              {#each availableTokenSecretEncoding as [name, enc]}
-                <Option value={enc}>{name}</Option>
-              {/each}
-            </Select>
-          </Content>
-        </Panel>
-        <Panel>
-          <Header>Automation settings</Header>
-          <Content>
+        bind:value={tokenInfo.secret} />
+      <Accordion>
+        <AccordionItem>
+          <svelte:fragment slot="summary">
+            <h3 class="font-bold">Additional settings</h3>
+          </svelte:fragment>
+          <svelte:fragment slot="content">
+            <label class="label mb-3" for="rbgHashingAlgorithm">
+              <span class="block">Hashing algorithm</span>
+              <RadioGroup id="rbgHashingAlgorithm" active="variant-filled-primary" hover="hover:variant-soft-primary">
+                {#each availableTokenHashingAlgo as [name, algo]}
+                  <RadioItem class="uppercase" name="Hashing algorithm" bind:group={tokenInfo.hashingAlgo} value={algo}>
+                    {name}
+                  </RadioItem>
+                {/each}
+              </RadioGroup>
+            </label>
+
+            <label class="label mb-3" for="rbgTokenLength">
+              <span class="block">Token length</span>
+              <RadioGroup id="rbgTokenLength" active="variant-filled-primary" hover="hover:variant-soft-primary">
+                {#each availableTokenLength as len}
+                  <RadioItem name="Token length" bind:group={tokenInfo.length} value={len}>{len} digits</RadioItem>
+                {/each}
+              </RadioGroup>
+            </label>
+
+            <label class="label mb-3">
+              <span class="block">Token duration (seconds)</span>
+              <input type="number" class="input max-w-xs" min="15" max="255" required bind:value={tokenInfo.duration} />
+            </label>
+
+            <label class="label mb-3" for="rbgTokenSecretEncoding">
+              <span class="block">Token secret encoding</span>
+              <RadioGroup
+                id="rbgTokenSecretEncoding"
+                active="variant-filled-primary"
+                hover="hover:variant-soft-primary">
+                {#each availableTokenSecretEncoding as [name, enc]}
+                  <RadioItem
+                    class="uppercase"
+                    name="Token secret encoding"
+                    bind:group={tokenInfo.secretEncoding}
+                    value={enc}>
+                    {name}
+                  </RadioItem>
+                {/each}
+              </RadioGroup>
+            </label>
+          </svelte:fragment>
+        </AccordionItem>
+        <AccordionItem>
+          <svelte:fragment slot="summary">
+            <h3 class="font-bold">Automation settings</h3>
+          </svelte:fragment>
+          <svelte:fragment slot="content">
             {#each availableTokenAutomationFeatures as [displayName, feature]}
-              <div>
-                <FormField>
-                  <Switch bind:group={tokenInfo.automationFeatures} value={feature} />
-                  <span slot="label">{displayName}</span>
-                </FormField>
+              <div class="block">
+                <SlideToggle name="{feature}-label" size="sm" bind:checked={tokenInfo.automationFeatures[feature]}>
+                  {displayName}
+                </SlideToggle>
               </div>
             {/each}
-          </Content>
-        </Panel>
+          </svelte:fragment>
+        </AccordionItem>
       </Accordion>
-      <div class="action-controls">
-        <Button class="save" variant="unelevated" type="submit">
-          <ButtonLabel>Save</ButtonLabel>
-        </Button>
-        <Button class="cancel" type="reset" href="/">
-          <ButtonLabel>Cancel</ButtonLabel>
-        </Button>
+      <div class="m-4 flex justify-center">
+        <button type="submit" class="btn variant-filled-primary ml-auto w-20 -mr-20">Save</button>
+        <a href="/" type="reset" class="btn variant-ghost ml-auto">Cancel</a>
       </div>
     </form>
   {:else}
-    <div class="input-type-container">
-      <Fab class="scan-qr-code" color="primary" on:click={onScanQrCodeClicked} extended>
-        <Icon class="material-icons">qr_code_scanner</Icon>
-        <Label>Scan QR Code</Label>
-      </Fab>
-      <p class="or-separator">OR</p>
-      <Fab color="secondary" on:click={onManualEntryClicked} extended>
-        <Icon class="material-icons">edit</Icon>
-        <Label>Enter manually</Label>
-      </Fab>
+    <div class="flex mx-auto justify-center flex-col w-full max-w-sm">
+      <button class="btn variant-filled-primary btn-lg" on:click={onScanQrCodeClicked}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
+        </svg>
+        <span>Scan QR code</span>
+      </button>
+      <p class="block m-4 text-center">OR</p>
+      <button class="btn variant-ghost btn-lg" on:click={onManualEntryClicked}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+        </svg>
+        <span>Enter manually</span>
+      </button>
     </div>
   {/if}
 </div>
-
-<style lang="scss">
-  .container {
-    display: flex;
-    height: max-content;
-    min-height: 100%;
-
-    .input-type-container {
-      margin: 0 auto;
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      width: 100%;
-      max-width: 300px;
-
-      .or-separator {
-        margin: 20px 0 20px 0;
-        text-align: center;
-      }
-    }
-
-    .token-info-form {
-      flex-basis: 100%;
-      padding: 20px;
-
-      :global(.input-element) {
-        width: 100%;
-        margin-bottom: 20px;
-      }
-
-      .action-controls {
-        display: flex;
-        justify-content: center;
-        margin: 20px auto 0 auto;
-
-        :global(.save) {
-          margin-left: auto;
-          margin-right: -70px;
-        }
-
-        :global(.cancel) {
-          margin-left: auto;
-        }
-      }
-    }
-  }
-</style>

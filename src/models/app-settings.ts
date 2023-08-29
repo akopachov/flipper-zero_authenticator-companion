@@ -100,12 +100,16 @@ class TimezoneSettings extends BaseSettings {
     return 'timezone.syncAtStartup';
   }
 
+  get #MANUAL_TIMEZONE_OFFSET_KEY() {
+    return 'timezone.manualOffset';
+  }
+
   get provider() {
     return this.get(this.#PROVIDER_STORE_KEY, Number, 0);
   }
 
   set provider(value: number) {
-    if (value < 0 || value > 1) {
+    if (value < 0 || value > 2) {
       throw new Error(`Value "${value}" is invalid and can't be set to property "${this.#PROVIDER_STORE_KEY}"`);
     }
     this.set(this.#PROVIDER_STORE_KEY, value);
@@ -117,6 +121,14 @@ class TimezoneSettings extends BaseSettings {
 
   set syncAtStartup(value: boolean) {
     this.set(this.#SYNC_AT_STARTUP_STORE_KEY, value);
+  }
+
+  get manualOffset() {
+    return this.get(this.#MANUAL_TIMEZONE_OFFSET_KEY, Number, 0);
+  }
+
+  set manualOffset(value: number) {
+    this.set(this.#MANUAL_TIMEZONE_OFFSET_KEY, value);
   }
 }
 

@@ -5,7 +5,7 @@
   import { AvailableTimeProviders } from '$lib/time-providers';
   import { SharedTotpAppClient } from '$stores/totp-shared-client';
   import { onDestroy, onMount } from 'svelte';
-  import { GlobalAppSettings } from '$stores/global-app-settings';
+  import { getAppSettings } from '$stores/global-app-settings';
   import { AvailableTimezoneProviders } from '$lib/timezone-providers';
   import { CommonToastType, GlobalCommonToast } from '$stores/global-common-toast';
   import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
@@ -16,7 +16,7 @@
 
   const abortController = new AbortController();
   let deviceAppSettings: DeviceAppSettings;
-  const appSettings = GlobalAppSettings;
+  const appSettings = getAppSettings();
   let availableUtcOffsets: UTCOffsetInfo[] = getOffsets();
   let availableKeyboardLayouts: DeviceAppAutomationKeyboardLayout[] = Object.values(DeviceAppAutomationKeyboardLayout);
 
@@ -26,13 +26,13 @@
 
   async function saveSettings() {
     try {
-      GlobalAppSettings.commit();
+      appSettings.commit();
       await SharedTotpAppClient.setDeviceDatetime(
-        await AvailableTimeProviders[GlobalAppSettings.dateTime.provider].getCurrentTime(abortController.signal),
+        await AvailableTimeProviders[appSettings.dateTime.provider].getCurrentTime(abortController.signal),
         abortController.signal,
       );
       deviceAppSettings.timezoneOffset =
-        await AvailableTimezoneProviders[GlobalAppSettings.timezone.provider].getCurrentTimezoneOffset();
+        await AvailableTimezoneProviders[appSettings.timezone.provider].getCurrentTimezoneOffset();
       await SharedTotpAppClient.updateAppSettings(deviceAppSettings, abortController.signal);
       GlobalCommonToast.show('Settings have been successfully updated', CommonToastType.Success);
     } catch (e) {
@@ -44,7 +44,7 @@
   onMount(() => loadSettings());
   onDestroy(() => {
     abortController.abort();
-    GlobalAppSettings.revert();
+    appSettings.revert();
   });
 </script>
 

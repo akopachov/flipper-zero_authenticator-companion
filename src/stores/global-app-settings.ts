@@ -1,4 +1,8 @@
 import Store from 'electron-store';
 import { AppSettings } from '$models/app-settings';
 
-export const GlobalAppSettings = new AppSettings(new Store());
+const store = new Store();
+
+export function getAppSettings() {
+  return new AppSettings(store);
+}

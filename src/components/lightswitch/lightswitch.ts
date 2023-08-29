@@ -1,8 +1,8 @@
 import { ThemeColorSchemePreference } from '$models/app-settings';
-import { GlobalAppSettings } from '$stores/global-app-settings';
+import { getAppSettings } from '$stores/global-app-settings';
 import { get, writable } from 'svelte/store';
 
-export const modeUserPrefers = writable<ThemeColorSchemePreference>(GlobalAppSettings.theme.colorScheme);
+export const modeUserPrefers = writable<ThemeColorSchemePreference>(getAppSettings().theme.colorScheme);
 
 export function getModeOsPrefers(): ThemeColorSchemePreference {
   const prefersLightMode = window.matchMedia('(prefers-color-scheme: dark)').matches;

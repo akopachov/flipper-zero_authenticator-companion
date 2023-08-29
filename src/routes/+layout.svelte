@@ -9,7 +9,7 @@
   import { initializeStores } from '@skeletonlabs/skeleton';
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
   import { AppBar, AppShell, Drawer, storePopup, getDrawerStore, Modal, Toast } from '@skeletonlabs/skeleton';
-  import { GlobalAppSettings } from '$stores/global-app-settings';
+  import { getAppSettings } from '$stores/global-app-settings';
   import { AvailableTimeProviders } from '$lib/time-providers';
   import { AvailableTimezoneProviders } from '$lib/timezone-providers';
   import CommonPreloader from '$components/common-preloader/common-preloader.svelte';
@@ -70,14 +70,15 @@
   });
 
   async function sync() {
-    if (GlobalAppSettings.dateTime.syncAtStartup) {
+    const appSettings = getAppSettings();
+    if (appSettings.dateTime.syncAtStartup) {
       await SharedTotpAppClient.setDeviceDatetime(
-        await AvailableTimeProviders[GlobalAppSettings.dateTime.provider].getCurrentTime(),
+        await AvailableTimeProviders[appSettings.dateTime.provider].getCurrentTime(),
       );
     }
-    if (GlobalAppSettings.timezone.syncAtStartup) {
+    if (appSettings.timezone.syncAtStartup) {
       await SharedTotpAppClient.setAppTimezone(
-        await AvailableTimezoneProviders[GlobalAppSettings.timezone.provider].getCurrentTimezoneOffset(),
+        await AvailableTimezoneProviders[appSettings.timezone.provider].getCurrentTimezoneOffset(),
       );
     }
   }

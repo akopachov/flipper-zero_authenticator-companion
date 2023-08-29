@@ -1,10 +1,10 @@
 <script lang="ts">
   import { ThemeColorSchemePreference } from '$models/app-settings';
-  import { GlobalAppSettings } from '$stores/global-app-settings';
+  import { getAppSettings } from '$stores/global-app-settings';
   import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
   import { modeUserPrefers } from './lightswitch';
 
-  const appSettings = GlobalAppSettings;
+  const appSettings = getAppSettings();
   $: {
     $modeUserPrefers = appSettings.theme.colorScheme;
     appSettings.commit();

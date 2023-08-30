@@ -120,7 +120,7 @@ jobs:
           path: release
       
       - name: Generate checksum
-        uses: jmgilman/actions-generate-checksum@v1
+        uses: jmgilman/actions-generate-checksum@v1.0.0
         with:
           patterns: |
             release/*

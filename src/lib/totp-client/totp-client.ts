@@ -80,52 +80,61 @@ const ExecuteCommandDefaultOptions: ExecuteCommandOptions = {
 
 export class TotpAppClient extends EventEmitter {
   #serialPort: SerialPortAsync | null = null;
-  #semaphore: Sema;
+  #executionSemaphore: Sema;
+  #getPortSemaphore: Sema;
 
   constructor() {
     super();
-    this.#semaphore = new Sema(1);
+    this.#executionSemaphore = new Sema(1);
+    this.#getPortSemaphore = new Sema(1);
   }
 
   async #getSerialPort(signal?: AbortSignal): Promise<SerialPortAsync> {
     if (this.#serialPort == null) {
-      let serialPort: SerialPortAsync | null = null;
+      await this.#getPortSemaphore.acquire();
+      try {
+        if (this.#serialPort == null) {
+          let serialPort: SerialPortAsync | null = null;
 
-      do {
-        signal?.throwIfAborted();
-        this.emit(TotpClientEvents.Connecting, this);
-        const flipperZeroDevice = await waitForFlipperZeroDevice();
-        serialPort = new SerialPortAsync({ path: flipperZeroDevice.path, baudRate: 115200, autoOpen: false });
-        try {
-          await serialPort.openAsync();
-        } catch (e) {
-          this.emit(TotpClientEvents.ConnectionError, this, e);
-          serialPort = null;
-          await tryDelay(1000, { signal: signal });
-        }
-        if (serialPort != null) {
-          try {
-            await serialPort.readUntil(TotpCommandOutput.EndOfCommand, { timeout: 1000, signal: signal });
-          } catch (e) {
-            this.emit(TotpClientEvents.ConnectionError, this, e);
-            await serialPort.closeAsync();
-            serialPort = null;
-            await tryDelay(1000, { signal: signal });
+          do {
+            signal?.throwIfAborted();
+            this.emit(TotpClientEvents.Connecting, this);
+            const flipperZeroDevice = await waitForFlipperZeroDevice();
+            serialPort = new SerialPortAsync({ path: flipperZeroDevice.path, baudRate: 115200, autoOpen: false });
+            try {
+              await serialPort.openAsync();
+            } catch (e) {
+              this.emit(TotpClientEvents.ConnectionError, this, e);
+              serialPort = null;
+              await tryDelay(1000, { signal: signal });
+            }
+            if (serialPort != null) {
+              try {
+                await serialPort.readUntil(TotpCommandOutput.EndOfCommand, { timeout: 1000, signal: signal });
+              } catch (e) {
+                this.emit(TotpClientEvents.ConnectionError, this, e);
+                await serialPort.closeAsync();
+                serialPort = null;
+                await tryDelay(1000, { signal: signal });
+              }
+            }
+          } while (serialPort == null);
+
+          if (signal?.aborted) {
+            serialPort?.close();
+            signal.throwIfAborted();
           }
+
+          serialPort.on('close', () => {
+            this.#serialPort = null;
+          });
+          this.emit(TotpClientEvents.Connected, this);
+
+          this.#serialPort = serialPort;
         }
-      } while (serialPort == null);
-
-      if (signal?.aborted) {
-        serialPort?.close();
-        signal.throwIfAborted();
+      } finally {
+        this.#getPortSemaphore.release();
       }
-
-      serialPort.on('close', () => {
-        this.#serialPort = null;
-      });
-      this.emit(TotpClientEvents.Connected, this);
-
-      this.#serialPort = serialPort;
     }
 
     return this.#serialPort;
@@ -203,10 +212,10 @@ export class TotpAppClient extends EventEmitter {
     this.emit(TotpClientEvents.CommandExecuting, this);
     let result: string | null;
     try {
-      await this.#semaphore.acquire();
+      await this.#executionSemaphore.acquire();
       result = await this.#_executeCommand(command, options);
     } finally {
-      this.#semaphore.release();
+      this.#executionSemaphore.release();
       this.emit(TotpClientEvents.CommandExecuted, this);
     }
 
@@ -267,11 +276,11 @@ export class TotpAppClient extends EventEmitter {
         case '':
         case 'Automation features':
           if (value == 'Type <Enter> key at the end') {
-            tokenInfo.automationFeatures.push(TokenAutomationFeature.Enter);
+            tokenInfo.automationFeatures.add(TokenAutomationFeature.Enter);
           } else if (value == 'Type <Tab> key at the end') {
-            tokenInfo.automationFeatures.push(TokenAutomationFeature.Tab);
+            tokenInfo.automationFeatures.add(TokenAutomationFeature.Tab);
           } else if (value == 'Type slower') {
-            tokenInfo.automationFeatures.push(TokenAutomationFeature.Slower);
+            tokenInfo.automationFeatures.add(TokenAutomationFeature.Slower);
           }
       }
     }
@@ -288,8 +297,8 @@ export class TotpAppClient extends EventEmitter {
       fullCommand += ' -s';
     }
 
-    if (tokenInfo.automationFeatures.length > 0) {
-      fullCommand += ' ' + tokenInfo.automationFeatures.map(f => `-b ${f}`).join(' ');
+    if (tokenInfo.automationFeatures.size > 0) {
+      fullCommand += ' ' + [...tokenInfo.automationFeatures].map(f => `-b ${f}`).join(' ');
     }
 
     let response = await this.#executeCommand(`${fullCommand}\r`, {
@@ -384,11 +393,11 @@ export class TotpAppClient extends EventEmitter {
       if (notifyExecResult && notifyExecResult.length > 0) {
         notifySettingsParsed = true;
         if (notifyExecResult[1].includes(`"${DeviceAppNotification.Sound}"`)) {
-          settings.notification.push(DeviceAppNotification.Sound);
+          settings.notification.add(DeviceAppNotification.Sound);
         }
 
         if (notifyExecResult[1].includes(`"${DeviceAppNotification.Vibro}"`)) {
-          settings.notification.push(DeviceAppNotification.Vibro);
+          settings.notification.add(DeviceAppNotification.Vibro);
         }
       }
     }
@@ -407,18 +416,21 @@ export class TotpAppClient extends EventEmitter {
       const automationExecResult = automationRegex.exec(automationCommandResponse);
       if (automationExecResult && automationExecResult.length > 0) {
         automationSettingsParsed = true;
-        if (automationExecResult[1].includes(`"${DeviceAppAutomation.USB}"`)) {
-          settings.automation.push(DeviceAppAutomation.USB);
+        const rawAutomationState = automationExecResult[1].toLowerCase();
+        if (rawAutomationState.includes(`"${DeviceAppAutomation.USB}"`)) {
+          settings.automation.add(DeviceAppAutomation.USB);
         }
 
-        if (automationExecResult[1].includes(`"${DeviceAppAutomation.Bluetooth}"`)) {
-          settings.automation.push(DeviceAppAutomation.Bluetooth);
+        if (rawAutomationState.includes(`"${DeviceAppAutomation.Bluetooth}"`)) {
+          settings.automation.add(DeviceAppAutomation.Bluetooth);
         }
 
-        if (automationExecResult[1].includes(`(${DeviceAppAutomationKeyboardLayout.QWERTY})`)) {
+        if (rawAutomationState.includes(`(${DeviceAppAutomationKeyboardLayout.QWERTY})`)) {
           settings.automationKeyboardLayout = DeviceAppAutomationKeyboardLayout.QWERTY;
-        } else if (automationExecResult[1].includes(`(${DeviceAppAutomationKeyboardLayout.AZERTY})`)) {
+        } else if (rawAutomationState.includes(`(${DeviceAppAutomationKeyboardLayout.AZERTY})`)) {
           settings.automationKeyboardLayout = DeviceAppAutomationKeyboardLayout.AZERTY;
+        } else if (rawAutomationState.includes(`(${DeviceAppAutomationKeyboardLayout.QWERTZ})`)) {
+          settings.automationKeyboardLayout = DeviceAppAutomationKeyboardLayout.QWERTZ;
         }
       }
     }
@@ -436,9 +448,10 @@ export class TotpAppClient extends EventEmitter {
 
   async updateAppSettings(settings: DeviceAppSettings, signal?: AbortSignal) {
     this.setAppTimezone(settings.timezoneOffset, signal);
-    const notifyArg = settings.notification.length > 0 ? settings.notification.join(' ') : DeviceAppNotification.None;
+    const notifyArg =
+      settings.notification.size > 0 ? [...settings.notification].join(' ') : DeviceAppNotification.None;
     await this.#executeCommand(`${TotpCommand} notify ${notifyArg}\r`, { signal: signal });
-    const automationArg = settings.automation.length > 0 ? settings.automation.join(' ') : DeviceAppAutomation.None;
+    const automationArg = settings.automation.size > 0 ? [...settings.automation].join(' ') : DeviceAppAutomation.None;
     await this.#executeCommand(`${TotpCommand} automation ${automationArg} -k ${settings.automationKeyboardLayout}\r`, {
       signal: signal,
     });

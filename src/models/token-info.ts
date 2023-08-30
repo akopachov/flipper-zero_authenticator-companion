@@ -1,7 +1,42 @@
-import type { TokenAutomationFeature } from './token-automation-feature';
+import { TokenAutomationFeature } from './token-automation-feature';
 import { TokenHashingAlgo } from './token-hashing-algo';
 import { TokenLength } from './token-length';
 import { TokenSecretEncoding } from './token-secret-encoding';
+
+export class TokenAutomationFeatureSet extends Set<TokenAutomationFeature> {
+  get enter() {
+    return this.has(TokenAutomationFeature.Enter);
+  }
+  set enter(v: boolean) {
+    if (v) {
+      this.add(TokenAutomationFeature.Enter);
+    } else {
+      this.delete(TokenAutomationFeature.Enter);
+    }
+  }
+
+  get tab() {
+    return this.has(TokenAutomationFeature.Tab);
+  }
+  set tab(v: boolean) {
+    if (v) {
+      this.add(TokenAutomationFeature.Tab);
+    } else {
+      this.delete(TokenAutomationFeature.Tab);
+    }
+  }
+
+  get slower() {
+    return this.has(TokenAutomationFeature.Slower);
+  }
+  set slower(v: boolean) {
+    if (v) {
+      this.add(TokenAutomationFeature.Slower);
+    } else {
+      this.delete(TokenAutomationFeature.Slower);
+    }
+  }
+}
 
 export class TokenInfoBase {
   constructor(initial?: Partial<TokenInfoBase>) {
@@ -23,5 +58,5 @@ export class TokenInfo extends TokenInfoBase {
 
   secret: string = '';
   secretEncoding: TokenSecretEncoding = TokenSecretEncoding.Base32;
-  automationFeatures: TokenAutomationFeature[] = [];
+  automationFeatures: TokenAutomationFeatureSet = new TokenAutomationFeatureSet();
 }

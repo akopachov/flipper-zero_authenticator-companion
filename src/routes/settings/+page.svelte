@@ -1,35 +1,23 @@
 <script lang="ts">
   import log from 'electron-log';
-  import SegmentedButton, { Segment, Label } from '@smui/segmented-button';
-  import IconButton, { Icon as IconButtonIcon } from '@smui/icon-button';
-  import Button, { Label as ButtonLabel } from '@smui/button';
-  import Switch from '@smui/switch';
-  import FormField from '@smui/form-field';
-  import Paper, { Title, Content } from '@smui/paper';
-  import Select, { Option } from '@smui/select';
-  import Tooltip, { Wrapper } from '@smui/tooltip';
-  import {
-    DeviceAppSettings,
-    DeviceAppNotification,
-    DeviceAppAutomation,
-    DeviceAppAutomationKeyboardLayout,
-  } from '../../models/device-app-settings';
+  import { DeviceAppSettings, DeviceAppAutomationKeyboardLayout } from '../../models/device-app-settings';
   import { getOffsets, type UTCOffsetInfo } from 'utc-offsets';
-  import { AvailableTimeProviders, type TimeProvider } from '$lib/time-providers';
+  import { AvailableTimeProviders } from '$lib/time-providers';
   import { SharedTotpAppClient } from '$stores/totp-shared-client';
   import { onDestroy, onMount } from 'svelte';
-  import { CommonSnackbarType, GlobalCommonSnackbar } from '$stores/global-common-snackbar';
+  import { getAppSettings } from '$stores/app-settings';
+  import { AvailableTimezoneProviders } from '$lib/timezone-providers';
+  import { CommonToastType, GlobalCommonToast } from '$stores/global-common-toast';
+  import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
+  import { FromConfigTimezoneProvider } from '$lib/timezone-providers/from-config-timezone-provider';
   import { slide } from 'svelte/transition';
-  import { GlobalAppSettings } from '$stores/global-app-settings';
-  import { AvailableTimezoneProviders, type TimezoneProvider } from '$lib/timezone-providers';
-  import { LocalTimezoneProvider } from '$lib/timezone-providers/local-timezone-provider';
-  import { CloudTimezoneProvider } from '$lib/timezone-providers/cloud-timezone-provider';
+
+  GlobalCommonToast.initialize();
 
   const abortController = new AbortController();
   let deviceAppSettings: DeviceAppSettings;
+  const appSettings = getAppSettings();
   let availableUtcOffsets: UTCOffsetInfo[] = getOffsets();
-  let selectedTimeProvider: TimeProvider = AvailableTimeProviders[GlobalAppSettings.dateTime.provider];
-  let selectedTimezoneProvider: TimezoneProvider = AvailableTimezoneProviders[GlobalAppSettings.timezone.provider];
   let availableKeyboardLayouts: DeviceAppAutomationKeyboardLayout[] = Object.values(DeviceAppAutomationKeyboardLayout);
 
   async function loadSettings() {
@@ -38,214 +26,125 @@
 
   async function saveSettings() {
     try {
-      GlobalAppSettings.dateTime.provider = AvailableTimeProviders.indexOf(selectedTimeProvider);
-      GlobalAppSettings.timezone.provider = AvailableTimezoneProviders.indexOf(selectedTimezoneProvider);
-      GlobalAppSettings.commit();
+      appSettings.commit();
       await SharedTotpAppClient.setDeviceDatetime(
-        await selectedTimeProvider.getCurrentTime(abortController.signal),
+        await AvailableTimeProviders[appSettings.dateTime.provider].getCurrentTime(abortController.signal),
         abortController.signal,
       );
+      deviceAppSettings.timezoneOffset =
+        await AvailableTimezoneProviders[appSettings.timezone.provider].getCurrentTimezoneOffset();
       await SharedTotpAppClient.updateAppSettings(deviceAppSettings, abortController.signal);
-      GlobalCommonSnackbar.show('Settings have been successfully updated', CommonSnackbarType.Success);
+      GlobalCommonToast.show('Settings have been successfully updated', CommonToastType.Success);
     } catch (e) {
-      GlobalCommonSnackbar.show('An error occurred during updating settings', CommonSnackbarType.Error);
+      GlobalCommonToast.show('An error occurred during updating settings', CommonToastType.Error);
       log.error(e);
     }
-  }
-
-  async function syncTimezoneFromLocal() {
-    deviceAppSettings.timezoneOffset = await new LocalTimezoneProvider().getCurrentTimezoneOffset();
-  }
-
-  async function syncTimezoneFromCloud() {
-    deviceAppSettings.timezoneOffset = await new CloudTimezoneProvider().getCurrentTimezoneOffset();
   }
 
   onMount(() => loadSettings());
   onDestroy(() => {
     abortController.abort();
-    GlobalAppSettings.revert();
+    appSettings.revert();
   });
 </script>
 
 {#if deviceAppSettings}
-  <div class="container">
-    <form class="app-settings-form" on:submit={saveSettings}>
-      <Paper variant="outlined" class="section">
-        <Title>Date and time</Title>
-        <Content>
-          <label class="time-provider-label" for="timeProvider">Sync device time with</label>
-          <SegmentedButton
-            id="timeProvider"
-            segments={AvailableTimeProviders}
-            let:segment
-            singleSelect
-            bind:selected={selectedTimeProvider}>
-            <Segment {segment} type="button">
-              <Label>{segment.name}</Label>
-            </Segment>
-          </SegmentedButton>
-          <div>
-            <FormField class="sync-at-start">
-              <Switch bind:checked={GlobalAppSettings.dateTime.syncAtStartup} />
-              <span slot="label">Sync at startup</span>
-            </FormField>
-          </div>
-        </Content>
-      </Paper>
-      <Paper variant="outlined" class="section">
-        <Title>Timezone</Title>
-        <Content>
-          <div class="timezone-container">
-            <div class="timezone-select">
-              <Select
-                class="input-element"
-                variant="outlined"
-                bind:value={deviceAppSettings.timezoneOffset}
-                label="UTC offset"
-                key={value => `${value}`}>
-                {#each availableUtcOffsets as utcOffset}
-                  <Option value={utcOffset.minutes / 60}>{utcOffset.offset}</Option>
-                {/each}
-              </Select>
-              <Wrapper>
-                <IconButton class="sync-from-local" on:click={syncTimezoneFromLocal} type="button">
-                  <IconButtonIcon class="material-icons">sync</IconButtonIcon>
-                </IconButton>
-                <Tooltip>Get from local machine</Tooltip>
-              </Wrapper>
-              <Wrapper>
-                <IconButton class="sync-from-local" on:click={syncTimezoneFromCloud} type="button">
-                  <IconButtonIcon class="material-icons">cloud_sync</IconButtonIcon>
-                </IconButton>
-                <Tooltip>Get from cloud</Tooltip>
-              </Wrapper>
-            </div>
-            <div>
-              <FormField class="sync-at-start">
-                <Switch bind:checked={GlobalAppSettings.timezone.syncAtStartup} />
-                <span slot="label">Sync at startup</span>
-              </FormField>
-              {#if GlobalAppSettings.timezone.syncAtStartup}
-                <div>
-                  <SegmentedButton
-                    segments={AvailableTimezoneProviders}
-                    let:segment
-                    singleSelect
-                    bind:selected={selectedTimezoneProvider}>
-                    <Segment {segment} type="button">
-                      <Label>{segment.name}</Label>
-                    </Segment>
-                  </SegmentedButton>
-                </div>
-              {/if}
-            </div>
-          </div>
-        </Content>
-      </Paper>
-      <Paper variant="outlined" class="section">
-        <Title>Notification</Title>
-        <Content>
-          <div>
-            <FormField>
-              <Switch bind:group={deviceAppSettings.notification} value={DeviceAppNotification.Sound} />
-              <span slot="label">Sound</span>
-            </FormField>
-          </div>
-          <div>
-            <FormField>
-              <Switch bind:group={deviceAppSettings.notification} value={DeviceAppNotification.Vibro} />
-              <span slot="label">Vibro</span>
-            </FormField>
-          </div>
-        </Content>
-      </Paper>
-      <Paper variant="outlined" class="section">
-        <Title>Automation</Title>
-        <Content>
-          <div>
-            <FormField>
-              <Switch bind:group={deviceAppSettings.automation} value={DeviceAppAutomation.USB} />
-              <span slot="label">USB</span>
-            </FormField>
-          </div>
-          <div>
-            <FormField>
-              <Switch bind:group={deviceAppSettings.automation} value={DeviceAppAutomation.Bluetooth} />
-              <span slot="label">Bluetooth</span>
-            </FormField>
-          </div>
-          {#if deviceAppSettings.automation.length > 0}
-            <div class="kb-layout-container" transition:slide>
-              <label class="kb-layout-label" for="kbLayout">Keyboard layout</label>
-              <SegmentedButton
-                id="kbLayout"
-                segments={availableKeyboardLayouts}
-                let:segment
-                singleSelect
-                bind:selected={deviceAppSettings.automationKeyboardLayout}>
-                <Segment {segment} type="button">
-                  <Label>{segment}</Label>
-                </Segment>
-              </SegmentedButton>
-            </div>
-          {/if}
-        </Content>
-      </Paper>
-      <div class="action-controls">
-        <Button class="save" variant="unelevated" type="submit">
-          <ButtonLabel>Save</ButtonLabel>
-        </Button>
+  <div class="flex h-max min-h-full">
+    <form class="w-full p-4" on:submit={saveSettings}>
+      <div class="mb-5">
+        <h3 class="h3">Date and time</h3>
+        <label class="label mb-3" for="timeProvider">
+          <span class="block">Sync device time with</span>
+          <RadioGroup id="timeProvider" active="variant-filled-primary" hover="hover:variant-soft-primary">
+            {#each AvailableTimeProviders as provider, index}
+              <RadioItem name="Time provider" bind:group={appSettings.dateTime.provider} value={index}>
+                {provider.name}
+              </RadioItem>
+            {/each}
+          </RadioGroup>
+        </label>
+        <SlideToggle
+          name="timeProvider-syncAtStartup-label"
+          size="sm"
+          bind:checked={appSettings.dateTime.syncAtStartup}>
+          Sync at startup
+        </SlideToggle>
+      </div>
+      <div class="mb-5">
+        <h3 class="h3">Timezone</h3>
+        <label class="label mb-3" for="timezoneProvider">
+          <span class="block">Sync timezone with</span>
+          <RadioGroup id="timezoneProvider" active="variant-filled-primary" hover="hover:variant-soft-primary">
+            {#each AvailableTimezoneProviders as provider, index}
+              <RadioItem name="Timezone provider" bind:group={appSettings.timezone.provider} value={index}>
+                {provider.name}
+              </RadioItem>
+            {/each}
+          </RadioGroup>
+        </label>
+        {#if AvailableTimezoneProviders[appSettings.timezone.provider] instanceof FromConfigTimezoneProvider}
+          <label class="label mb-3 max-w-xs" transition:slide={{ duration: 200 }}>
+            <span class="block">Timezone UTC offset</span>
+            <select class="select" bind:value={appSettings.timezone.manualOffset}>
+              {#each availableUtcOffsets as utcOffset}
+                <option value={utcOffset.minutes / 60}>{utcOffset.offset}</option>
+              {/each}
+            </select>
+          </label>
+        {/if}
+        <SlideToggle
+          name="timezoneProvider-syncAtStartup-label"
+          size="sm"
+          bind:checked={appSettings.timezone.syncAtStartup}>
+          Sync at startup
+        </SlideToggle>
+      </div>
+      <div class="mb-5">
+        <h3 class="h3">Notification</h3>
+        <div class="block mb-4 mt-2">
+          <SlideToggle name="notification-sound-label" size="sm" bind:checked={deviceAppSettings.notification.sound}>
+            Sound
+          </SlideToggle>
+        </div>
+        <div class="block">
+          <SlideToggle name="notification-vibro-label" size="sm" bind:checked={deviceAppSettings.notification.vibro}>
+            Vibro
+          </SlideToggle>
+        </div>
+      </div>
+      <div>
+        <h3 class="h3">Automation</h3>
+        <div class="block mb-4 mt-2">
+          <SlideToggle name="automation-usb-label" size="sm" bind:checked={deviceAppSettings.automation.usb}>
+            USB
+          </SlideToggle>
+        </div>
+        <div class="block">
+          <SlideToggle name="automation-usb-label" size="sm" bind:checked={deviceAppSettings.automation.bluetooth}>
+            Bluetooth
+          </SlideToggle>
+        </div>
+        {#if deviceAppSettings.automation.size > 0}
+          <label class="label mb-3 mt-3" for="automationKbLayout">
+            <span class="block">Keyboard layout</span>
+            <RadioGroup id="automationKbLayout" active="variant-filled-primary" hover="hover:variant-soft-primary">
+              {#each availableKeyboardLayouts as layout}
+                <RadioItem
+                  class="uppercase"
+                  name="Keyboard layout"
+                  bind:group={deviceAppSettings.automationKeyboardLayout}
+                  value={layout}>
+                  {layout}
+                </RadioItem>
+              {/each}
+            </RadioGroup>
+          </label>
+        {/if}
+      </div>
+      <div class="m-4 flex justify-center">
+        <button type="submit" class="btn variant-filled-primary ml-auto w-20 -mr-20">Save</button>
+        <a href="/" type="reset" class="btn variant-ghost ml-auto">Cancel</a>
       </div>
     </form>
   </div>
 {/if}
-
-<style lang="scss">
-  .container {
-    display: flex;
-    height: max-content;
-    min-height: 100%;
-
-    .app-settings-form {
-      flex-basis: 100%;
-      padding: 20px;
-
-      :global(.section) {
-        margin-bottom: 20px;
-      }
-
-      .time-provider-label {
-        display: block;
-      }
-
-      :global(.sync-at-start) {
-        margin: 10px 0 0 0;
-      }
-
-      .timezone-container {
-        .timezone-select {
-          display: flex;
-          align-items: center;
-        }
-
-        :global(.sync-at-start) {
-          margin: 10px 0;
-        }
-      }
-
-      .kb-layout-container {
-        margin-top: 20px;
-
-        .kb-layout-label {
-          display: block;
-        }
-      }
-
-      .action-controls {
-        display: flex;
-        justify-content: center;
-      }
-    }
-  }
-</style>

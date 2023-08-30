@@ -1,33 +1,14 @@
 <script lang="ts">
-  import CircularProgress from '@smui/circular-progress';
+  import { ProgressRadial } from '@skeletonlabs/skeleton';
   import { GlobalPreloader } from '../../stores/global-preloader';
   import { fade } from 'svelte/transition';
 </script>
 
 {#if $GlobalPreloader.visible}
-  <div out:fade={{ duration: 300 }} class="processing-request">
-    <CircularProgress class="progress" style="height: 128px; width: 128px;" indeterminate />
-    <h5 class="description">{$GlobalPreloader.description}</h5>
+  <div
+    out:fade={{ duration: 300 }}
+    class="fixed top-0 left-0 w-screen h-screen z-50 flex items-center justify-center flex-col backdrop-blur-md bg-tertiary-100 bg-opacity-50">
+    <ProgressRadial stroke={140} meter="stroke-primary-500" track="stroke-primary-500/30" />
+    <h3 class="h3 text-center mt-3 text-current">{$GlobalPreloader.description}</h3>
   </div>
 {/if}
-
-<style lang="scss">
-  .processing-request {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100svw;
-    height: 100svh;
-    z-index: 998;
-    background-color: var(--preloader-background);
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    .description {
-      text-align: center;
-    }
-  }
-</style>

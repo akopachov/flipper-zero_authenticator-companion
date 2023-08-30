@@ -20,6 +20,16 @@
 
 Flipper Authenticator Companion is a companion application for [Flipper Authenticator](https://github.com/akopachov/flipper-zero_authenticator) software-based TOTP authenticator for Flipper Zero device. This application allows to interact with Flipper Authenticator in a more user-friendly way.
 
+## How get it
+
+1. Go to [latest release](https://github.com/akopachov/flipper-zero_authenticator-companion/releases/latest)
+2. Download appropriate file for your platform
+3. Run it
+
+**IMPORTANT NOTE:**
+
+All the application binaries provided in the releases are unsigned and some anti-virus software may prevent running due to that. To verify file integrity you may check SHA256 checksum provided for every release.
+
 ## Build
 ```
 pnpm config set node-linker hoisted --location project

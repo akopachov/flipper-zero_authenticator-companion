@@ -11,3 +11,5 @@
 * USDT: `0xa12163eD56e35d3B38F7087B573384E40b2785e1`
 * DOGE: `DAa3nu1RCWwxZdAnGVga77bgxDFP1nhahj`
 * TON: `EQCSBzoTb1B7RhXnka5RegmdjHR3gQwRVgZHNPPqzjjvlW9T`
+
+## Antivirus scanner results

@@ -39,6 +39,7 @@ pnpm build
 
 ## Development
 ```
+pnpm install
 pnpm dev
 ```
 

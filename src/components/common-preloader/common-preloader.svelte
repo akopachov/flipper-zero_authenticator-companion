@@ -9,6 +9,6 @@
     out:fade={{ duration: 300 }}
     class="fixed top-0 left-0 w-screen h-screen z-50 flex items-center justify-center flex-col backdrop-blur-md bg-tertiary-100 bg-opacity-50">
     <ProgressRadial stroke={140} meter="stroke-primary-500" track="stroke-primary-500/30" />
-    <h5 class="h5 text-center mt-3 text-current">{$GlobalPreloader.description}</h5>
+    <h3 class="h3 text-center mt-3 text-current">{$GlobalPreloader.description}</h3>
   </div>
 {/if}

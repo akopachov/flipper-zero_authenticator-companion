@@ -74,7 +74,7 @@
     }
 
     if (!tokenInfo) {
-      GlobalCommonToast.show('No valid QR code found', CommonToastType.Warning);
+      GlobalCommonToast.show('No valid QR code found on a screen', CommonToastType.Warning);
     }
 
     GlobalPreloader.hide();

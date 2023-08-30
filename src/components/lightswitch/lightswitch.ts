@@ -22,16 +22,6 @@ export function getModeAutoPrefers(): ThemeColorSchemePreference {
   return getModeOsPrefers();
 }
 
-export function setInitialClassState(userMode: ThemeColorSchemePreference) {
-  const elemHtmlClasses = document.documentElement.classList;
-  const condMatchMedia = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  if ((userMode === 'os' && condMatchMedia) || userMode === 'dark') {
-    elemHtmlClasses.add('dark');
-  } else {
-    elemHtmlClasses.remove('dark');
-  }
-}
-
 export function updateMode() {
   const elemHtmlClasses = document.documentElement.classList;
   const classDark = `dark`;

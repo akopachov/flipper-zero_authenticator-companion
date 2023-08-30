@@ -28,7 +28,7 @@ Flipper Authenticator Companion is a companion application for [Flipper Authenti
 
 **IMPORTANT NOTE:**
 
-All the application binaries provided in the releases are unsigned and some anti-virus software may prevent running due to that. To verify file integrity you may check SHA256 checksum provided for every release. Binary files are getting scanned by [Virustotal](https://virustotal.com/) for every release and available on the release page.
+All the application binaries provided in the releases are unsigned and some anti-virus software may prevent running due to that. To verify file integrity you may check SHA256 checksum provided for every release. Executable files for all platforms are scanned by [Virustotal](https://virustotal.com/) for every release and available on the release page.
 
 ## Build
 ```

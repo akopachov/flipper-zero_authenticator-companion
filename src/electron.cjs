@@ -8,7 +8,7 @@ const log = require('electron-log');
 try {
   require('electron-reloader')(module);
 } catch (e) {
-  log.error(e);
+  /* empty */
 }
 
 const serveURL = serve({ directory: '.' });

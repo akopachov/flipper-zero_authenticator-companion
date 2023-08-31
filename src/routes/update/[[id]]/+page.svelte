@@ -10,7 +10,7 @@
   import { TokenSecretEncoding } from '$models/token-secret-encoding';
   import { TokenAutomationFeature } from '$models/token-automation-feature';
   import { goto } from '$app/navigation';
-  import { parse } from 'url-otpauth-ng';
+  import { parse } from '$lib/url-otpauth-ts/parse';
   import { SharedTotpAppClient } from '$stores/totp-shared-client';
   import { page } from '$app/stores';
   import { blur } from 'svelte/transition';

@@ -162,9 +162,6 @@ devDependencies:
   typescript:
     specifier: ^5.2.2
     version: 5.2.2
-  url-otpauth-ng:
-    specifier: ^3.1.0
-    version: 3.1.0
   utc-offsets:
     specifier: ^1.0.0
     version: 1.0.0
@@ -4786,10 +4783,6 @@ packages:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
       punycode: 2.3.0
-
-  /url-otpauth-ng@3.1.0:
-    resolution: {integrity: sha512-KOc0Q4Ds9E2fTVJ2GC1o8c1NPJZZHzw7endHABd8ITu+9TsOyl3uqKY0w+dHb5J7gSTO9/WyXbTee40M0MJOCA==}
-    dev: true
 
   /utc-offsets@1.0.0:
     resolution: {integrity: sha512-CcUeuLau73nzBJ2bCbWLr1sy2xbXKd5jH6PNW+wDGG9ql8e1ZS9egXPNoe0HAS9H1nra/OT5KudfkW+zyi+POQ==}

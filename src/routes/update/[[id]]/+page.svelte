@@ -38,7 +38,7 @@
   }
 
   async function onScanQrCodeClicked() {
-    GlobalPreloader.show('Looking for QR code');
+    GlobalPreloader.show('Looking for QR code on a screen');
     // https://gist.github.com/kcramer/c6148fb906e116d84e4bde7b2ab56992
     scannedData = null;
     tokenInfo = null;

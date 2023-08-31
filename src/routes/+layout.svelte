@@ -14,7 +14,7 @@
   import { AvailableTimezoneProviders } from '$lib/timezone-providers';
   import CommonPreloader from '$components/common-preloader/common-preloader.svelte';
   import Lightswitch from '$components/lightswitch/lightswitch.svelte';
-  import LightswitchDemon from '$components/lightswitch/lightswitch-demon.svelte';
+  import LightswitchDaemon from '$components/lightswitch/lightswitch-daemon.svelte';
 
   initializeStores();
 
@@ -29,7 +29,8 @@
 
   $: $navigating && drawerStore.close();
 
-  $: classesActivePage = (href: string) => (href === $page.url.pathname ? '!bg-primary-500' : '');
+  $: classesActivePage = (href: string) =>
+    href === $page.url.pathname ? '!bg-primary-500 focus:!bg-primary-500' : 'focus:!bg-inherit';
 
   async function closeTotpAppClient() {
     await SharedTotpAppClient.close();
@@ -87,7 +88,7 @@
 </script>
 
 <svelte:window on:beforeunload={closeTotpAppClient} />
-<LightswitchDemon />
+<LightswitchDaemon />
 
 {#if ready}
   <Modal />
@@ -97,7 +98,7 @@
     <nav class="list-nav p-2 h-full">
       <ul class="h-full flex flex-col">
         <li>
-          <a href="/update" class="{classesActivePage('/update')} focus:!bg-inherit focus:!text-inherit">
+          <a href="/update" class="{classesActivePage('/update')} focus:!text-inherit">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

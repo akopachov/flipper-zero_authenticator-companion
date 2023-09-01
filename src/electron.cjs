@@ -4,12 +4,16 @@ const serve = require('electron-serve');
 const path = require('path');
 const Store = require('electron-store');
 const log = require('electron-log');
+const { autoUpdater } = require("electron-updater");
 
 try {
   require('electron-reloader')(module);
 } catch (e) {
   /* empty */
 }
+
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
 
 const serveURL = serve({ directory: '.' });
 const port = process.env.PORT || 5173;
@@ -84,5 +88,6 @@ app.on('activate', () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+app.once('ready', () => autoUpdater.checkForUpdatesAndNotify());
 
 Store.initRenderer();

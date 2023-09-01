@@ -33,8 +33,8 @@
 
   function formatAccountName(issuer: string | null | undefined, account: string | null | undefined) {
     if (issuer && account) return `${issuer} (${account})`;
-    if (issuer) return issuer;
-    return account || '';
+    if (account) return account;
+    return issuer || '';
   }
 
   async function onScanQrCodeClicked() {
@@ -70,10 +70,9 @@
         });
       } catch (e) {
         log.error(e);
+        GlobalCommonToast.show('QR code found but seems to be non-valid 2FA QR code', CommonToastType.Warning);
       }
-    }
-
-    if (!tokenInfo) {
+    } else {
       GlobalCommonToast.show('No valid QR code found on a screen', CommonToastType.Warning);
     }
 

@@ -7,6 +7,9 @@ import { OtpAuthInvalidUrl } from './otp-auth-invalid-url';
 const PossibleType = <const>['totp', 'hotp', 'yaotp'];
 const PossibleDigits = <const>[5, 6, 8];
 const PossibleAlgorithms = <const>['SHA1', 'SHA256', 'SHA512', 'Steam'];
+enum SpecialCaseIssuers {
+  SteamCtl = 'steamctl',
+}
 
 const isInArray = <T, A extends T>(item: T, array: ReadonlyArray<A>): item is A => array.includes(item as A);
 
@@ -63,26 +66,28 @@ export function parse(rawUrl: string | URL): OtpUrlParseResult {
   //
 
   const label = parsed.pathname.substring(1);
-  // if you want to support mutli commas in label
-  // const labelComponents = label.split(~label.indexOf(':') ? /:(.*)/ : /%3A(.*)/, 2)
-  const labelComponents = label.split(~label.indexOf(':') ? ':' : '%3A');
+  let colonPos = label.indexOf(':');
+  let colonLength = 1;
+  if (colonPos < 0) {
+    colonPos = label.indexOf('%3A');
+    colonLength = 3;
+  }
+
   let issuer = '';
   let account = '';
 
-  if (labelComponents.length === 1) {
-    account = decode(labelComponents[0]);
-  } else if (labelComponents.length === 2) {
-    issuer = decode(labelComponents[0]);
-    account = decode(labelComponents[1]);
+  if (colonPos < 0) {
+    account = decode(label).trim();
   } else {
-    throw new OtpAuthInvalidUrl(ErrorType.InvalidLabel);
+    issuer = decode(label.substring(0, colonPos));
+    account = decode(label.substring(colonPos + colonLength)).trim();
   }
 
-  if (account.length < 1) {
+  if (account.length <= 0) {
     throw new OtpAuthInvalidUrl(ErrorType.MissingAccountName);
   }
 
-  if (labelComponents.length === 2 && issuer.length < 1) {
+  if (colonPos >= 0 && issuer.length <= 0) {
     throw new OtpAuthInvalidUrl(ErrorType.InvalidIssuer);
   }
 
@@ -98,7 +103,12 @@ export function parse(rawUrl: string | URL): OtpUrlParseResult {
   parsedOtpValues.key = parameters.get('secret')!;
 
   // Issuer
-  if (parameters.has('issuer') && issuer && parameters.get('issuer') !== issuer && issuer !== 'steamctl') {
+  if (
+    parameters.has('issuer') &&
+    issuer &&
+    parameters.get('issuer') !== issuer &&
+    issuer !== SpecialCaseIssuers.SteamCtl
+  ) {
     // If present, it must be equal to the "issuer" specified in the label.
     // Exception - steamctl
     throw new OtpAuthInvalidUrl(ErrorType.InvalidIssuer);
@@ -125,7 +135,7 @@ export function parse(rawUrl: string | URL): OtpUrlParseResult {
     } else {
       throw new OtpAuthInvalidUrl(ErrorType.UnknownAlgorithm);
     }
-  } else if (issuer === 'steamctl') {
+  } else if (issuer === SpecialCaseIssuers.SteamCtl) {
     parsedOtpValues.algorithm = 'Steam';
   }
 

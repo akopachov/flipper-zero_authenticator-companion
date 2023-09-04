@@ -47,7 +47,6 @@
     "delay": "^6.0.0",
     "electron": "^26.1.0",
     "electron-builder": "^24.6.3",
-    "electron-connect": "^0.6.3",
     "electron-packager": "^17.1.2",
     "electron-reloader": "^1.2.3",
     "escape-string-regexp": "^5.0.0",

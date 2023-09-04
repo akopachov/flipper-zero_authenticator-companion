@@ -187,7 +187,7 @@
           </svelte:fragment>
         </AccordionItem>
       </Accordion>
-      <div class="m-4 flex justify-center">
+      <div class="mt-4 flex justify-center">
         <button type="submit" class="btn variant-filled-primary ml-auto w-20 -mr-20">Save</button>
         <a href="/" type="reset" class="btn variant-ghost ml-auto">Cancel</a>
       </div>

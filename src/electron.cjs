@@ -4,7 +4,7 @@ const serve = require('electron-serve');
 const path = require('path');
 const Store = require('electron-store');
 const log = require('electron-log');
-const { autoUpdater } = require("electron-updater");
+const { autoUpdater } = require('electron-updater');
 
 try {
   require('electron-reloader')(module);

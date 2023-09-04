@@ -112,7 +112,7 @@
           </SlideToggle>
         </div>
       </div>
-      <div>
+      <div class="mb-5">
         <h3 class="h3">Automation</h3>
         <div class="block mb-4 mt-2">
           <SlideToggle name="automation-usb-label" size="sm" bind:checked={deviceAppSettings.automation.usb}>
@@ -141,7 +141,7 @@
           </label>
         {/if}
       </div>
-      <div class="m-4 flex justify-center">
+      <div class="flex justify-center">
         <button type="submit" class="btn variant-filled-primary ml-auto w-20 -mr-20">Save</button>
         <a href="/" type="reset" class="btn variant-ghost ml-auto">Cancel</a>
       </div>

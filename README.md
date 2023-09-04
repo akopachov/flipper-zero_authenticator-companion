@@ -5,7 +5,7 @@
 )](/LICENSE)
 [![issues - flipper-zero_authenticator-companion](https://img.shields.io/github/issues/akopachov/flipper-zero_authenticator-companion)](https://github.com/akopachov/flipper-zero_authenticator-companion/issues)
 ![maintained - yes](https://img.shields.io/badge/maintained-yes-blue)
-![Known Vulnerabilities](https://snyk.io/test/github/akopachov/flipper-zero_authenticator-companion/badge.svg)
+[![Known Vulnerabilities](https://snyk.io/test/github/akopachov/flipper-zero_authenticator-companion/badge.svg)](https://snyk.io/test/github/akopachov/flipper-zero_authenticator-companion)
 ![contributions - welcome](https://img.shields.io/badge/contributions-welcome-blue)
 [![Discord server](https://img.shields.io/discord/937479784148115456)](https://discord.gg/flipper-xtreme)
 

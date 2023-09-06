@@ -124,12 +124,11 @@ export class TotpAppClient extends EventEmitter {
             signal.throwIfAborted();
           }
 
-          serialPort.on('close', () => {
+          this.#serialPort = serialPort;
+          serialPort.once('close', () => {
             this.#serialPort = null;
           });
           this.emit(TotpClientEvents.Connected, this);
-
-          this.#serialPort = serialPort;
         }
       } finally {
         this.#getPortSemaphore.release();

@@ -66,7 +66,7 @@ type ExecuteCommandOptions = {
   trimEmptyLines: boolean;
   trimTerminalControlCommands: boolean;
   commandEndSign: string | RegExp;
-  signal: AbortSignal | undefined;
+  signal?: AbortSignal;
 };
 
 const ExecuteCommandDefaultOptions: ExecuteCommandOptions = {
@@ -75,7 +75,6 @@ const ExecuteCommandDefaultOptions: ExecuteCommandOptions = {
   trimEmptyLines: true,
   trimTerminalControlCommands: true,
   commandEndSign: TotpCommandOutput.EndOfCommand,
-  signal: undefined,
 };
 
 export class TotpAppClient extends EventEmitter {
@@ -141,7 +140,7 @@ export class TotpAppClient extends EventEmitter {
   }
 
   async #_executeCommand(command: string, options: Partial<ExecuteCommandOptions>) {
-    const opts: ExecuteCommandOptions = Object.assign({}, ExecuteCommandDefaultOptions, options);
+    const opts: ExecuteCommandOptions = { ...ExecuteCommandDefaultOptions, ...options };
     let commandFound = false;
     let response;
     let commandEndSignForRegex;
@@ -150,8 +149,7 @@ export class TotpAppClient extends EventEmitter {
     } else {
       commandEndSignForRegex = escapeStringRegexp(opts.commandEndSign);
     }
-
-    await (await this.#getSerialPort(opts.signal)).drainAsync();
+    await (await this.#getSerialPort(opts.signal)).flushAsync();
     const commandEndOutputSignRegex = new RegExp(
       `(${commandEndSignForRegex})|(${escapeStringRegexp(TotpCommandOutput.AskForPin)})|(${escapeStringRegexp(
         TotpCommandOutput.CommandCancelled,

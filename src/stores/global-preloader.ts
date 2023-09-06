@@ -1,3 +1,4 @@
+import { Singleton } from '$lib/singleton';
 import { readable, type Invalidator, type Readable, type Subscriber, type Unsubscriber } from 'svelte/store';
 
 export type PreloaderState = { visible: boolean; description: string | null | undefined };
@@ -47,4 +48,4 @@ class Preloader implements Readable<PreloaderState> {
   }
 }
 
-export const GlobalPreloader = new Preloader();
+export const GlobalPreloader = Singleton.instance('GlobalPreloader', () => new Preloader());

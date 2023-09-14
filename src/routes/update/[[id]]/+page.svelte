@@ -20,7 +20,6 @@
   GlobalCommonToast.initialize();
 
   let abortController = new AbortController();
-  let scannedData: string | null = null;
   let tokenInfo: TokenInfo | null | undefined;
   let availableTokenHashingAlgo: [string, TokenHashingAlgo][] = Object.entries(TokenHashingAlgo);
   let availableTokenLength: TokenLength[] = Object.values(TokenLength);
@@ -40,7 +39,7 @@
   async function onScanQrCodeClicked() {
     GlobalPreloader.show('Looking for QR code on a screen');
     // https://gist.github.com/kcramer/c6148fb906e116d84e4bde7b2ab56992
-    scannedData = null;
+    let scannedData: string | null = null;
     tokenInfo = null;
     for (const capture of Screenshots.all()) {
       const screenshot = await capture.capture();

@@ -1,0 +1,80 @@
+{
+  "nested": {
+    "googleauth": {
+      "nested": {
+        "MigrationPayload": {
+          "fields": {
+            "otpParameters": {
+              "rule": "repeated",
+              "type": "OtpParameters",
+              "id": 1
+            },
+            "version": {
+              "type": "int32",
+              "id": 2
+            },
+            "batchSize": {
+              "type": "int32",
+              "id": 3
+            },
+            "batchIndex": {
+              "type": "int32",
+              "id": 4
+            },
+            "batchId": {
+              "type": "int32",
+              "id": 5
+            }
+          },
+          "nested": {
+            "Algorithm": {
+              "values": {
+                "ALGO_INVALID": 0,
+                "ALGO_SHA1": 1
+              }
+            },
+            "OtpType": {
+              "values": {
+                "OTP_INVALID": 0,
+                "OTP_HOTP": 1,
+                "OTP_TOTP": 2
+              }
+            },
+            "OtpParameters": {
+              "fields": {
+                "secret": {
+                  "type": "bytes",
+                  "id": 1
+                },
+                "name": {
+                  "type": "string",
+                  "id": 2
+                },
+                "issuer": {
+                  "type": "string",
+                  "id": 3
+                },
+                "algorithm": {
+                  "type": "Algorithm",
+                  "id": 4
+                },
+                "digits": {
+                  "type": "int32",
+                  "id": 5
+                },
+                "type": {
+                  "type": "OtpType",
+                  "id": 6
+                },
+                "counter": {
+                  "type": "int64",
+                  "id": 7
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

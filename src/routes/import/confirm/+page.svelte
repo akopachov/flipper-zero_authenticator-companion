@@ -8,7 +8,6 @@
   import { onDestroy, onMount } from 'svelte';
   import { page } from '$app/stores';
   import { decodeDataFromQueryString } from '$lib/query-string-utils';
-  import { GlobalPreloader } from '$stores/global-preloader';
 
   GlobalCommonToast.initialize();
 

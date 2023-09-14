@@ -39,7 +39,7 @@
 
   function getIcon(name: string) {
     const iconFileName = findIcon(name) || 'Key.svg';
-    return `./totp-icons/${iconFileName}`;
+    return `/totp-icons/${iconFileName}`;
   }
 
   function handleConsider(e: CustomEvent<DndEvent<ListItemWrapper>>) {

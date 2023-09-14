@@ -1,6 +1,6 @@
 {
   "name": "flipper-authenticator-companion",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "private": true,
   "description": "Companion application for Flipper Authenticator software-based TOTP authenticator for Flipper Zero device",
   "main": "src/electron.cjs",

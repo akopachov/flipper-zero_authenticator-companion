@@ -57,6 +57,12 @@ function createWindow() {
     windowState.saveState(mainWindow);
   });
 
+  mainWindow.webContents.on('render-process-gone', (_, detailed) => {
+    if (detailed.reason === 'crashed') {
+      mainWindow.webContents.reload();
+    }
+  });
+
   return mainWindow;
 }
 
@@ -89,5 +95,9 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 app.once('ready', () => autoUpdater.checkForUpdatesAndNotify());
+
+process.on('uncaughtException', err => {
+  log.error('Unchaught exception happened', err);
+});
 
 Store.initRenderer();

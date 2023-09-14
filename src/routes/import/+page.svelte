@@ -2,8 +2,8 @@
 </script>
 
 <div class="flex h-max min-h-full">
-  <div class="flex mx-auto justify-center flex-col w-full max-w-sm">
-    <a class="btn variant-ghost btn-lg" href="/import/google">
+  <div class="flex mx-auto justify-center flex-col w-full max-w-sm gap-3">
+    <a class="btn variant-ghost btn-lg pb-3" href="/import/google">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         xml:space="preserve"
@@ -24,6 +24,16 @@
         <path fill="#185DB7" d="M309.7 287H202.3l53.7-93.01z" />
       </svg>
       <span>Google Authenticator</span>
+    </a>
+    <a class="btn variant-ghost btn-lg" href="/import/aegis">
+      <svg class="w-12 h-12" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="12"
+          d="M22 154 92.51 28.224c1.529-2.726 5.451-2.726 6.98 0L170 154M96 87l37 67m-37 0-18.5-33.5" />
+      </svg>
+      <span>Aegis Authenticator</span>
     </a>
   </div>
 </div>

@@ -78,7 +78,7 @@
 
 <div class="flex justify-center">
   {#if availableCameraDevices && availableCameraDevices.length > 0}
-    <div class="flex flex-col w-full" class:hidden={!isScanning}>
+    <div class="flex flex-col w-full relative" class:hidden={!isScanning}>
       <select class="select" bind:value={selectedCamera}>
         {#each availableCameraDevices as cameraDevice}
           <option value={cameraDevice}>{cameraDevice.label}</option>

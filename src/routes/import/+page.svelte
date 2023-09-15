@@ -1,56 +1,51 @@
 <script lang="ts">
+  import { Avatar } from '@skeletonlabs/skeleton';
 </script>
 
 <div class="flex h-max min-h-full">
-  <div class="flex mx-auto justify-center flex-col w-full max-w-sm gap-3">
-    <a class="btn variant-ghost btn-lg pb-3" href="/import/google">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        xml:space="preserve"
-        baseProfile="basic"
-        viewBox="0 0 512 512"
-        class="w-12 h-12"
-        stroke-width="1.5">
-        <path
-          fill="#1A73E8"
-          d="M440 256c0 17.12-13.88 31-31 31H302l-46-93.01 49.65-85.995c8.56-14.826 27.519-19.907 42.346-11.347l.006.003c14.828 8.56 19.908 27.52 11.348 42.347L309.7 225H409c17.12 0 31 13.88 31 31z" />
-        <path
-          fill="#EA4335"
-          d="m348.002 415.349-.006.003c-14.827 8.56-33.785 3.48-42.345-11.347L256 318.01l-49.65 85.995c-8.56 14.826-27.519 19.907-42.346 11.347l-.006-.003c-14.827-8.56-19.908-27.52-11.348-42.347L202.3 287l53.7-2 53.7 2 49.65 86.002c8.56 14.828 3.48 33.787-11.348 42.347z" />
-        <path
-          fill="#FBBC04"
-          d="M256 193.99 242 232l-39.7-7-49.65-86.002c-8.56-14.828-3.48-33.787 11.348-42.347l.006-.003c14.827-8.56 33.785-3.48 42.345 11.347L256 193.99z" />
-        <path fill="#34A853" d="m248 225-36 62H103c-17.12 0-31-13.88-31-31 0-17.12 13.88-31 31-31h145z" />
-        <path fill="#185DB7" d="M309.7 287H202.3l53.7-93.01z" />
-      </svg>
-      <span>Google Authenticator</span>
-    </a>
-    <a class="btn variant-ghost btn-lg" href="/import/aegis">
-      <svg class="w-12 h-12" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="12"
-          d="M22 154 92.51 28.224c1.529-2.726 5.451-2.726 6.98 0L170 154M96 87l37 67m-37 0-18.5-33.5" />
-      </svg>
-      <span>Aegis Authenticator</span>
-    </a>
-    <a class="btn variant-ghost btn-lg" href="/import/freeotpplus">
-      <svg class="w-12 h-12" xmlns="http://www.w3.org/2000/svg" data-name="Layer 2" viewBox="0 0 48 48">
-        <path
-          d="M24 4.5 7.11 14.25v19.5L24 43.5l16.89-9.75v-19.5ZM7.11 14.25 24 24m0 19.5V24m16.89-9.75L24 24M38.44 4.5v4.77m2.38-2.38h-4.77"
-          style="fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round" />
-      </svg>
-      <span>FreeOTP+ Authenticator</span>
-    </a>
-    <a class="btn variant-ghost btn-lg" href="/import/2fas">
-      <svg class="w-12 h-12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-        <path
-          fill="#eb1d25"
-          fill-rule="evenodd"
-          d="M242 101.558c-1.375.237-5.65.928-9.5 1.537-3.85.609-11.275 2.245-16.5 3.635a32896.73 32896.73 0 0 0-41.75 11.148 57700.4 57700.4 0 0 1-18.489 4.947c-10.365 2.773-14.468 4.842-19.43 9.797-4.816 4.809-7.104 8.858-8.975 15.878-2.106 7.905-1.932 133.671.203 145.874 3.26 18.639 9.028 32.522 19.177 46.159 10.217 13.728 17.294 19.348 62.339 49.504l42.425 28.402 6 .03 6 .031 26-17.417c39.075-26.176 50.402-33.956 57-39.153 19.853-15.635 33.424-38.919 38.07-65.318 2.15-12.218 2.078-140.904-.083-148.028-4.1-13.515-12.801-21.563-27.487-25.421-2.475-.65-17.775-4.809-34-9.242-42.215-11.535-44.018-11.892-62.5-12.375-8.8-.231-17.125-.225-18.5.012m-52.993 72.02c-9.273 4.061-13.341 13.628-9.589 22.55 1.705 4.053 6.042 8.352 9.897 9.808 4.555 1.721 128.818 1.453 132.983-.287 10.15-4.241 13.808-17.577 7.198-26.243-5.529-7.249-1.756-6.88-72.996-7.132-55.592-.196-64.459-.025-67.493 1.304m-.507 52.839c-13.482 6.018-13.54 25.113-.096 31.433 4.284 2.013 6.1 2.15 28.596 2.15 22.57 0 24.301-.131 28.642-2.172 5.684-2.672 10.358-9.395 10.358-14.902 0-7.12-4.914-14.444-11.315-16.862-4.357-1.646-52.382-1.344-56.185.353m2.623 51.588c-12.63 2.972-17.264 18.791-8.309 28.368 10.682 11.425 29.194 3.837 29.182-11.961-.008-10.882-10.225-18.913-20.873-16.407" />
-      </svg>
-      <span>2FAS Authenticator</span>
-    </a>
-  </div>
+  <nav class="list-nav flex mx-auto justify-center flex-col w-full max-w-fit">
+    <ul>
+      <li>
+        <a href="/import/google" class="!rounded-xl !p-2">
+          <Avatar src="/authenticator-icons/google.png" width="w-12" rounded="rounded-xl" />
+          <span>Google Authenticator</span>
+        </a>
+      </li>
+      <li>
+        <a href="/import/aegis" class="!rounded-xl !p-2">
+          <Avatar src="/authenticator-icons/aegis.png" width="w-12" rounded="rounded-xl" />
+          <span>Aegis Authenticator</span>
+        </a>
+      </li>
+      <li>
+        <a href="/import/freeotpplus" class="!rounded-xl !p-2">
+          <Avatar src="/authenticator-icons/freeotpplus.png" width="w-12" rounded="rounded-xl" />
+          <span class="pr-2">FreeOTP+ Authenticator</span>
+        </a>
+      </li>
+      <li>
+        <a href="/import/2fas" class="!rounded-xl !p-2">
+          <Avatar src="/authenticator-icons/2fas.png" width="w-12" rounded="rounded-xl" />
+          <span>2FAS Authenticator</span>
+        </a>
+      </li>
+      <li>
+        <a href="/import/uri-list" class="!rounded-xl !p-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-12 h-12">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
+          <span>URI list</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
 </div>

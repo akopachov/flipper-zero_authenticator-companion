@@ -4,7 +4,7 @@
   import QrScanner from 'qr-scanner';
   import { GlobalPreloader } from '$stores/global-preloader';
   import { onDestroy, onMount } from 'svelte';
-  import { TokenInfo } from '$models/token-info';
+  import { DefaultTokenDuration, TokenInfo } from '$models/token-info';
   import { TokenHashingAlgo, tokenHashingAlgoFromString } from '$models/token-hashing-algo';
   import { TokenLength, tokenLengthFromNumber } from '$models/token-length';
   import { TokenSecretEncoding } from '$models/token-secret-encoding';
@@ -32,8 +32,7 @@
 
   function formatAccountName(issuer: string | null | undefined, account: string | null | undefined) {
     if (issuer && account) return `${issuer} (${account})`;
-    if (account) return account;
-    return issuer || '';
+    return account || issuer || '';
   }
 
   async function onScanQrCodeClicked() {
@@ -64,7 +63,7 @@
           name: formatAccountName(parsedTotpUri.issuer, parsedTotpUri.account),
           length: tokenLengthFromNumber(parsedTotpUri.digits),
           secret: parsedTotpUri.key,
-          duration: parsedTotpUri.period || 30,
+          duration: parsedTotpUri.period || DefaultTokenDuration,
           hashingAlgo: tokenHashingAlgoFromString(parsedTotpUri.algorithm),
         });
       } catch (e) {

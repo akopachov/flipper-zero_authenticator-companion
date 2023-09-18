@@ -2,51 +2,36 @@
   import log from 'electron-log';
   import { importFromGoogleAuthenticator } from '$lib/import';
   import { CommonToastType, GlobalCommonToast } from '$stores/global-common-toast';
-  import { GlobalPreloader } from '$stores/global-preloader';
-  import { Screenshots } from 'node-screenshots';
-  import QrScanner from 'qr-scanner';
   import { onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
   import { dataToQueryString } from '$lib/query-string-utils';
   import CameraQrScanner from '$components/camera-qr-scanner/camera-qr-scanner.svelte';
   import { slide } from 'svelte/transition';
+  import ScreenQrScanner from '$components/screen-qr-scanner/screen-qr-scanner.svelte';
 
   GlobalCommonToast.initialize();
 
   let abortController = new AbortController();
   let cameraScanEnabled: boolean = false;
+  let screenScanEnabled: boolean = false;
 
   async function onScanQrCodeOnScreenClicked() {
-    GlobalPreloader.show('Looking for QR code on a screen');
-
-    let scannedData: string | null = null;
-    for (const capture of Screenshots.all()) {
-      const screenshot = await capture.capture();
-      let scanResult: QrScanner.ScanResult | undefined;
-      try {
-        const blob = new Blob([screenshot]);
-        scanResult = await QrScanner.scanImage(blob, { returnDetailedScanResult: true });
-      } catch {
-        /* empty */
-      }
-
-      if (scanResult) {
-        scannedData = scanResult.data;
-        break;
-      }
-    }
-
-    await processQrCodeScanData(scannedData);
-
-    GlobalPreloader.hide();
+    cameraScanEnabled = false;
+    screenScanEnabled = !screenScanEnabled;
   }
 
   function onScanQrCodeOnCameraClicked() {
+    screenScanEnabled = false;
     cameraScanEnabled = !cameraScanEnabled;
   }
 
   function onCameraQrCodeScanned(e: CustomEvent<{ data: string }>) {
     cameraScanEnabled = false;
+    processQrCodeScanData(e.detail.data);
+  }
+
+  function onScreenQrCodeScanned(e: CustomEvent<{ data: string }>) {
+    screenScanEnabled = false;
     processQrCodeScanData(e.detail.data);
   }
 
@@ -64,7 +49,7 @@
         );
       }
     } else {
-      GlobalCommonToast.show('No valid QR code found on a screen', CommonToastType.Warning);
+      GlobalCommonToast.show('No valid QR code found', CommonToastType.Warning);
     }
   }
 
@@ -92,8 +77,8 @@
     </ol>
   </div>
 
-  <div class="flex flex-col justify-center items-center w-full max-w-xl mx-auto">
-    <div class="flex flex-col">
+  <div class="flex flex-col justify-center items-center w-full">
+    <div class="flex flex-col max-w-xl mx-auto">
       <div class="flex items-center justify-center mb-5">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -140,8 +125,12 @@
       </div>
     </div>
     {#if cameraScanEnabled}
-      <div class="mt-3 w-full" transition:slide>
+      <div class="mt-6 w-full max-w-xl mx-auto" transition:slide>
         <CameraQrScanner on:scanned={onCameraQrCodeScanned} />
+      </div>
+    {:else if screenScanEnabled}
+      <div class="mt-6 w-full mx-auto px-4" transition:slide>
+        <ScreenQrScanner on:scanned={onScreenQrCodeScanned} />
       </div>
     {/if}
   </div>

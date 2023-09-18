@@ -1,8 +1,5 @@
 <script lang="ts">
   import log from 'electron-log';
-  import { Screenshots } from 'node-screenshots';
-  import QrScanner from 'qr-scanner';
-  import { GlobalPreloader } from '$stores/global-preloader';
   import { onDestroy, onMount } from 'svelte';
   import { DefaultTokenDuration, TokenInfo } from '$models/token-info';
   import { TokenHashingAlgo, tokenHashingAlgoFromString } from '$models/token-hashing-algo';
@@ -17,10 +14,13 @@
   import { CommonToastType, GlobalCommonToast } from '$stores/global-common-toast';
   import { Accordion, AccordionItem, RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
   import CameraQrScanner from '$components/camera-qr-scanner/camera-qr-scanner.svelte';
+  import ScreenQrScanner from '$components/screen-qr-scanner/screen-qr-scanner.svelte';
 
   GlobalCommonToast.initialize();
 
   let cameraScanEnabled: boolean = false;
+  let screenScanEnabled: boolean = false;
+
   let abortController = new AbortController();
   let tokenInfo: TokenInfo | null | undefined;
   let availableTokenHashingAlgo: [string, TokenHashingAlgo][] = Object.entries(TokenHashingAlgo);
@@ -38,37 +38,23 @@
   }
 
   async function onScanQrCodeOnScreenClicked() {
-    GlobalPreloader.show('Looking for QR code on a screen');
     // https://gist.github.com/kcramer/c6148fb906e116d84e4bde7b2ab56992
-    let scannedData: string | null = null;
-    tokenInfo = null;
-    for (const capture of Screenshots.all()) {
-      const screenshot = await capture.capture();
-      let scanResult: QrScanner.ScanResult | undefined;
-      try {
-        const blob = new Blob([screenshot]);
-        scanResult = await QrScanner.scanImage(blob, { returnDetailedScanResult: true });
-      } catch {
-        /* empty */
-      }
-
-      if (scanResult) {
-        scannedData = scanResult.data;
-        break;
-      }
-    }
-
-    await processQrCodeScanData(scannedData);
-
-    GlobalPreloader.hide();
+    cameraScanEnabled = false;
+    screenScanEnabled = !screenScanEnabled;
   }
 
   function onScanQrCodeOnCameraClicked() {
+    screenScanEnabled = false;
     cameraScanEnabled = !cameraScanEnabled;
   }
 
   function onCameraQrCodeScanned(e: CustomEvent<{ data: string }>) {
     cameraScanEnabled = false;
+    processQrCodeScanData(e.detail.data);
+  }
+
+  function onScreenQrCodeScanned(e: CustomEvent<{ data: string }>) {
+    screenScanEnabled = false;
     processQrCodeScanData(e.detail.data);
   }
 
@@ -88,7 +74,7 @@
         GlobalCommonToast.show('QR code found but seems to be non-valid 2FA QR code', CommonToastType.Warning);
       }
     } else {
-      GlobalCommonToast.show('No valid QR code found on a screen', CommonToastType.Warning);
+      GlobalCommonToast.show('No valid QR code found', CommonToastType.Warning);
     }
   }
 
@@ -206,8 +192,8 @@
       </div>
     </form>
   {:else}
-    <div class="flex mx-auto justify-center flex-col w-full max-w-sm">
-      <div class="flex flex-col">
+    <div class="flex justify-center flex-col w-full">
+      <div class="flex flex-col max-w-sm w-full mx-auto">
         <div class="flex items-center justify-center mb-5">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -254,26 +240,32 @@
         </div>
       </div>
       {#if cameraScanEnabled}
-        <div class="mt-3 w-full" transition:slide>
+        <div class="mt-6 w-full max-w-sm mx-auto" transition:slide>
           <CameraQrScanner on:scanned={onCameraQrCodeScanned} />
         </div>
+      {:else if screenScanEnabled}
+        <div class="mt-6 w-full mx-auto px-4" transition:slide>
+          <ScreenQrScanner on:scanned={onScreenQrCodeScanned} />
+        </div>
       {/if}
-      <p class="block m-4 text-center">OR</p>
-      <button class="btn variant-ghost btn-lg" on:click={onManualEntryClicked}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-6 h-6">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-        </svg>
-        <span>Enter manually</span>
-      </button>
+      <div class="flex flex-col max-w-sm w-full mx-auto">
+        <p class="block m-4 text-center">OR</p>
+        <button class="btn variant-ghost btn-lg" on:click={onManualEntryClicked}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+          </svg>
+          <span>Enter manually</span>
+        </button>
+      </div>
     </div>
   {/if}
 </div>

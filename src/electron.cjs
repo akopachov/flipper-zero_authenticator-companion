@@ -1,10 +1,11 @@
 const windowStateManager = require('electron-window-state');
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, desktopCapturer } = require('electron');
 const serve = require('electron-serve');
 const path = require('path');
 const Store = require('electron-store');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
+const { rpcHandle } = require('./lib/electron-rpc/electron-rpc_main.cjs');
 
 try {
   require('electron-reloader')(module);
@@ -99,5 +100,19 @@ app.once('ready', () => autoUpdater.checkForUpdatesAndNotify());
 process.on('uncaughtException', err => {
   log.error('Unchaught exception happened', err);
 });
+
+rpcHandle(
+  () => mainWindow,
+  'get-screen-sources',
+  async arg => {
+    const sources = await desktopCapturer.getSources({
+      types: ['window', 'screen'],
+      thumbnailSize: { width: arg.thumbnailSize, height: arg.thumbnailSize },
+    });
+    return sources
+      .filter(f => !f.thumbnail.isEmpty())
+      .map(m => ({ id: m.id, name: m.name, thumbnail: m.thumbnail.toDataURL() }));
+  },
+);
 
 Store.initRenderer();

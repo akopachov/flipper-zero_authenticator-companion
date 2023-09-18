@@ -14,7 +14,7 @@
   let screenSources: ScanSource[] | null = null;
 
   async function getSources() {
-    screenSources = await rpcToMain('get-screen-sources', { thumbnailSize: 150 });
+    screenSources = await rpcToMain('get-screen-sources', { thumbnailSize: 200 });
   }
 
   async function scanQrCodeAtSource(source: ScanSource) {
@@ -49,7 +49,7 @@
   {#if screenSources !== null}
     {#each screenSources as source}
       <button
-        class="btn variant-filled block !p-0 w-[150px] rounded-lg overflow-hidden"
+        class="btn variant-filled block !p-0 w-[200px] rounded-lg overflow-hidden"
         type="button"
         on:click={() => scanQrCodeAtSource(source)}>
         <img class="h-auto max-w-full" src={source.thumbnail} alt="Thumbnail of {source.name}" />

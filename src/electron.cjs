@@ -5,13 +5,15 @@ const path = require('path');
 const Store = require('electron-store');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
-const { rpcHandle } = require('./lib/electron-rpc/electron-rpc_main.cjs');
+const { MainMessageHub } = require('simple-electron-ipc');
 
 try {
   require('electron-reloader')(module);
 } catch (e) {
   /* empty */
 }
+
+const mainMessageHub = new MainMessageHub();
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
@@ -101,18 +103,16 @@ process.on('uncaughtException', err => {
   log.error('Unchaught exception happened', err);
 });
 
-rpcHandle(
-  () => mainWindow,
-  'get-screen-sources',
-  async arg => {
+mainMessageHub.on('*', {
+  getScreenSources: async thumbnailSize => {
     const sources = await desktopCapturer.getSources({
       types: ['window', 'screen'],
-      thumbnailSize: { width: arg.thumbnailSize, height: arg.thumbnailSize },
+      thumbnailSize: { width: thumbnailSize, height: thumbnailSize },
     });
     return sources
       .filter(f => !f.thumbnail.isEmpty())
       .map(m => ({ id: m.id, name: m.name, thumbnail: m.thumbnail.toDataURL() }));
   },
-);
+});
 
 Store.initRenderer();

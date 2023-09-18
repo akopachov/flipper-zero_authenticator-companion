@@ -1,11 +1,11 @@
 <script lang="ts">
   import log from 'electron-log';
-  import { rpcToMain } from '$lib/electron-rpc/electron-rpc_renderer';
   import { takeScreenShot } from '$lib/screenshot';
   import { GlobalPreloader } from '$stores/global-preloader';
   import { ProgressRadial } from '@skeletonlabs/skeleton';
   import QrScanner from 'qr-scanner';
   import { createEventDispatcher, onMount } from 'svelte';
+  import { IpcMessageHub } from '$stores/ipc-message-hub';
 
   type ScanSource = { id: string; name: string; thumbnail: string };
 
@@ -14,7 +14,7 @@
   let screenSources: ScanSource[] | null = null;
 
   async function getSources() {
-    screenSources = await rpcToMain('get-screen-sources', { thumbnailSize: 200 });
+    screenSources = await IpcMessageHub.emit('getScreenSources', 200);
   }
 
   async function scanQrCodeAtSource(source: ScanSource) {

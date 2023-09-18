@@ -10,7 +10,8 @@ const config = {
       resolve: {
         // C/C++ modules must be pre-bundle
         serialport: { type: 'cjs' },
-        'electron-log': { type: 'cjs' }
+        'electron-log': { type: 'cjs' },
+        'simple-electron-ipc': { type: 'cjs' },
       },
     })
   ],

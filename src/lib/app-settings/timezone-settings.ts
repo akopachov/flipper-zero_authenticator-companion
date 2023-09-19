@@ -30,7 +30,7 @@ export class TimezoneSettings extends BaseSettings {
   }
 
   get syncAtStartup() {
-    return this.get(this.#SYNC_AT_STARTUP_STORE_KEY, Boolean, false);
+    return this.get(this.#SYNC_AT_STARTUP_STORE_KEY, Boolean, true);
   }
 
   set syncAtStartup(value: boolean) {

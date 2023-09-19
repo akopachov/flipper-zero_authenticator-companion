@@ -148,7 +148,6 @@ export class TotpAppClient extends EventEmitter {
     } else {
       commandEndSignForRegex = escapeStringRegexp(opts.commandEndSign);
     }
-    await (await this.#getSerialPort(opts.signal)).flushAsync();
     const commandEndOutputSignRegex = new RegExp(
       `(${commandEndSignForRegex})|(${escapeStringRegexp(TotpCommandOutput.AskForPin)})|(${escapeStringRegexp(
         TotpCommandOutput.CommandCancelled,
@@ -157,6 +156,7 @@ export class TotpAppClient extends EventEmitter {
     );
     let waitForAppEventEmitted = false;
     do {
+      await (await this.#getSerialPort(opts.signal)).flushAsync();
       await (await this.#getSerialPort(opts.signal)).writeAndDrain(command);
       if (opts.skipFirstLine) {
         await (await this.#getSerialPort(opts.signal)).readUntil('\r\n', { timeout: 1000, signal: opts.signal });

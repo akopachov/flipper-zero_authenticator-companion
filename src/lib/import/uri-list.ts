@@ -16,6 +16,10 @@ export function importFromUriList(content: string) {
   for (const line of lines) {
     lineNumber++;
     const normalizedLine = line.trim();
+    if (!normalizedLine) {
+      log.info(`Skipped empty line #${lineNumber}`);
+      continue;
+    }
     try {
       const parsedTotpUri = parse(normalizedLine);
       results.push(

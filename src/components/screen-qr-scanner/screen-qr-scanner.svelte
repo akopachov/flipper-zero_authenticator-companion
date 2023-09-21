@@ -47,7 +47,7 @@
 
 <section class="flex justify-center gap-3 flex-wrap">
   {#if screenSources !== null}
-    {#each screenSources as source}
+    {#each screenSources as source (source.id)}
       <button
         class="btn variant-filled block !p-0 w-[200px] rounded-lg overflow-hidden"
         type="button"

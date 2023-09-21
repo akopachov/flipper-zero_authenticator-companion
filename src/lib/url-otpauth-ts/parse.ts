@@ -9,6 +9,7 @@ const PossibleDigits = <const>[5, 6, 8];
 const PossibleAlgorithms = <const>['SHA1', 'SHA256', 'SHA512', 'Steam'];
 enum SpecialCaseIssuers {
   SteamCtl = 'steamctl',
+  Steam = 'steam',
 }
 
 const isInArray = <T, A extends T>(item: T, array: ReadonlyArray<A>): item is A => array.includes(item as A);
@@ -116,6 +117,23 @@ export function parse(rawUrl: string | URL): OtpUrlParseResult {
 
   parsedOtpValues.issuer = parameters.get('issuer') || issuer;
 
+  // Algorithm to create hash
+  if (parameters.has('algorithm')) {
+    const algo = parameters.get('algorithm')!;
+    if (isInArray(algo, PossibleAlgorithms)) {
+      // Optional 'algorithm' parameter.
+      parsedOtpValues.algorithm = algo;
+    } else {
+      throw new OtpAuthInvalidUrl(ErrorType.UnknownAlgorithm);
+    }
+  } else {
+    // If algorithm is not explicitely specified but issuer is Steam or SteamCtl - default algo to Steam
+    const normalizedIssuer = parsedOtpValues.issuer?.toLowerCase();
+    if (normalizedIssuer === SpecialCaseIssuers.SteamCtl || normalizedIssuer === SpecialCaseIssuers.Steam) {
+      parsedOtpValues.algorithm = 'Steam';
+    }
+  }
+
   // OTP digits
   if (parameters.has('digits')) {
     const parsedDigits = parseInt(parameters.get('digits')!) || 0;
@@ -126,17 +144,9 @@ export function parse(rawUrl: string | URL): OtpUrlParseResult {
     }
   }
 
-  // Algorithm to create hash
-  if (parameters.has('algorithm')) {
-    const algo = parameters.get('algorithm')!;
-    if (isInArray(algo, PossibleAlgorithms)) {
-      // Optional 'algorithm' parameter.
-      parsedOtpValues.algorithm = algo;
-    } else {
-      throw new OtpAuthInvalidUrl(ErrorType.UnknownAlgorithm);
-    }
-  } else if (issuer === SpecialCaseIssuers.SteamCtl) {
-    parsedOtpValues.algorithm = 'Steam';
+  // If issuer steam and digits not explicitely specified - default to Steam's default - 5
+  if (!parsedOtpValues.digits && parsedOtpValues.algorithm == 'Steam') {
+    parsedOtpValues.digits = 5;
   }
 
   // Period (only for TOTP)

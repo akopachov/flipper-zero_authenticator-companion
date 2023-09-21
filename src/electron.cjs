@@ -1,5 +1,5 @@
 const windowStateManager = require('electron-window-state');
-const { app, BrowserWindow, desktopCapturer } = require('electron');
+const { app, BrowserWindow, desktopCapturer, nativeTheme } = require('electron');
 const serve = require('electron-serve');
 const path = require('path');
 const Store = require('electron-store');
@@ -14,9 +14,11 @@ try {
 }
 
 const mainMessageHub = new MainMessageHub();
+const store = new Store();
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
+nativeTheme.themeSource = store.get('theme.colorScheme', 'system');
 
 const serveURL = serve({ directory: '.' });
 const port = process.env.PORT || 5173;
@@ -30,7 +32,6 @@ function createWindow() {
   });
 
   const mainWindow = new BrowserWindow({
-    backgroundColor: 'whitesmoke',
     titleBarStyle: 'default',
     autoHideMenuBar: true,
     webPreferences: {
@@ -47,6 +48,7 @@ function createWindow() {
     width: windowState.width,
     height: windowState.height,
     icon: path.join(__dirname, '../static/icon.png'),
+    backgroundMaterial: 'mica',
   });
 
   windowState.manage(mainWindow);
@@ -113,6 +115,7 @@ mainMessageHub.on('*', {
       .filter(f => !f.thumbnail.isEmpty())
       .map(m => ({ id: m.id, name: m.name, thumbnail: m.thumbnail.toDataURL() }));
   },
+  setNativeTheme: async theme => {
+    nativeTheme.themeSource = theme;
+  },
 });
-
-Store.initRenderer();

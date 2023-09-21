@@ -14,7 +14,7 @@ function nameFrom2Fas(issuer: string, account: string): string {
     return `${issuer} (${account})`;
   }
 
-  return account || issuer;
+  return account || issuer || '';
 }
 
 function tokenHashingAlgoFrom2Fas(str?: string) {

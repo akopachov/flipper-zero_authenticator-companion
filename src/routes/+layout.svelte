@@ -14,7 +14,7 @@
   import { AvailableTimezoneProviders } from '$lib/timezone-providers';
   import CommonPreloader from '$components/common-preloader/common-preloader.svelte';
   import Lightswitch from '$components/lightswitch/lightswitch.svelte';
-  import LightswitchDaemon from '$components/lightswitch/lightswitch-daemon.svelte';
+  import { theme } from '$components/lightswitch/actions';
 
   initializeStores();
 
@@ -88,7 +88,7 @@
 </script>
 
 <svelte:window on:beforeunload={closeTotpAppClient} />
-<LightswitchDaemon />
+<svelte:document use:theme />
 
 {#if ready}
   <Modal />

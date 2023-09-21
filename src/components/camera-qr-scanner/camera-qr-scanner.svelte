@@ -80,7 +80,7 @@
   {#if availableCameraDevices && availableCameraDevices.length > 0}
     <div class="flex flex-col w-full relative" class:hidden={!isScanning}>
       <select class="select" bind:value={selectedCamera}>
-        {#each availableCameraDevices as cameraDevice}
+        {#each availableCameraDevices as cameraDevice (cameraDevice.deviceId)}
           <option value={cameraDevice}>{cameraDevice.label}</option>
         {/each}
       </select>

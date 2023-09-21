@@ -4,7 +4,7 @@ import { BaseSettings } from './base-settings';
 export enum ThemeColorSchemePreference {
   Light = 'light',
   Dark = 'dark',
-  System = 'os',
+  System = 'system',
 }
 
 export class ThemeSettings extends BaseSettings {

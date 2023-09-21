@@ -2,11 +2,11 @@
   import { ThemeColorSchemePreference } from '$lib/app-settings/theme-settings';
   import { getAppSettings } from '$stores/app-settings';
   import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
-  import { modeUserPrefers } from './lightswitch';
+  import { IpcMessageHub } from '$stores/ipc-message-hub';
 
   const appSettings = getAppSettings();
   $: {
-    $modeUserPrefers = appSettings.theme.colorScheme;
+    IpcMessageHub.emit('setNativeTheme', appSettings.theme.colorScheme);
     appSettings.commit();
   }
 </script>

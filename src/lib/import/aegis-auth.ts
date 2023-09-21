@@ -14,7 +14,7 @@ function nameFromAegis(issuer: string, account: string): string {
     return `${issuer} (${account})`;
   }
 
-  return account || issuer;
+  return account || issuer || '';
 }
 
 function tokenHashingAlgoFromAegis(str?: string) {

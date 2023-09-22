@@ -15,6 +15,8 @@
   import { Accordion, AccordionItem, RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
   import CameraQrScanner from '$components/camera-qr-scanner/camera-qr-scanner.svelte';
   import ScreenQrScanner from '$components/screen-qr-scanner/screen-qr-scanner.svelte';
+  import { TokenType, tokenTypeFromString } from '$models/token-type';
+  import { type } from 'os';
 
   GlobalCommonToast.initialize();
 
@@ -31,6 +33,7 @@
     ['Press enter at the end', TokenAutomationFeature.Enter],
     ['Press tab at the end', TokenAutomationFeature.Tab],
   ];
+  let availableTokenTypes: TokenType[] = Object.values(TokenType);
 
   function formatAccountName(issuer: string | null | undefined, account: string | null | undefined) {
     if (issuer && account) return `${issuer} (${account})`;
@@ -63,11 +66,13 @@
       try {
         const parsedTotpUri = parse(scannedData);
         tokenInfo = new TokenInfo({
+          type: tokenTypeFromString(parsedTotpUri.type),
           name: formatAccountName(parsedTotpUri.issuer, parsedTotpUri.account),
           length: tokenLengthFromNumber(parsedTotpUri.digits),
           secret: parsedTotpUri.key,
           duration: parsedTotpUri.period || DefaultTokenDuration,
           hashingAlgo: tokenHashingAlgoFromString(parsedTotpUri.algorithm),
+          counter: parsedTotpUri.counter,
         });
       } catch (e) {
         log.error(e);
@@ -127,6 +132,16 @@
             <h3 class="font-bold">Additional settings</h3>
           </svelte:fragment>
           <svelte:fragment slot="content">
+            <label class="label mb-3" for="rbgTokenType">
+              <span class="block">Token type</span>
+              <RadioGroup id="rbgTokenType" active="variant-filled-primary" hover="hover:variant-soft-primary">
+                {#each availableTokenTypes as type}
+                  <RadioItem class="uppercase" name="Token type" bind:group={tokenInfo.type} value={type}>
+                    {type}
+                  </RadioItem>
+                {/each}
+              </RadioGroup>
+            </label>
             <label class="label mb-3" for="rbgHashingAlgorithm">
               <span class="block">Hashing algorithm</span>
               <RadioGroup id="rbgHashingAlgorithm" active="variant-filled-primary" hover="hover:variant-soft-primary">
@@ -147,10 +162,23 @@
               </RadioGroup>
             </label>
 
-            <label class="label mb-3">
-              <span class="block">Token duration (seconds)</span>
-              <input type="number" class="input max-w-xs" min="15" max="255" required bind:value={tokenInfo.duration} />
-            </label>
+            {#if tokenInfo.type === TokenType.TOTP}
+              <label class="label mb-3">
+                <span class="block">Token duration (seconds)</span>
+                <input
+                  type="number"
+                  class="input max-w-xs"
+                  min="15"
+                  max="255"
+                  required
+                  bind:value={tokenInfo.duration} />
+              </label>
+            {:else if tokenInfo.type === TokenType.HOTP}
+              <label class="label mb-3">
+                <span class="block">Token counter</span>
+                <input type="number" class="input max-w-xs" min="0" required bind:value={tokenInfo.counter} />
+              </label>
+            {/if}
 
             <label class="label mb-3" for="rbgTokenSecretEncoding">
               <span class="block">Token secret encoding</span>

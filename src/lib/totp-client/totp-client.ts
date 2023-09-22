@@ -16,6 +16,7 @@ import {
   DeviceAppNotification,
   DeviceAppSettings,
 } from '../../models/device-app-settings';
+import { TokenType, tokenTypeFromString } from '$models/token-type';
 
 const FlipperVendorId = '0483';
 const FlipperProductId = '5740';
@@ -231,7 +232,7 @@ export class TotpAppClient extends EventEmitter {
         new TokenInfoBase({
           id: Number(m['#']),
           name: m['Name'],
-          duration: Number(m['Dur']),
+          type: tokenTypeFromString(m['Type']),
           length: tokenLengthFromNumber(Number(m['Ln'])),
           hashingAlgo: tokenHashingAlgoFromString(m['Algo']),
         }),
@@ -254,6 +255,10 @@ export class TotpAppClient extends EventEmitter {
           tokenInfo.id = Number(value);
           break;
 
+        case 'Type':
+          tokenInfo.type = tokenTypeFromString(value);
+          break;
+
         case 'Name':
           tokenInfo.name = value;
           break;
@@ -268,6 +273,10 @@ export class TotpAppClient extends EventEmitter {
 
         case 'Token lifetime':
           tokenInfo.duration = parseInt(value, 10);
+          break;
+
+        case 'Token counter':
+          tokenInfo.counter = Number(value);
           break;
 
         case '':
@@ -289,7 +298,14 @@ export class TotpAppClient extends EventEmitter {
     const isNewToken = tokenInfo.id <= 0;
     const tokenSecretUpdateNeeded = isNewToken || tokenInfo.secret;
     const baseCommand = isNewToken ? `add "${tokenInfo.name}"` : `update ${tokenInfo.id} -n "${tokenInfo.name}"`;
-    let fullCommand = `${TotpCommand} ${baseCommand} -a ${tokenInfo.hashingAlgo} -e ${tokenInfo.secretEncoding} -d ${tokenInfo.length} -l ${tokenInfo.duration} -b none`;
+    let fullCommand = `${TotpCommand} ${baseCommand} -t ${tokenInfo.type} -a ${tokenInfo.hashingAlgo} -e ${tokenInfo.secretEncoding} -d ${tokenInfo.length}`;
+    if (tokenInfo.type === TokenType.TOTP) {
+      fullCommand += ` -l ${tokenInfo.duration}`;
+    } else if (tokenInfo.type === TokenType.HOTP) {
+      fullCommand += ` -i ${tokenInfo.counter}`;
+    }
+
+    fullCommand += ` -b none`;
     if (!isNewToken && tokenSecretUpdateNeeded) {
       fullCommand += ' -s';
     }

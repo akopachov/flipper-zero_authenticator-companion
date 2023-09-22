@@ -2,8 +2,10 @@ import { TokenAutomationFeature } from './token-automation-feature';
 import { TokenHashingAlgo } from './token-hashing-algo';
 import { TokenLength } from './token-length';
 import { TokenSecretEncoding } from './token-secret-encoding';
+import { TokenType } from './token-type';
 
 export const DefaultTokenDuration = 30;
+export const DefaultTokenCounter = 0;
 
 export class TokenAutomationFeatureSet extends Set<TokenAutomationFeature> {
   get enter() {
@@ -49,7 +51,7 @@ export class TokenInfoBase {
   name: string = '';
   hashingAlgo: TokenHashingAlgo = TokenHashingAlgo.Sha1;
   length: TokenLength = TokenLength.SixDigits;
-  duration: number = DefaultTokenDuration;
+  type: TokenType = TokenType.TOTP;
 }
 
 export class TokenInfo extends TokenInfoBase {
@@ -61,4 +63,6 @@ export class TokenInfo extends TokenInfoBase {
   secret: string = '';
   secretEncoding: TokenSecretEncoding = TokenSecretEncoding.Base32;
   automationFeatures: TokenAutomationFeatureSet = new TokenAutomationFeatureSet();
+  duration: number = DefaultTokenDuration;
+  counter: number = DefaultTokenCounter;
 }

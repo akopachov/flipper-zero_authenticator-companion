@@ -137,7 +137,7 @@
           <img class="avatar-image h-full w-auto object-cover" src={getIcon(totp.name)} alt="icon" />
           <p class="flex-auto block min-w-0">
             <span class="block text-base truncate">{totp.name}</span>
-            <span class="block text-sm uppercase">{totp.hashingAlgo}</span>
+            <span class="block text-sm uppercase">{totp.type}, {totp.hashingAlgo}</span>
           </p>
           <button type="button" use:popup={getTotpItemMenuSettings(item.id)}>
             <svg

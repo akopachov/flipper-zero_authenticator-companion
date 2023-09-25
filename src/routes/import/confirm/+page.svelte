@@ -39,7 +39,7 @@
         GlobalCommonToast.show('An error ocurred during token import', CommonToastType.Error);
       }
     } else {
-      GlobalCommonToast.show('There is no token selected', CommonToastType.Warning);
+      GlobalCommonToast.show('There are no tokens selected', CommonToastType.Warning);
     }
   }
 

@@ -24,7 +24,7 @@
     try {
       await SharedTotpAppClient.removeToken(e.detail.token.id, abortController.signal);
       await updateTokenList();
-      GlobalCommonToast.show(`Token ${e.detail.token.name} has been successfully removed`, CommonToastType.Success);
+      GlobalCommonToast.show(`Token "${e.detail.token.name}" has been successfully removed`, CommonToastType.Success);
     } catch (e) {
       GlobalCommonToast.show('An error occurred during token removal', CommonToastType.Error);
       log.error(e);

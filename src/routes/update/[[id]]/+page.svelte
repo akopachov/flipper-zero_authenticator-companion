@@ -90,9 +90,13 @@
   async function saveToken() {
     if (tokenInfo) {
       try {
+        const isNewToken = tokenInfo.id <= 0;
         await SharedTotpAppClient.updateToken(tokenInfo, abortController.signal);
         await goto('/');
-        GlobalCommonToast.show(`Token ${tokenInfo.name} has been successfully added`, CommonToastType.Success);
+        GlobalCommonToast.show(
+          `Token "${tokenInfo.name}" has been successfully ${isNewToken ? 'added' : 'updated'}`,
+          CommonToastType.Success,
+        );
       } catch (e) {
         GlobalCommonToast.show('An error occurred during token saving', CommonToastType.Error);
         log.error(e);

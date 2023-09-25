@@ -81,7 +81,7 @@
     const modal: ModalSettings = {
       type: 'confirm',
       title: 'Please Confirm',
-      body: `<p>Are you sure you wish to delete token ${token.name}?</p>
+      body: `<p>Are you sure you wish to delete token "${token.name}"?</p>
       <p class="uppercase font-semibold text-rose-600"><br />Warning!</p>
       <p class="uppercase font-semibold">This action is irreversable. You will not be able to restore your token back</p>
       `,

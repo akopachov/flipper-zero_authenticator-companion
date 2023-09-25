@@ -1,9 +1,10 @@
 import protobuf from 'protobufjs';
 import googleAuthProto from './google-auth.proto.json';
-import { TokenInfo } from '$models/token-info';
+import { DefaultTokenCounter, TokenInfo } from '$models/token-info';
 import { TokenSecretEncoding } from '$models/token-secret-encoding';
 import { TokenHashingAlgo } from '$models/token-hashing-algo';
 import { TokenLength } from '$models/token-length';
+import { TokenType } from '$models/token-type';
 
 function hashingAlgoFromGoogle(googleHashingAlgo: string): TokenHashingAlgo {
   switch (googleHashingAlgo.toUpperCase()) {
@@ -30,6 +31,12 @@ function nameFromGoogle(googleName: string): string {
   return googleName;
 }
 
+function tokenTypeFromGoogle(str?: string) {
+  const strNorm = str?.trim();
+  if (strNorm == 'OTP_HOTP') return TokenType.HOTP;
+  return TokenType.TOTP;
+}
+
 export function importFromGoogleAuthenticator(url: string | URL): TokenInfo[] {
   const uri = url instanceof URL ? url : new URL(url);
   if (uri.protocol !== 'otpauth-migration:' || uri.pathname !== '//offline') {
@@ -48,16 +55,16 @@ export function importFromGoogleAuthenticator(url: string | URL): TokenInfo[] {
     enums: String,
     bytes: String,
   });
-  return parsedData.otpParameters
-    .filter(p => p.type === 'OTP_TOTP')
-    .map(
-      p =>
-        new TokenInfo({
-          name: nameFromGoogle(p.name),
-          secret: p.secret,
-          secretEncoding: TokenSecretEncoding.Base64,
-          hashingAlgo: hashingAlgoFromGoogle(p.algorithm),
-          length: lengthFromGoogle(p.digits),
-        }),
-    );
+  return parsedData.otpParameters.map(
+    p =>
+      new TokenInfo({
+        type: tokenTypeFromGoogle(p.type),
+        name: nameFromGoogle(p.name),
+        secret: p.secret,
+        secretEncoding: TokenSecretEncoding.Base64,
+        hashingAlgo: hashingAlgoFromGoogle(p.algorithm),
+        length: lengthFromGoogle(p.digits),
+        counter: p.counter || DefaultTokenCounter,
+      }),
+  );
 }

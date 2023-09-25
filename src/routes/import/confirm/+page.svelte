@@ -68,7 +68,7 @@
         <img class="avatar-image h-full w-auto object-cover" src={getIcon(token.name)} alt="icon" />
         <p class="flex-auto block min-w-0">
           <span class="block text-base truncate">{token.name}</span>
-          <span class="block text-sm uppercase">{token.hashingAlgo}</span>
+          <span class="block text-sm uppercase">{token.type}, {token.hashingAlgo}</span>
         </p>
       </li>
     {/each}

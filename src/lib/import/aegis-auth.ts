@@ -1,7 +1,8 @@
 import { TokenHashingAlgo } from '$models/token-hashing-algo';
-import { TokenInfo } from '$models/token-info';
+import { DefaultTokenCounter, DefaultTokenDuration, TokenInfo } from '$models/token-info';
 import { TokenLength } from '$models/token-length';
 import { TokenSecretEncoding } from '$models/token-secret-encoding';
+import { TokenType } from '$models/token-type';
 
 function tokenLengthFromAegis(num: number) {
   if (num == 5) return TokenLength.FiveDigits;
@@ -24,23 +25,29 @@ function tokenHashingAlgoFromAegis(str?: string) {
   return TokenHashingAlgo.Sha1;
 }
 
+function tokenTypeFromAegis(str?: string) {
+  const strNorm = str?.toLowerCase()?.trim();
+  if (strNorm == TokenType.HOTP) return TokenType.HOTP;
+  return TokenType.TOTP;
+}
+
 export function importFromAegisAuth(data: any) {
   const entries = data?.db?.entries;
   if (entries === null || !Array.isArray(entries)) {
     throw Error('Invalid import data file');
   }
 
-  return entries
-    .filter(f => f.type === 'totp')
-    .map(
-      m =>
-        new TokenInfo({
-          name: nameFromAegis(m.issuer, m.name),
-          secret: m.info.secret,
-          secretEncoding: TokenSecretEncoding.Base32,
-          duration: m.info.period,
-          length: tokenLengthFromAegis(m.info.digits),
-          hashingAlgo: tokenHashingAlgoFromAegis(m.info.algo),
-        }),
-    );
+  return entries.map(
+    m =>
+      new TokenInfo({
+        type: tokenTypeFromAegis(m.type),
+        name: nameFromAegis(m.issuer, m.name),
+        secret: m.info.secret,
+        secretEncoding: TokenSecretEncoding.Base32,
+        duration: m.info.period || DefaultTokenDuration,
+        counter: m.info.counter || DefaultTokenCounter,
+        length: tokenLengthFromAegis(m.info.digits),
+        hashingAlgo: tokenHashingAlgoFromAegis(m.info.algo),
+      }),
+  );
 }

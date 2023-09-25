@@ -63,6 +63,9 @@ devDependencies:
   '@types/papaparse':
     specifier: ^5.3.8
     version: 5.3.8
+  '@types/semver':
+    specifier: ^7.5.2
+    version: 7.5.2
   '@types/uuid':
     specifier: ^9.0.4
     version: 9.0.4
@@ -144,6 +147,9 @@ devDependencies:
   sass:
     specifier: ^1.68.0
     version: 1.68.0
+  semver:
+    specifier: ^7.5.4
+    version: 7.5.4
   smart-buffer:
     specifier: ^4.2.0
     version: 4.2.0

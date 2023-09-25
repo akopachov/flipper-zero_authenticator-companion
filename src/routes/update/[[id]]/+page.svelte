@@ -1,7 +1,7 @@
 <script lang="ts">
   import log from 'electron-log';
   import { onDestroy, onMount } from 'svelte';
-  import { DefaultTokenDuration, TokenInfo } from '$models/token-info';
+  import { DefaultTokenCounter, DefaultTokenDuration, TokenInfo } from '$models/token-info';
   import { TokenHashingAlgo, tokenHashingAlgoFromString } from '$models/token-hashing-algo';
   import { TokenLength, tokenLengthFromNumber } from '$models/token-length';
   import { TokenSecretEncoding } from '$models/token-secret-encoding';
@@ -72,7 +72,7 @@
           secret: parsedTotpUri.key,
           duration: parsedTotpUri.period || DefaultTokenDuration,
           hashingAlgo: tokenHashingAlgoFromString(parsedTotpUri.algorithm),
-          counter: parsedTotpUri.counter,
+          counter: parsedTotpUri.counter || DefaultTokenCounter,
         });
       } catch (e) {
         log.error(e);

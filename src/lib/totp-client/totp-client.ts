@@ -1,3 +1,6 @@
+import semverParse from 'semver/functions/parse';
+import semverSatisfies from 'semver/functions/satisfies';
+import type SemVer from 'semver/classes/semver';
 import { SerialPortAsync } from './serial-port-async';
 import type { PortInfo } from '@serialport/bindings-interface';
 import { Sema } from 'async-sema';
@@ -16,10 +19,12 @@ import {
   DeviceAppNotification,
   DeviceAppSettings,
 } from '../../models/device-app-settings';
+import { TokenType, tokenTypeFromString } from '$models/token-type';
 
 const FlipperVendorId = '0483';
 const FlipperProductId = '5740';
 const TotpCommand = 'totp';
+const UnknownAppVersion = semverParse('0.0.0')!;
 
 enum TotpCommandOutput {
   EndOfCommand = '>: ',
@@ -81,6 +86,7 @@ export class TotpAppClient extends EventEmitter {
   #serialPort: SerialPortAsync | null = null;
   #executionSemaphore: Sema;
   #getPortSemaphore: Sema;
+  #appVersion: SemVer | null = null;
 
   constructor() {
     super();
@@ -127,6 +133,7 @@ export class TotpAppClient extends EventEmitter {
           this.#serialPort = serialPort;
           serialPort.once('close', () => {
             this.#serialPort = null;
+            this.#appVersion = null;
           });
           this.emit(TotpClientEvents.Connected, this);
         }
@@ -219,6 +226,19 @@ export class TotpAppClient extends EventEmitter {
     return result;
   }
 
+  async #getAppVersion(signal?: AbortSignal) {
+    if (!this.#appVersion) {
+      const result = (await this.#executeCommand(`${TotpCommand} version\r`, { signal: signal })) || '';
+      if (result.includes('Command "version" is unknown')) {
+        this.#appVersion = UnknownAppVersion;
+      } else {
+        this.#appVersion = semverParse(result.trim()) || UnknownAppVersion;
+      }
+    }
+
+    return this.#appVersion;
+  }
+
   async waitForApp(signal?: AbortSignal) {
     await this.#executeCommand(`${TotpCommand} ?\r`, { signal: signal });
   }
@@ -231,7 +251,7 @@ export class TotpAppClient extends EventEmitter {
         new TokenInfoBase({
           id: Number(m['#']),
           name: m['Name'],
-          duration: Number(m['Dur']),
+          type: tokenTypeFromString(m['Type']),
           length: tokenLengthFromNumber(Number(m['Ln'])),
           hashingAlgo: tokenHashingAlgoFromString(m['Algo']),
         }),
@@ -254,6 +274,10 @@ export class TotpAppClient extends EventEmitter {
           tokenInfo.id = Number(value);
           break;
 
+        case 'Type':
+          tokenInfo.type = tokenTypeFromString(value);
+          break;
+
         case 'Name':
           tokenInfo.name = value;
           break;
@@ -268,6 +292,10 @@ export class TotpAppClient extends EventEmitter {
 
         case 'Token lifetime':
           tokenInfo.duration = parseInt(value, 10);
+          break;
+
+        case 'Token counter':
+          tokenInfo.counter = Number(value);
           break;
 
         case '':
@@ -289,7 +317,22 @@ export class TotpAppClient extends EventEmitter {
     const isNewToken = tokenInfo.id <= 0;
     const tokenSecretUpdateNeeded = isNewToken || tokenInfo.secret;
     const baseCommand = isNewToken ? `add "${tokenInfo.name}"` : `update ${tokenInfo.id} -n "${tokenInfo.name}"`;
-    let fullCommand = `${TotpCommand} ${baseCommand} -a ${tokenInfo.hashingAlgo} -e ${tokenInfo.secretEncoding} -d ${tokenInfo.length} -l ${tokenInfo.duration} -b none`;
+    let fullCommand = `${TotpCommand} ${baseCommand} -a ${tokenInfo.hashingAlgo} -e ${tokenInfo.secretEncoding} -d ${tokenInfo.length}`;
+    const appVersion = await this.#getAppVersion(signal);
+
+    // HOTP support was added at >5.0.0
+    if (semverSatisfies(appVersion, '>5.0.0')) {
+      fullCommand += ` -t ${tokenInfo.type}`;
+      if (tokenInfo.type === TokenType.TOTP) {
+        fullCommand += ` -l ${tokenInfo.duration}`;
+      } else if (tokenInfo.type === TokenType.HOTP) {
+        fullCommand += ` -i ${tokenInfo.counter}`;
+      }
+    } else {
+      fullCommand += ` -l ${tokenInfo.duration}`;
+    }
+
+    fullCommand += ` -b none`;
     if (!isNewToken && tokenSecretUpdateNeeded) {
       fullCommand += ' -s';
     }

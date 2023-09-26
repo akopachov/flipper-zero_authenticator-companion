@@ -81,7 +81,7 @@
     const modal: ModalSettings = {
       type: 'confirm',
       title: 'Please Confirm',
-      body: `<p>Are you sure you wish to delete token ${token.name}?</p>
+      body: `<p>Are you sure you wish to delete token "${token.name}"?</p>
       <p class="uppercase font-semibold text-rose-600"><br />Warning!</p>
       <p class="uppercase font-semibold">This action is irreversable. You will not be able to restore your token back</p>
       `,
@@ -137,7 +137,7 @@
           <img class="avatar-image h-full w-auto object-cover" src={getIcon(totp.name)} alt="icon" />
           <p class="flex-auto block min-w-0">
             <span class="block text-base truncate">{totp.name}</span>
-            <span class="block text-sm uppercase">{totp.hashingAlgo}</span>
+            <span class="block text-sm uppercase">{totp.type}, {totp.hashingAlgo}</span>
           </p>
           <button type="button" use:popup={getTotpItemMenuSettings(item.id)}>
             <svg

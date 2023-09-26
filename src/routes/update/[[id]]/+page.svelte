@@ -16,7 +16,6 @@
   import CameraQrScanner from '$components/camera-qr-scanner/camera-qr-scanner.svelte';
   import ScreenQrScanner from '$components/screen-qr-scanner/screen-qr-scanner.svelte';
   import { TokenType, tokenTypeFromString } from '$models/token-type';
-  import { type } from 'os';
 
   GlobalCommonToast.initialize();
 

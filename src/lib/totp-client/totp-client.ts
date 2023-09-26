@@ -133,7 +133,7 @@ export class TotpAppClient extends EventEmitter {
           this.#serialPort = serialPort;
           serialPort.once('close', () => {
             this.#serialPort = null;
-            this.#appVersion= null;
+            this.#appVersion = null;
           });
           this.emit(TotpClientEvents.Connected, this);
         }

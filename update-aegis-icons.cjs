@@ -18,7 +18,10 @@ function mapAegisCatalog(data, tag) {
 
 async function main() {
   const latestReleaseResponse = await fetch('https://github.com/aegis-icons/aegis-icons/releases/latest');
-  const actualReleaseTag = latestReleaseResponse.url.replace('https://github.com/aegis-icons/aegis-icons/releases/tag/', '');
+  const actualReleaseTag = latestReleaseResponse.url.replace(
+    'https://github.com/aegis-icons/aegis-icons/releases/tag/',
+    '',
+  );
   let existingCatalogTag = 'N/A';
   try {
     const existingCatalog = require(IconsCatalogPath);

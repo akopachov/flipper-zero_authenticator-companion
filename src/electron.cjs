@@ -48,7 +48,6 @@ function createWindow() {
     width: windowState.width,
     height: windowState.height,
     icon: path.join(__dirname, '../static/icon.png'),
-    backgroundMaterial: 'mica',
   });
 
   windowState.manage(mainWindow);

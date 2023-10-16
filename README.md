@@ -19,7 +19,7 @@
 
 ## Description
 
-Flipper Authenticator Companion is a companion application for [Flipper Authenticator](https://github.com/akopachov/flipper-zero_authenticator) software-based TOTP authenticator for Flipper Zero device. This application allows to interact with Flipper Authenticator in a more user-friendly way.
+Flipper Authenticator Companion is a companion application for [Flipper Authenticator](https://github.com/akopachov/flipper-zero_authenticator) software-based TOTP/HOTP authenticator for Flipper Zero device. This application allows to interact with Flipper Authenticator in a more user-friendly way.
 
 ## How get it
 

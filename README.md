@@ -33,7 +33,7 @@ All the application binaries provided in the releases are unsigned and some anti
 
 ## Build
 
-```bash
+```console
 pnpm config set node-linker hoisted --location project
 pnpm install
 pnpm build
@@ -41,7 +41,7 @@ pnpm build
 
 ## Development
 
-```bash
+```console
 pnpm install
 pnpm dev
 ```

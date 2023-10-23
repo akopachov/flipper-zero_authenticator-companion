@@ -32,24 +32,23 @@ Flipper Authenticator Companion is a companion application for [Flipper Authenti
 All the application binaries provided in the releases are unsigned and some anti-virus software may prevent running due to that. To verify file integrity you may check SHA256 checksum provided for every release. Executable files for all platforms are scanned by [Virustotal](https://virustotal.com/) for every release and scan results are available on the release page.
 
 ## Build
-```
+
+```bash
 pnpm config set node-linker hoisted --location project
 pnpm install
 pnpm build
 ```
 
 ## Development
-```
+
+```bash
 pnpm install
 pnpm dev
 ```
 
-## Support
+## Want to say thank you?
 
-* Buy me a coffee [here](https://ko-fi.com/akopachov), [here](https://www.buymeacoffee.com/mijumoho), [here](https://donorbox.org/flipper-authenticator) or [here](https://buycoffee.to/akopachov)
-* Become a patron at [Patreon](https://patreon.com/akopachov)
-* BTC: `bc1qu9k48q93uhvr9w5cn8fzz5yxuvh4e27c6hnczq`
-* ETH: `0xa12163eD56e35d3B38F7087B573384E40b2785e1`
-* USDT: `0xa12163eD56e35d3B38F7087B573384E40b2785e1`
-* DOGE: `DAa3nu1RCWwxZdAnGVga77bgxDFP1nhahj`
-* TON: `EQCSBzoTb1B7RhXnka5RegmdjHR3gQwRVgZHNPPqzjjvlW9T`
+* Buy me a coffee [here](https://ko-fi.com/akopachov) (No account needed, one-time)
+* Become a patron at [Patreon](https://patreon.com/akopachov) (Account needed)
+* [Z.Cash](https://z.cash/): `t1PCzJrd96RUfzjzhBERfXEFvSi7W6V86hM`
+* [TON](https://ton.org/): `EQCSBzoTb1B7RhXnka5RegmdjHR3gQwRVgZHNPPqzjjvlW9T`

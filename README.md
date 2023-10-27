@@ -16,6 +16,9 @@
 <a href=".github/screenshots/add-token.png">
   <img src=".github/screenshots/add-token.png" height="300px" />
 </a>
+<a href=".github/screenshots/import-tokens.png">
+  <img src=".github/screenshots/import-tokens.png" height="300px" />
+</a>
 
 ## Description
 

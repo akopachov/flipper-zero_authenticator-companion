@@ -20,9 +20,19 @@ export class GlobalCommonToast {
   static initialize() {
     toastStore = getToastStore();
   }
-  static show(text: string, type: CommonToastType) {
+  static show(text: string, type: CommonToastType, errorObj?: unknown) {
+    let toastMessage = text;
+    if (errorObj) {
+      let errorText = errorObj;
+      if (errorObj instanceof Error) {
+        errorText = errorObj.message;
+      }
+
+      toastMessage = `<p class="block">${text}</p><p class="text-sm block mt-2">Error details:</p><pre class="pre text-xs mt-2 bg-opacity-30 bg-neutral-950">${errorText}</pre>`;
+    }
+
     toastStore.trigger({
-      message: text,
+      message: toastMessage,
       background: BackgroundClasses[type],
       autohide: false,
     });

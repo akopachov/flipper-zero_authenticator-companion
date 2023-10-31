@@ -36,7 +36,7 @@
       await SharedTotpAppClient.updateAppSettings(deviceAppSettings, abortController.signal);
       GlobalCommonToast.show('Settings have been successfully updated', CommonToastType.Success);
     } catch (e) {
-      GlobalCommonToast.show('An error occurred during updating settings', CommonToastType.Error);
+      GlobalCommonToast.show('An error occurred during updating settings', CommonToastType.Error, e);
       log.error(e);
     }
   }

@@ -15,7 +15,7 @@
     try {
       totpList = await SharedTotpAppClient.listTokens(abortController.signal);
     } catch (e) {
-      GlobalCommonToast.show('An error occurred during querying token list', CommonToastType.Error);
+      GlobalCommonToast.show('An error occurred during querying token list', CommonToastType.Error, e);
       log.error(e);
     }
   }
@@ -26,7 +26,7 @@
       await updateTokenList();
       GlobalCommonToast.show(`Token "${e.detail.token.name}" has been successfully removed`, CommonToastType.Success);
     } catch (e) {
-      GlobalCommonToast.show('An error occurred during token removal', CommonToastType.Error);
+      GlobalCommonToast.show('An error occurred during token removal', CommonToastType.Error, e);
       log.error(e);
     }
   }
@@ -37,7 +37,7 @@
       try {
         await SharedTotpAppClient.moveToken(totpList[from].id, totpList[to].id, abortController.signal);
       } catch (e) {
-        GlobalCommonToast.show('An error occurred during token movement', CommonToastType.Error);
+        GlobalCommonToast.show('An error occurred during token movement', CommonToastType.Error, e);
         log.error(e);
       }
       await updateTokenList();

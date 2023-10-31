@@ -97,7 +97,7 @@
           CommonToastType.Success,
         );
       } catch (e) {
-        GlobalCommonToast.show('An error occurred during token saving', CommonToastType.Error);
+        GlobalCommonToast.show('An error occurred during token saving', CommonToastType.Error, e);
         log.error(e);
       }
     }
@@ -110,7 +110,7 @@
       } catch (e) {
         log.error(e);
         await goto('/');
-        GlobalCommonToast.show(`Unable to load token details`, CommonToastType.Error);
+        GlobalCommonToast.show(`Unable to load token details`, CommonToastType.Error, e);
       }
     }
   }

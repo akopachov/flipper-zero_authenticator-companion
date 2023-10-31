@@ -70,6 +70,7 @@ type ExecuteCommandOptions = {
   trimCommandEndSignature: boolean;
   trimEmptyLines: boolean;
   trimTerminalControlCommands: boolean;
+  throwOnTerminalError: boolean;
   commandEndSign: string | RegExp;
   signal?: AbortSignal;
 };
@@ -79,6 +80,7 @@ const ExecuteCommandDefaultOptions: ExecuteCommandOptions = {
   trimCommandEndSignature: true,
   trimEmptyLines: true,
   trimTerminalControlCommands: true,
+  throwOnTerminalError: true,
   commandEndSign: TotpCommandOutput.EndOfCommand,
 };
 
@@ -148,7 +150,7 @@ export class TotpAppClient extends EventEmitter {
   async #_executeCommand(command: string, options: Partial<ExecuteCommandOptions>) {
     const opts: ExecuteCommandOptions = { ...ExecuteCommandDefaultOptions, ...options };
     let commandFound = false;
-    let response;
+    let response: string | null;
     let commandEndSignForRegex;
     if (opts.commandEndSign instanceof RegExp) {
       commandEndSignForRegex = opts.commandEndSign.source;
@@ -199,6 +201,14 @@ export class TotpAppClient extends EventEmitter {
         response = response.replace(opts.commandEndSign, '');
       }
 
+      if (opts.throwOnTerminalError) {
+        // eslint-disable-next-line no-control-regex
+        const errors = [...response.matchAll(/\x1b\[91m([\w\W]+)\x1b\[0m/gi)].map(m => m[1].trim());
+        if (errors.length > 0) {
+          throw new Error(errors.join('\r\n'));
+        }
+      }
+
       if (opts.trimTerminalControlCommands) {
         // eslint-disable-next-line no-control-regex
         response = response.replace(/(\x1b\[(\d+m|A|2K))|(\x08 \x08)\r?/g, '');
@@ -228,7 +238,8 @@ export class TotpAppClient extends EventEmitter {
 
   async #getAppVersion(signal?: AbortSignal) {
     if (!this.#appVersion) {
-      const result = (await this.#executeCommand(`${TotpCommand} version\r`, { signal: signal })) || '';
+      const result =
+        (await this.#executeCommand(`${TotpCommand} version\r`, { signal: signal, throwOnTerminalError: false })) || '';
       if (result.includes('Command "version" is unknown')) {
         this.#appVersion = UnknownAppVersion;
       } else {
@@ -240,7 +251,7 @@ export class TotpAppClient extends EventEmitter {
   }
 
   async waitForApp(signal?: AbortSignal) {
-    await this.#executeCommand(`${TotpCommand} ?\r`, { signal: signal });
+    await this.#executeCommand(`${TotpCommand} ?\r`, { signal: signal, throwOnTerminalError: false });
   }
 
   async listTokens(signal?: AbortSignal) {

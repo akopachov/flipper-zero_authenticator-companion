@@ -36,7 +36,7 @@
         );
       } catch (e) {
         log.error(e);
-        GlobalCommonToast.show('An error ocurred during token import', CommonToastType.Error);
+        GlobalCommonToast.show('An error ocurred during token import', CommonToastType.Error, e);
       }
     } else {
       GlobalCommonToast.show('There are no tokens selected', CommonToastType.Warning);

@@ -123,12 +123,35 @@
   {#if tokenInfo}
     <form class="w-full p-4" on:submit={saveToken} transition:blur>
       <input class="input mb-3" type="text" placeholder="Name" required bind:value={tokenInfo.name} />
-      <input
-        class="input mb-3"
-        type="password"
-        placeholder="Secret"
-        required={tokenInfo.id <= 0}
-        bind:value={tokenInfo.secret} />
+      <div class="mb-3 relative">
+        <input
+          class="input"
+          class:pr-48={!!tokenInfo.secret}
+          type="password"
+          placeholder="Secret"
+          required={tokenInfo.id <= 0}
+          bind:value={tokenInfo.secret} />
+        {#if !!tokenInfo.secret}
+          <div class="absolute p-0 top-[var(--theme-border-base)] right-[var(--theme-border-base)]">
+            <RadioGroup
+              active="variant-filled-primary"
+              hover="hover:variant-soft-primary"
+              display="flex"
+              background="bg-transparent"
+              border="border-none">
+              {#each availableTokenSecretEncoding as [name, enc]}
+                <RadioItem
+                  class="uppercase"
+                  name="Token secret encoding"
+                  bind:group={tokenInfo.secretEncoding}
+                  value={enc}>
+                  {name}
+                </RadioItem>
+              {/each}
+            </RadioGroup>
+          </div>
+        {/if}
+      </div>
       <Accordion>
         <AccordionItem>
           <svelte:fragment slot="summary">
@@ -182,24 +205,6 @@
                 <input type="number" class="input max-w-xs" min="0" required bind:value={tokenInfo.counter} />
               </label>
             {/if}
-
-            <label class="label mb-3" for="rbgTokenSecretEncoding">
-              <span class="block">Token secret encoding</span>
-              <RadioGroup
-                id="rbgTokenSecretEncoding"
-                active="variant-filled-primary"
-                hover="hover:variant-soft-primary">
-                {#each availableTokenSecretEncoding as [name, enc]}
-                  <RadioItem
-                    class="uppercase"
-                    name="Token secret encoding"
-                    bind:group={tokenInfo.secretEncoding}
-                    value={enc}>
-                    {name}
-                  </RadioItem>
-                {/each}
-              </RadioGroup>
-            </label>
           </svelte:fragment>
         </AccordionItem>
         <AccordionItem>

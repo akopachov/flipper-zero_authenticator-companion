@@ -4,3 +4,8 @@
 @tailwind variants;
 
 html, body { @apply h-full overflow-hidden; }
+
+a[target="_blank"]:after {
+    @apply inline-block ml-1 w-4 h-4 align-baseline;
+    content: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZT0iY3VycmVudENvbG9yIj4NCiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTMuNSA2SDUuMjVBMi4yNSAyLjI1IDAgMDAzIDguMjV2MTAuNUEyLjI1IDIuMjUgMCAwMDUuMjUgMjFoMTAuNUEyLjI1IDIuMjUgMCAwMDE4IDE4Ljc1VjEwLjVtLTEwLjUgNkwyMSAzbTAgMGgtNS4yNU0yMSAzdjUuMjUiIC8+DQo8L3N2Zz4NCg==');
+}

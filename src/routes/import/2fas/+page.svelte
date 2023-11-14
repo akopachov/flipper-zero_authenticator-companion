@@ -34,7 +34,7 @@
         const serializedParsedTokens = dataToQueryString(parsedTokens);
         await goto(`/import/confirm?data=${serializedParsedTokens}`);
       } else {
-        GlobalCommonToast.show('No tokens found', CommonToastType.Warning);
+        GlobalCommonToast.show('No valid tokens found', CommonToastType.Warning);
       }
     }
   }

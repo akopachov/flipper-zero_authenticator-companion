@@ -32,6 +32,12 @@
           </a>
         </li>
         <li>
+          <a href="/import/bitwarden" class="!rounded-xl !p-2">
+            <Avatar src="/authenticator-icons/bitwarden.png" width="w-12" rounded="rounded-xl" />
+            <span>Bitwarden</span>
+          </a>
+        </li>
+        <li>
           <a href="/import/uri-list" class="!rounded-xl !p-2">
             <div class="w-12 h-12 rounded-xl bg-white flex justify-center items-center">
               <svg

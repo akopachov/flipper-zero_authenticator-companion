@@ -5,7 +5,7 @@
   import type { TokenInfo } from '$models/token-info';
   import { goto } from '$app/navigation';
   import { dataToQueryString } from '$lib/query-string-utils';
-  import { importFromUriList } from '$lib/import';
+  import { importFromBitwarden } from '$lib/import';
 
   GlobalCommonToast.initialize();
 
@@ -19,7 +19,8 @@
       const file = files.item(i);
       if (file) {
         try {
-          parsedTokens.push(...importFromUriList(await file.text()));
+          const jsonContent = JSON.parse(await file.text());
+          parsedTokens.push(...importFromBitwarden(jsonContent));
         } catch (e) {
           errorsFound = true;
           log.error(e);
@@ -40,23 +41,24 @@
 </script>
 
 <div class="p-4">
-  <h4 class="h4">Import from URI list file</h4>
+  <h4 class="h4">Import from Bitwarden</h4>
   <div class="mt-5 mb-5">
-    <p>Some authenticator applications provide an ability to export all the tokens into URI list file.</p>
-    <p>This file looks like a text file where each line contains OTP auth URI like this:</p>
-    <pre
-      class="pre text-xs mt-2">otpauth://totp/Amazon:jdoe%40gmail.com?secret=VOHJXBL54OM2TTLKANOUUCJTE7PXVOIV&issuer=Amazon</pre>
-    <p class="mb-3 mt-3">To import such a file follow steps below:</p>
     <ol class="list-decimal ml-4">
-      <li>In the authentuicator app export tokens to "URI list" file format</li>
       <li>
-        <strong>Transfer the exported file to this machine in the safest way possible</strong>
+        Use <a class="anchor" target="_blank" href="external-https://bitwarden.com/help/export-your-data/">
+          official instruction from Bitwarden
+        </a>
+        to export data to
+        <strong>JSON file (unencrypted)</strong>
       </li>
-      <li>Drag & drop or select the exported file in the area below</li>
+      <li>
+        Save and <strong>transfer the exported JSON file to this machine in the safest way possible</strong>
+      </li>
+      <li>Drag & drop or select the exported JSON file in the area below</li>
     </ol>
   </div>
   <div class="flex justify-center w-full">
-    <FileDropzone name="files" bind:files on:change={processFiles} accept=".txt">
+    <FileDropzone name="files" bind:files on:change={processFiles} accept=".json">
       <svelte:fragment slot="lead">
         <div class="flex justify-center">
           <svg
@@ -76,7 +78,7 @@
         <strong>Upload a file</strong>
         or drag and drop
       </svelte:fragment>
-      <svelte:fragment slot="meta">Only TXT allowed</svelte:fragment>
+      <svelte:fragment slot="meta">Only JSON allowed</svelte:fragment>
     </FileDropzone>
   </div>
 </div>

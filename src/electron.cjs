@@ -1,11 +1,13 @@
 const windowStateManager = require('electron-window-state');
-const { app, BrowserWindow, desktopCapturer, nativeTheme } = require('electron');
+const { app, BrowserWindow, desktopCapturer, nativeTheme, shell } = require('electron');
 const serve = require('electron-serve');
 const path = require('path');
 const Store = require('electron-store');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 const { MainMessageHub } = require('simple-electron-ipc');
+
+const ExternalLinkSchemaSuffix = 'external-';
 
 try {
   require('electron-reloader')(module);
@@ -65,6 +67,15 @@ function createWindow() {
     if (detailed.reason === 'crashed') {
       mainWindow.webContents.reload();
     }
+  });
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith(ExternalLinkSchemaSuffix)) {
+      shell.openExternal(url.substring(ExternalLinkSchemaSuffix.length));
+      return { action: 'deny' };
+    }
+
+    return { action: 'allow' };
   });
 
   return mainWindow;

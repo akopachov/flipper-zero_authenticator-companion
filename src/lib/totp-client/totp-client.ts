@@ -223,10 +223,10 @@ export class TotpAppClient extends EventEmitter {
   }
 
   async #executeCommand(command: string, options: Partial<ExecuteCommandOptions> = {}) {
-    this.emit(TotpClientEvents.CommandExecuting, this);
     let result: string | null;
     try {
       await this.#executionSemaphore.acquire();
+      this.emit(TotpClientEvents.CommandExecuting, this);
       result = await this.#_executeCommand(command, options);
     } finally {
       this.#executionSemaphore.release();

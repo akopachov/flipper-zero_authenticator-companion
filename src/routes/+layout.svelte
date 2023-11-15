@@ -43,7 +43,7 @@
   }
 
   SharedTotpAppClient.on(TotpClientEvents.Connecting, () => {
-    GlobalPreloader.setDescription('Connecting to Flipper Zero device');
+    GlobalPreloader.setDescription('Waiting for Flipper Zero device');
   });
 
   SharedTotpAppClient.on(TotpClientEvents.Connected, () => {

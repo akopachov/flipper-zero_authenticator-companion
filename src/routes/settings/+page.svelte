@@ -8,7 +8,7 @@
   import { getAppSettings } from '$stores/app-settings';
   import { AvailableTimezoneProviders } from '$lib/timezone-providers';
   import { CommonToastType, GlobalCommonToast } from '$stores/global-common-toast';
-  import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
+  import { RadioGroup, RadioItem, RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
   import { FromConfigTimezoneProvider } from '$lib/timezone-providers/from-config-timezone-provider';
   import { slide } from 'svelte/transition';
 
@@ -139,6 +139,19 @@
               {/each}
             </RadioGroup>
           </label>
+          <RangeSlider
+            id="automationInitialDelay"
+            name="automationInitialDelay"
+            bind:value={deviceAppSettings.automationInitialDelay}
+            min={0}
+            max={15}
+            step={0.5}
+            ticked>
+            <div class="flex justify-between items-center">
+              <label class="label" for="automationInitialDelay">Initial delay</label>
+              <div class="text-xs">{deviceAppSettings.automationInitialDelay} sec.</div>
+            </div>
+          </RangeSlider>
         {/if}
       </div>
       <div class="flex justify-center">

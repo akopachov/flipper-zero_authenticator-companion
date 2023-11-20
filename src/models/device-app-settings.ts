@@ -68,5 +68,6 @@ export class DeviceAppSettings {
   notification: NotificationSet = new NotificationSet();
   automation: AutomationSet = new AutomationSet();
   automationKeyboardLayout: DeviceAppAutomationKeyboardLayout = DeviceAppAutomationKeyboardLayout.QWERTY;
+  automationInitialDelay: number = 0.5;
   timezoneOffset: number = 0;
 }

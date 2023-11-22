@@ -95,9 +95,10 @@
         GlobalCommonToast.show(
           `Token "${tokenInfo.name}" has been successfully ${isNewToken ? 'added' : 'updated'}`,
           CommonToastType.Success,
+          { autohideTimeout: 3000 },
         );
       } catch (e) {
-        GlobalCommonToast.show('An error occurred during token saving', CommonToastType.Error, e);
+        GlobalCommonToast.show('An error occurred during token saving', CommonToastType.Error, { errorObj: e });
         log.error(e);
       }
     }
@@ -110,7 +111,7 @@
       } catch (e) {
         log.error(e);
         await goto('/');
-        GlobalCommonToast.show(`Unable to load token details`, CommonToastType.Error, e);
+        GlobalCommonToast.show(`Unable to load token details`, CommonToastType.Error, { errorObj: e });
       }
     }
   }

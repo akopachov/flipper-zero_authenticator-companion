@@ -173,7 +173,7 @@ export class TotpAppClient extends EventEmitter {
 
       response = await (
         await this.#getSerialPort(opts.signal)
-      ).readUntil(commandEndOutputSignRegex, { timeout: 5000, signal: opts.signal });
+      ).readUntil(commandEndOutputSignRegex, { timeout: 3000, signal: opts.signal });
 
       commandFound = !!response && !response.includes(TotpCommandOutput.CommandNotFound);
       if (commandFound) {
@@ -248,6 +248,11 @@ export class TotpAppClient extends EventEmitter {
     }
 
     return this.#appVersion;
+  }
+
+  async appVersionMatch(constrain: string, signal?: AbortSignal) {
+    const appVersion = await this.#getAppVersion(signal);
+    return semverSatisfies(appVersion, constrain);
   }
 
   async waitForApp(signal?: AbortSignal) {
@@ -329,10 +334,9 @@ export class TotpAppClient extends EventEmitter {
     const tokenSecretUpdateNeeded = isNewToken || tokenInfo.secret;
     const baseCommand = isNewToken ? `add "${tokenInfo.name}"` : `update ${tokenInfo.id} -n "${tokenInfo.name}"`;
     let fullCommand = `${TotpCommand} ${baseCommand} -a ${tokenInfo.hashingAlgo} -e ${tokenInfo.secretEncoding} -d ${tokenInfo.length}`;
-    const appVersion = await this.#getAppVersion(signal);
 
     // HOTP support was added at >5.0.0
-    if (semverSatisfies(appVersion, '>5.0.0')) {
+    if (await this.appVersionMatch('>5.0.0', signal)) {
       fullCommand += ` -t ${tokenInfo.type}`;
       if (tokenInfo.type === TokenType.TOTP) {
         fullCommand += ` -l ${tokenInfo.duration}`;
@@ -476,16 +480,15 @@ export class TotpAppClient extends EventEmitter {
           settings.automation.add(DeviceAppAutomation.Bluetooth);
         }
 
-        if (rawAutomationState.includes(`(${DeviceAppAutomationKeyboardLayout.QWERTY})`)) {
-          settings.automationKeyboardLayout = DeviceAppAutomationKeyboardLayout.QWERTY;
-        } else if (rawAutomationState.includes(`(${DeviceAppAutomationKeyboardLayout.AZERTY})`)) {
-          settings.automationKeyboardLayout = DeviceAppAutomationKeyboardLayout.AZERTY;
-        } else if (rawAutomationState.includes(`(${DeviceAppAutomationKeyboardLayout.QWERTZ})`)) {
-          settings.automationKeyboardLayout = DeviceAppAutomationKeyboardLayout.QWERTZ;
+        for (const layout of Object.values(DeviceAppAutomationKeyboardLayout)) {
+          if (rawAutomationState.includes(`(${layout})`)) {
+            settings.automationKeyboardLayout = layout;
+            break;
+          }
         }
 
         const delayRegex = new RegExp('\\[([0-9\\.]+) sec\\.\\]', 'gi');
-        const delayRegexResult = delayRegex.exec('rawAutomationState');
+        const delayRegexResult = delayRegex.exec(rawAutomationState);
         if (delayRegexResult && delayRegexResult.length > 1) {
           settings.automationInitialDelay = Number(delayRegexResult[1]);
         }
@@ -510,9 +513,8 @@ export class TotpAppClient extends EventEmitter {
     await this.#executeCommand(`${TotpCommand} notify ${notifyArg}\r`, { signal: signal });
     const automationArg = settings.automation.size > 0 ? [...settings.automation].join(' ') : DeviceAppAutomation.None;
 
-    const appVersion = await this.#getAppVersion(signal);
     let automationUpdateCommand = `${TotpCommand} automation ${automationArg} -k ${settings.automationKeyboardLayout}`;
-    if (semverSatisfies(appVersion, '>=5.8.0')) {
+    if (await this.appVersionMatch('>=5.8.0', signal)) {
       automationUpdateCommand += ` -w ${settings.automationInitialDelay}`;
     }
 

@@ -16,16 +16,21 @@ const BackgroundClasses = {
 
 let toastStore: ToastStore;
 
+type GlobalCommonToastShowOptions = {
+  errorObj?: unknown;
+  autohideTimeout?: number;
+};
+
 export class GlobalCommonToast {
   static initialize() {
     toastStore = getToastStore();
   }
-  static show(text: string, type: CommonToastType, errorObj?: unknown) {
+  static show(text: string, type: CommonToastType, options?: GlobalCommonToastShowOptions) {
     let toastMessage = text;
-    if (errorObj) {
-      let errorText = errorObj;
-      if (errorObj instanceof Error) {
-        errorText = errorObj.message;
+    if (options?.errorObj) {
+      let errorText = options.errorObj;
+      if (options.errorObj instanceof Error) {
+        errorText = options.errorObj.message;
       }
 
       toastMessage = `<p class="block">${text}</p><p class="text-sm block mt-2">Error details:</p><pre class="pre text-xs mt-2 bg-opacity-30 bg-neutral-950">${errorText}</pre>`;
@@ -34,7 +39,8 @@ export class GlobalCommonToast {
     toastStore.trigger({
       message: toastMessage,
       background: BackgroundClasses[type],
-      autohide: false,
+      autohide: options?.autohideTimeout !== undefined,
+      timeout: options?.autohideTimeout,
     });
   }
 }

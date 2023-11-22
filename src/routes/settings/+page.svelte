@@ -11,6 +11,7 @@
   import { RadioGroup, RadioItem, RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
   import { FromConfigTimezoneProvider } from '$lib/timezone-providers/from-config-timezone-provider';
   import { slide } from 'svelte/transition';
+  import { getKeyByValue } from '$lib/helpers/enum';
 
   GlobalCommonToast.initialize();
 
@@ -34,9 +35,11 @@
       deviceAppSettings.timezoneOffset =
         await AvailableTimezoneProviders[appSettings.timezone.provider].getCurrentTimezoneOffset();
       await SharedTotpAppClient.updateAppSettings(deviceAppSettings, abortController.signal);
-      GlobalCommonToast.show('Settings have been successfully updated', CommonToastType.Success);
+      GlobalCommonToast.show('Settings have been successfully updated', CommonToastType.Success, {
+        autohideTimeout: 3000,
+      });
     } catch (e) {
-      GlobalCommonToast.show('An error occurred during updating settings', CommonToastType.Error, e);
+      GlobalCommonToast.show('An error occurred during updating settings', CommonToastType.Error, { errorObj: e });
       log.error(e);
     }
   }
@@ -125,19 +128,13 @@
           </SlideToggle>
         </div>
         {#if deviceAppSettings.automation.size > 0}
-          <label class="label mb-3 mt-3" for="automationKbLayout">
+          <label class="label mb-3 mt-3 max-w-xs" for="automationKbLayout">
             <span class="block">Keyboard layout</span>
-            <RadioGroup id="automationKbLayout" active="variant-filled-primary" hover="hover:variant-soft-primary">
+            <select class="select" id="automationKbLayout" bind:value={deviceAppSettings.automationKeyboardLayout}>
               {#each availableKeyboardLayouts as layout}
-                <RadioItem
-                  class="uppercase"
-                  name="Keyboard layout"
-                  bind:group={deviceAppSettings.automationKeyboardLayout}
-                  value={layout}>
-                  {layout}
-                </RadioItem>
+                <option value={layout}>{getKeyByValue(DeviceAppAutomationKeyboardLayout, layout)}</option>
               {/each}
-            </RadioGroup>
+            </select>
           </label>
           <RangeSlider
             id="automationInitialDelay"

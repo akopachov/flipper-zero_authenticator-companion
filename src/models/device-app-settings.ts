@@ -14,6 +14,10 @@ export enum DeviceAppAutomationKeyboardLayout {
   QWERTY = 'qwerty',
   AZERTY = 'azerty',
   QWERTZ = 'qwertz',
+  Czech = 'czech',
+  Dvorak = 'dvorak',
+  Hungarian = 'hungarian',
+  Slovak = 'slovak',
 }
 
 export class AutomationSet extends Set<DeviceAppAutomation> {

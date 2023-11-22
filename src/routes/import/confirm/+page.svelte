@@ -33,10 +33,11 @@
         GlobalCommonToast.show(
           `${tokensToImport.length} tokens have been successfully imported`,
           CommonToastType.Success,
+          { autohideTimeout: 3000 },
         );
       } catch (e) {
         log.error(e);
-        GlobalCommonToast.show('An error ocurred during token import', CommonToastType.Error, e);
+        GlobalCommonToast.show('An error ocurred during token import', CommonToastType.Error, { errorObj: e });
       }
     } else {
       GlobalCommonToast.show('There are no tokens selected', CommonToastType.Warning);

@@ -63,7 +63,7 @@
   });
 
   SharedTotpAppClient.on(TotpClientEvents.WaitForApp, () => {
-    GlobalPreloader.setDescription('Waiting for Authenticator app top be launched on Flipper Zero device');
+    GlobalPreloader.setDescription('Waiting for Authenticator app to be launched on Flipper Zero device');
   });
 
   SharedTotpAppClient.on(TotpClientEvents.ConnectionError, (_, e) => {

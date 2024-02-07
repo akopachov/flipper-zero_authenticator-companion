@@ -26,7 +26,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: lts/*
+          node-version-file: ./.nvmrc
 
       - name: Snyk Code test
         run: snyk code test --sarif > snyk-code.sarif || true

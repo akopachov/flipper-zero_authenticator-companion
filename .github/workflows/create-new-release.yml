@@ -80,13 +80,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version-file: ./.nvmrc
-    
-      - uses: pnpm/action-setup@v2.4.0
-        name: Install pnpm
-        with:
-          version: latest
-          run_install: false
 
+      - name: Install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+    
       - name: Install dependencies
         run: |
           pnpm config set node-linker hoisted --location project

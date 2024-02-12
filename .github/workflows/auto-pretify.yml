@@ -13,21 +13,20 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
         ref: ${{ github.head_ref }}
 
     - name: Install Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4.0.2
       with:
         node-version-file: ./.nvmrc
 
-    - uses: pnpm/action-setup@v2
-      name: Install pnpm
-      with:
-        version: latest
-        run_install: false
+    - name: Install pnpm
+      run: |
+        corepack enable
+        corepack prepare pnpm@latest --activate
 
     - name: Get pnpm store directory
       shell: bash
@@ -51,7 +50,7 @@ jobs:
     - name: Update Permissions
       run: sudo chown --recursive $USER .
 
-    - uses: stefanzweifel/git-auto-commit-action@v4.16.0
+    - uses: stefanzweifel/git-auto-commit-action@v5.0.0
       with:
         commit_message: Code formatting changes
         branch: ${{ github.head_ref }}

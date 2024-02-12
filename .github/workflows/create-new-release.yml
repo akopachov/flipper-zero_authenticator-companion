@@ -14,7 +14,7 @@ jobs:
     outputs:
       commit_hash: ${{steps.commit_new_version.outputs.commit_hash}}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set new version format
         run: |
@@ -31,7 +31,7 @@ jobs:
           fi
 
       - id: commit_new_version
-        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        uses: stefanzweifel/git-auto-commit-action@v5.0.0
         with:
           commit_message: Updated version
           push_options: '--force'
@@ -42,7 +42,7 @@ jobs:
     outputs:
       upload_url: ${{steps.create-release.outputs.upload_url}}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: "${{needs.set-new-version.outputs.commit_hash}}"
           fetch-depth: 0
@@ -71,7 +71,7 @@ jobs:
       GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: "${{needs.set-new-version.outputs.commit_hash}}"
           fetch-depth: 0
@@ -80,7 +80,6 @@ jobs:
         uses: actions/setup-node@v4.0.2
         with:
           node-version-file: ./.nvmrc
-          cache: pnpm
 
       - name: Install pnpm
         run: |

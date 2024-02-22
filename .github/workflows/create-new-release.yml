@@ -94,11 +94,10 @@ jobs:
           pnpm install
 
       - name: Fix PNPM to run build
-        uses: MathieuSoysal/replace-string-in-file@v1.1.0
-        with:
-          file: "${{steps.install-pnpm.outputs.bin_dest}}/pnpm.cjs"
-          old-string: "#!/usr/bin/env node"
-          new-string: "#!node"
+        shell: pwsh
+        run: |
+          $pnpmcjs = "${{steps.install-pnpm.outputs.bin_dest}}/pnpm.cjs"
+          (Get-Content $pnpmcjs -Raw) -replace '#!/usr/bin/env node', '#!node' | Set-Content $pnpmcjs -NoNewline
         if: ${{ matrix.os == 'windows-latest' }}
 
       - name: Build

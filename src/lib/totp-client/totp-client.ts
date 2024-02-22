@@ -173,7 +173,7 @@ export class TotpAppClient extends EventEmitter {
 
       response = await (
         await this.#getSerialPort(opts.signal)
-      ).readUntil(commandEndOutputSignRegex, { timeout: 3000, signal: opts.signal });
+      ).readUntil(commandEndOutputSignRegex, { signal: opts.signal });
 
       commandFound = !!response && !response.includes(TotpCommandOutput.CommandNotFound);
       if (commandFound) {

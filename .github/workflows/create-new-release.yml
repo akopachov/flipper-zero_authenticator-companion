@@ -86,10 +86,11 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
     
-      - name: Install dependencies
-        run: |
-          pnpm config set node-linker hoisted --location project
-          pnpm install
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: latest
+          run_install: false
 
       - name: Build
         run: |

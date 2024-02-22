@@ -96,8 +96,6 @@ jobs:
       - name: Fix PNPM to run build
         shell: pwsh
         run: |
-          C:\Users\runneradmin\setup-pnpm\node_modules\.bin\
-          C:\Users\runneradmin\setup-pnpm\node_modules\.pnpm\pnpm@8.15.3\node_modules\pnpm\bin\pnpm.cjs
           $root_path = "${{steps.install-pnpm.outputs.bin_dest}}/../.pnpm/"
           Get-ChildItem -Path $root_path -Recurse -Filter "pnpm.cjs" | ForEach-Object {
             $pnpmcjs = $_.FullName

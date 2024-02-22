@@ -99,6 +99,7 @@ jobs:
           file: "${{steps.install-pnpm.outputs.bin_dest}}/pnpm.cjs"
           old-string: "#!/usr/bin/env node"
           new-string: "#!node"
+        if: ${{ matrix.os == 'windows-latest' }}
 
       - name: Build
         run: |

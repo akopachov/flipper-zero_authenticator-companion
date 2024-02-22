@@ -93,12 +93,17 @@ jobs:
           pnpm config set node-linker hoisted --location project
           pnpm install
 
-      # - name: Fix PNPM to run build
-      #   shell: pwsh
-      #   run: |
-      #     $pnpmcjs = "${{steps.install-pnpm.outputs.bin_dest}}/pnpm.cjs"
-      #     (Get-Content $pnpmcjs -Raw) -replace '#!/usr/bin/env node', '#!node' | Set-Content $pnpmcjs -NoNewline
-      #   if: ${{ matrix.os == 'windows-latest' }}
+      - name: Fix PNPM to run build
+        shell: pwsh
+        run: |
+          C:\Users\runneradmin\setup-pnpm\node_modules\.bin\
+          C:\Users\runneradmin\setup-pnpm\node_modules\.pnpm\pnpm@8.15.3\node_modules\pnpm\bin\pnpm.cjs
+          $root_path = "${{steps.install-pnpm.outputs.bin_dest}}/../.pnpm/"
+          Get-ChildItem -Path $root_path -Recurse -Filter "pnpm.cjs" | ForEach-Object {
+            $pnpmcjs = $_.FullName
+            (Get-Content $pnpmcjs -Raw) -replace '#!/usr/bin/env node', '#!node' | Set-Content $pnpmcjs -NoNewline
+          }
+        if: ${{ matrix.os == 'windows-latest' }}
 
       - name: Build
         run: |

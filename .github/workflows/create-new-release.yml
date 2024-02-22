@@ -93,7 +93,6 @@ jobs:
           pnpm config set node-linker hoisted --location project
           pnpm install
 
-      - uses: actions/checkout@v3
       - name: Fix PNPM to run build
         uses: jacobtomlinson/gha-find-replace@v3
         with:

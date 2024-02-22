@@ -93,12 +93,12 @@ jobs:
           pnpm config set node-linker hoisted --location project
           pnpm install
 
-      - name: Fix PNPM to run build
-        shell: pwsh
-        run: |
-          $pnpmcjs = "${{steps.install-pnpm.outputs.bin_dest}}/pnpm.cjs"
-          (Get-Content $pnpmcjs -Raw) -replace '#!/usr/bin/env node', '#!node' | Set-Content $pnpmcjs -NoNewline
-        if: ${{ matrix.os == 'windows-latest' }}
+      # - name: Fix PNPM to run build
+      #   shell: pwsh
+      #   run: |
+      #     $pnpmcjs = "${{steps.install-pnpm.outputs.bin_dest}}/pnpm.cjs"
+      #     (Get-Content $pnpmcjs -Raw) -replace '#!/usr/bin/env node', '#!node' | Set-Content $pnpmcjs -NoNewline
+      #   if: ${{ matrix.os == 'windows-latest' }}
 
       - name: Build
         run: |

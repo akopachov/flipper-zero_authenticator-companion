@@ -94,12 +94,11 @@ jobs:
           pnpm install
 
       - name: Fix PNPM to run build
-        uses: jacobtomlinson/gha-find-replace@v3
+        uses: MathieuSoysal/replace-string-in-file@v1.1.0
         with:
-          include: "${{steps.install-pnpm.outputs.bin_dest}}/pnpm.cjs"
-          find: "#!/usr/bin/env node"
-          replace: "#!node"
-          regex: false
+          file: "${{steps.install-pnpm.outputs.bin_dest}}/pnpm.cjs"
+          old-string: "#!/usr/bin/env node"
+          new-string: "#!node"
 
       - name: Build
         run: |

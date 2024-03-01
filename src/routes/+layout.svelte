@@ -161,6 +161,14 @@
           </a>
         </li>
         <li class="!mt-auto text-center">
+          <div>
+            <a
+              class="anchor"
+              target="_blank"
+              href="external-https://github.com/akopachov/flipper-zero_authenticator-companion?tab=readme-ov-file#want-to-say-thank-you">
+              Say thank you to a developer
+            </a>
+          </div>
           <Lightswitch />
         </li>
       </ul>

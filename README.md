@@ -7,7 +7,6 @@
 ![maintained - yes](https://img.shields.io/badge/maintained-yes-blue)
 [![Known Vulnerabilities](https://snyk.io/test/github/akopachov/flipper-zero_authenticator-companion/badge.svg)](https://snyk.io/test/github/akopachov/flipper-zero_authenticator-companion)
 ![contributions - welcome](https://img.shields.io/badge/contributions-welcome-blue)
-[![Discord server](https://img.shields.io/discord/937479784148115456)](https://discord.gg/flipper-xtreme)
 
 
 <a href=".github/screenshots/token-list.png">
@@ -54,4 +53,5 @@ pnpm dev
 * Buy me a coffee [here](https://ko-fi.com/akopachov) (No account needed, one-time)
 * Become a patron at [Patreon](https://patreon.com/akopachov) (Account needed)
 * [Z.Cash](https://z.cash/): `t1PCzJrd96RUfzjzhBERfXEFvSi7W6V86hM`
+* [DOGE](https://dogecoin.com/): `DAa3nu1RCWwxZdAnGVga77bgxDFP1nhahj`
 * [TON](https://ton.org/): `EQCSBzoTb1B7RhXnka5RegmdjHR3gQwRVgZHNPPqzjjvlW9T`

@@ -162,7 +162,7 @@
         </li>
         <li class="!mt-auto text-center">
           <div>
-            <a class="anchor" target="_blank" href="external-https://t.ly/ak-support">Say thank you to a developer</a>
+            <a class="anchor" target="_blank" href="external-https://bit.ly/ak-support">Say thank you to a developer</a>
           </div>
           <Lightswitch />
         </li>

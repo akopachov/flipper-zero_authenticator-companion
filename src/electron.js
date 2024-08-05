@@ -1,16 +1,19 @@
-const windowStateManager = require('electron-window-state');
-const { app, BrowserWindow, desktopCapturer, nativeTheme, shell } = require('electron');
-const serve = require('electron-serve');
-const path = require('path');
-const Store = require('electron-store');
-const log = require('electron-log');
-const { autoUpdater } = require('electron-updater');
-const { MainMessageHub } = require('simple-electron-ipc');
+import windowStateManager from 'electron-window-state';
+import { app, BrowserWindow, desktopCapturer, nativeTheme, shell } from 'electron';
+import serve from 'electron-serve';
+import path from 'node:path';
+import Store from 'electron-store';
+import log from 'electron-log';
+import electronUpdater from 'electron-updater';
+const { autoUpdater } = electronUpdater;
+import { MainMessageHub } from 'simple-electron-ipc';
+
+console.log(import.meta.dirname);
 
 const ExternalLinkSchemaSuffix = 'external-';
 
 try {
-  require('electron-reloader')(module);
+  (await import('electron-reloader'))(module);
 } catch (e) {
   /* empty */
 }
@@ -43,13 +46,13 @@ function createWindow() {
       nodeIntegrationInWorker: true,
       spellcheck: false,
       devTools: dev,
-      preload: path.join(__dirname, 'preload.cjs'),
+      preload: path.join(import.meta.dirname, 'preload.js'),
     },
     x: windowState.x,
     y: windowState.y,
     width: windowState.width,
     height: windowState.height,
-    icon: path.join(__dirname, '../static/icon.png'),
+    icon: path.join(import.meta.dirname, '../static/icon.png'),
   });
 
   windowState.manage(mainWindow);

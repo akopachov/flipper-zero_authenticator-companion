@@ -7,13 +7,13 @@ export class CloudTimezoneProvider implements TimezoneProvider {
     let response: { dst: boolean; raw_offset: number; dst_offset: number };
     try {
       response = await fetch('http://worldtimeapi.org/api/ip', { signal: signal }).then(r => r.json());
-    } catch (e: any) {
+    } catch (e: any & { code?: string; type?: string }) {
       if (e.code === 'ENOTFOUND') {
         throw new Error(`Timezone service is currently unavailable.`);
       } else if (e.type === 'invalid-json') {
         throw new Error(`Too many requests. Try a bit later.`);
       } else {
-        throw new Error('Unknown error ocurred during querying timezone service');
+        throw new Error('Unknown error occurred during querying timezone service');
       }
     }
 

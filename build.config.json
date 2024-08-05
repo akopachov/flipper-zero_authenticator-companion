@@ -6,8 +6,8 @@
 	},
   "asar": true,
 	"files": [
-		"src/electron.cjs",
-		"src/preload.cjs",
+		"src/electron.js",
+		"src/preload.js",
 		{
 			"from": "build",
 			"to": ""

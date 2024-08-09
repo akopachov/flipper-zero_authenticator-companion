@@ -17,5 +17,38 @@
     "oneClick": false,
     "deleteAppDataOnUninstall": true,
     "allowToChangeInstallationDirectory": true
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      }
+    ]
+  },
+  "mac": {
+    "target": [
+      {
+        "target": "dmg",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      }
+    ]
+  },
+  "linux": {
+    "target": [
+      {
+        "target": "appimage",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      }
+    ]
   }
 }

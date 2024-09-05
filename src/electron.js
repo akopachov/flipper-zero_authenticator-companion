@@ -6,7 +6,8 @@ import Store from 'electron-store';
 import log from 'electron-log';
 import electronUpdater from 'electron-updater';
 const { autoUpdater } = electronUpdater;
-import { MainMessageHub } from 'simple-electron-ipc';
+import simpleElectronIpc from 'simple-electron-ipc';
+const { MainMessageHub } = simpleElectronIpc;
 
 console.log(import.meta.dirname);
 

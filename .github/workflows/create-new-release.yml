@@ -87,10 +87,14 @@ jobs:
         with:
           version: latest
           run_install: false
+        
+      - name: Install MacOS-specific dependencies
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew install python-setuptools
 
       - name: Install dependencies
         run: |
-          python3 -m pip install setuptools
           pnpm config set node-linker hoisted --location project
           pnpm install
 

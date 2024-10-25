@@ -51,7 +51,7 @@
       <button
         class="btn variant-filled block !p-0 w-[200px] rounded-lg overflow-hidden"
         type="button"
-        on:click={() => scanQrCodeAtSource(source)}>
+        onclick={() => scanQrCodeAtSource(source)}>
         <img class="h-auto max-w-full" src={source.thumbnail} alt="Thumbnail of {source.name}" />
         <p class="truncate p-1" title={source.name}>{source.name}</p>
       </button>

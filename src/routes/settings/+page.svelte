@@ -53,7 +53,7 @@
 
 {#if deviceAppSettings}
   <div class="flex h-max min-h-full">
-    <form class="w-full p-4" on:submit={saveSettings}>
+    <form class="w-full p-4" onsubmit={saveSettings}>
       <div class="mb-5">
         <h3 class="h3">Date and time</h3>
         <label class="label mb-3" for="timeProvider">

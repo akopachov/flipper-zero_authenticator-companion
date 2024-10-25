@@ -93,7 +93,7 @@
         Scan QR code
       </div>
       <div class="flex gap-3">
-        <button class="btn btn-lg variant-filled-primary flex-grow" on:click={onScanQrCodeOnScreenClicked}>
+        <button class="btn btn-lg variant-filled-primary flex-grow" onclick={onScanQrCodeOnScreenClicked}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -108,7 +108,7 @@
           </svg>
           <span>On Screen</span>
         </button>
-        <button class="btn btn-lg variant-filled-primary flex-grow" on:click={onScanQrCodeOnCameraClicked}>
+        <button class="btn btn-lg variant-filled-primary flex-grow" onclick={onScanQrCodeOnCameraClicked}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

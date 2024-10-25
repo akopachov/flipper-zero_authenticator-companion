@@ -84,7 +84,7 @@
           <option value={cameraDevice}>{cameraDevice.label}</option>
         {/each}
       </select>
-      <!-- svelte-ignore a11y-media-has-caption -->
+      <!-- svelte-ignore a11y_media_has_caption -->
       <video class="w-full mt-3" bind:this={videoEl}></video>
     </div>
   {:else if availableCameraDevices && availableCameraDevices.length <= 0}

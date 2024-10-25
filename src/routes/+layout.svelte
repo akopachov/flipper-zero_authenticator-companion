@@ -15,6 +15,11 @@
   import CommonPreloader from '$components/common-preloader/common-preloader.svelte';
   import Lightswitch from '$components/lightswitch/lightswitch.svelte';
   import { theme } from '$components/lightswitch/actions';
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
 
   initializeStores();
 
@@ -93,7 +98,7 @@
   sync();
 </script>
 
-<svelte:window on:beforeunload={closeTotpAppClient} />
+<svelte:window onbeforeunload={closeTotpAppClient} />
 <svelte:document use:theme />
 
 {#if ready}
@@ -176,38 +181,44 @@
     </nav>
   </Drawer>
   <AppShell>
-    <svelte:fragment slot="header">
-      <AppBar>
-        <svelte:fragment slot="lead">
-          <button type="button" class="btn-icon bg-initial btn-lg" on:click={openMainMenu}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-8 h-8">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-          </button>
-        </svelte:fragment>
-        <h1 class="h3">Flipper Authenticator Companion</h1>
-        <svelte:fragment slot="trail">
-          <a href="/update" class="btn-icon bg-initial btn-lg">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-          </a>
-        </svelte:fragment>
-      </AppBar>
-    </svelte:fragment>
+    {#snippet header()}
+      
+        <AppBar>
+          {#snippet lead()}
+              
+              <button type="button" class="btn-icon bg-initial btn-lg" onclick={openMainMenu}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-8 h-8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+              </button>
+            
+              {/snippet}
+          <h1 class="h3">Flipper Authenticator Companion</h1>
+          {#snippet trail()}
+              
+              <a href="/update" class="btn-icon bg-initial btn-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+              </a>
+            
+              {/snippet}
+        </AppBar>
+      
+      {/snippet}
 
-    <slot />
+    {@render children?.()}
   </AppShell>
 {/if}

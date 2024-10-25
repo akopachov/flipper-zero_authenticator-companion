@@ -119,17 +119,17 @@
       dropTargetStyle: {},
       transformDraggedElement,
     }}
-    on:consider={handleConsider}
-    on:finalize={handleFinalize}>
+    onconsider={handleConsider}
+    onfinalize={handleFinalize}>
     {#each internalList as item (item.id)}
       {@const totp = item.item}
       <div animate:flip={{ duration: flipAnimationMs }}>
         <li class="h-14 p-1">
           <i
             class="material-icons drag-handle cursor-move"
-            on:mousedown={startDrag}
-            on:touchstart={startDrag}
-            on:keydown={handleKeyDown}
+            onmousedown={startDrag}
+            ontouchstart={startDrag}
+            onkeydown={handleKeyDown}
             role="none">
             <svg
               viewBox="0 0 16 16"
@@ -182,7 +182,7 @@
                   </a>
                 </li>
                 <li>
-                  <button class="flex-auto" type="button" on:click={e => handleDeleteToken(e, item.item)}>
+                  <button class="flex-auto" type="button" onclick={e => handleDeleteToken(e, item.item)}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -200,7 +200,7 @@
                 </li>
               </ul>
             </nav>
-            <div class="arrow bg-surface-100-800-token !left-[10.333rem]" />
+            <div class="arrow bg-surface-100-800-token !left-[10.333rem]"></div>
           </div>
         </li>
       </div>

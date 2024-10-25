@@ -9,7 +9,7 @@
 
   GlobalCommonToast.initialize();
 
-  let files: FileList;
+  let files: FileList = $state();
 
   async function processFiles() {
     if (files.length <= 0) return;
@@ -56,26 +56,32 @@
   </div>
   <div class="flex justify-center w-full">
     <FileDropzone name="files" bind:files on:change={processFiles} accept=".json">
-      <svelte:fragment slot="lead">
-        <div class="flex justify-center">
-          <svg
-            class="w-9 h-9"
-            stroke-width="1.5"
-            fill="currentColor"
-            viewBox="0 0 1024 1024"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M515.5 366.1h230.6L461 80.8v230.7c0 30 24.5 54.6 54.5 54.6zM882 681.7l-98.8-98.8c-16.3-16.3-43.1-16.3-59.4 0L625 681.7c-16.3 16.3-16.3 43.1 0 59.4 16.3 16.3 43.1 16.3 59.4 0l27.1-27.1v193.9c0 23.1 18.9 42 42 42s42-18.9 42-42V714l27.1 27.1c16.3 16.3 43.1 16.3 59.4 0 16.4-16.4 16.4-43.1 0-59.4z" />
-            <path
-              d="M593.9 771.5c-31.2-31.2-31.2-82.4 0-113.6l91.2-91.2c3.1-4.8 6.7-9.3 10.8-13.5 14-14 31.9-21.7 50.3-23.1v-109H507.9c-56.4 0-102.1-45.7-102.1-102.1V80.8H190.3c-27.6 0-50.2 22.6-50.2 50.2v723c0 27.6 22.6 50.2 50.2 50.2h483V791.7c-27.3 7.9-58 1.2-79.4-20.2z" />
-          </svg>
-        </div>
-      </svelte:fragment>
-      <svelte:fragment slot="message">
-        <strong>Upload a file</strong>
-        or drag and drop
-      </svelte:fragment>
-      <svelte:fragment slot="meta">Only JSON allowed</svelte:fragment>
+      {#snippet lead()}
+          
+          <div class="flex justify-center">
+            <svg
+              class="w-9 h-9"
+              stroke-width="1.5"
+              fill="currentColor"
+              viewBox="0 0 1024 1024"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M515.5 366.1h230.6L461 80.8v230.7c0 30 24.5 54.6 54.5 54.6zM882 681.7l-98.8-98.8c-16.3-16.3-43.1-16.3-59.4 0L625 681.7c-16.3 16.3-16.3 43.1 0 59.4 16.3 16.3 43.1 16.3 59.4 0l27.1-27.1v193.9c0 23.1 18.9 42 42 42s42-18.9 42-42V714l27.1 27.1c16.3 16.3 43.1 16.3 59.4 0 16.4-16.4 16.4-43.1 0-59.4z" />
+              <path
+                d="M593.9 771.5c-31.2-31.2-31.2-82.4 0-113.6l91.2-91.2c3.1-4.8 6.7-9.3 10.8-13.5 14-14 31.9-21.7 50.3-23.1v-109H507.9c-56.4 0-102.1-45.7-102.1-102.1V80.8H190.3c-27.6 0-50.2 22.6-50.2 50.2v723c0 27.6 22.6 50.2 50.2 50.2h483V791.7c-27.3 7.9-58 1.2-79.4-20.2z" />
+            </svg>
+          </div>
+        
+          {/snippet}
+      {#snippet message()}
+          
+          <strong>Upload a file</strong>
+          or drag and drop
+        
+          {/snippet}
+      {#snippet meta()}
+            Only JSON allowed
+          {/snippet}
     </FileDropzone>
   </div>
 </div>

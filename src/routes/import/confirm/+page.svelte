@@ -58,7 +58,7 @@
   onDestroy(() => abortController.abort());
 </script>
 
-<form class="flex flex-col w-full p-4" on:submit={doImport}>
+<form class="flex flex-col w-full p-4" onsubmit={doImport}>
   <h4 class="h4 text-center mb-3">Select accounts to import</h4>
   <ul class="list pt-3 pb-3">
     {#each tokensParsed as token}

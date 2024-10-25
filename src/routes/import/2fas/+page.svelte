@@ -59,7 +59,7 @@
   </div>
   <div class="flex justify-center w-full">
     <FileDropzone name="files" bind:files on:change={processFiles} accept=".2fas">
-      <svelte:fragment slot="lead">
+      {#snippet lead()}
         <div class="flex justify-center">
           <svg
             class="w-9 h-9"
@@ -73,12 +73,14 @@
               d="M593.9 771.5c-31.2-31.2-31.2-82.4 0-113.6l91.2-91.2c3.1-4.8 6.7-9.3 10.8-13.5 14-14 31.9-21.7 50.3-23.1v-109H507.9c-56.4 0-102.1-45.7-102.1-102.1V80.8H190.3c-27.6 0-50.2 22.6-50.2 50.2v723c0 27.6 22.6 50.2 50.2 50.2h483V791.7c-27.3 7.9-58 1.2-79.4-20.2z" />
           </svg>
         </div>
-      </svelte:fragment>
-      <svelte:fragment slot="message">
+      {/snippet}
+      {#snippet message()}
         <strong>Upload a file</strong>
         or drag and drop
-      </svelte:fragment>
-      <svelte:fragment slot="meta">Only 2FAS allowed</svelte:fragment>
+      {/snippet}
+      {#snippet meta()}
+        Only 2FAS allowed
+      {/snippet}
     </FileDropzone>
   </div>
 </div>

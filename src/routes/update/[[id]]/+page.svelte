@@ -122,7 +122,7 @@
 
 <div class="flex h-max min-h-full">
   {#if tokenInfo}
-    <form class="w-full p-4" on:submit={saveToken} transition:blur>
+    <form class="w-full p-4" onsubmit={saveToken} transition:blur>
       <input class="input mb-3" type="text" placeholder="Name" required bind:value={tokenInfo.name} />
       <div class="mb-3 relative">
         <input
@@ -155,72 +155,80 @@
       </div>
       <Accordion>
         <AccordionItem>
-          <svelte:fragment slot="summary">
-            <h3 class="font-bold">Additional settings</h3>
-          </svelte:fragment>
-          <svelte:fragment slot="content">
-            <label class="label mb-3" for="rbgTokenType">
-              <span class="block">Token type</span>
-              <RadioGroup id="rbgTokenType" active="variant-filled-primary" hover="hover:variant-soft-primary">
-                {#each availableTokenTypes as type}
-                  <RadioItem class="uppercase" name="Token type" bind:group={tokenInfo.type} value={type}>
-                    {type}
-                  </RadioItem>
-                {/each}
-              </RadioGroup>
-            </label>
-            <label class="label mb-3" for="rbgHashingAlgorithm">
-              <span class="block">Hashing algorithm</span>
-              <RadioGroup id="rbgHashingAlgorithm" active="variant-filled-primary" hover="hover:variant-soft-primary">
-                {#each availableTokenHashingAlgo as [name, algo]}
-                  <RadioItem class="uppercase" name="Hashing algorithm" bind:group={tokenInfo.hashingAlgo} value={algo}>
-                    {name}
-                  </RadioItem>
-                {/each}
-              </RadioGroup>
-            </label>
-
-            <label class="label mb-3" for="rbgTokenLength">
-              <span class="block">Token length</span>
-              <RadioGroup id="rbgTokenLength" active="variant-filled-primary" hover="hover:variant-soft-primary">
-                {#each availableTokenLength as len}
-                  <RadioItem name="Token length" bind:group={tokenInfo.length} value={len}>{len} digits</RadioItem>
-                {/each}
-              </RadioGroup>
-            </label>
-
-            {#if tokenInfo.type === TokenType.TOTP}
-              <label class="label mb-3">
-                <span class="block">Token duration (seconds)</span>
-                <input
-                  type="number"
-                  class="input max-w-xs"
-                  min="15"
-                  max="255"
-                  required
-                  bind:value={tokenInfo.duration} />
+          {#snippet summary()}
+                  
+              <h3 class="font-bold">Additional settings</h3>
+            
+                  {/snippet}
+          {#snippet content()}
+                  
+              <label class="label mb-3" for="rbgTokenType">
+                <span class="block">Token type</span>
+                <RadioGroup id="rbgTokenType" active="variant-filled-primary" hover="hover:variant-soft-primary">
+                  {#each availableTokenTypes as type}
+                    <RadioItem class="uppercase" name="Token type" bind:group={tokenInfo.type} value={type}>
+                      {type}
+                    </RadioItem>
+                  {/each}
+                </RadioGroup>
               </label>
-            {:else if tokenInfo.type === TokenType.HOTP}
-              <label class="label mb-3">
-                <span class="block">Token counter</span>
-                <input type="number" class="input max-w-xs" min="0" required bind:value={tokenInfo.counter} />
+              <label class="label mb-3" for="rbgHashingAlgorithm">
+                <span class="block">Hashing algorithm</span>
+                <RadioGroup id="rbgHashingAlgorithm" active="variant-filled-primary" hover="hover:variant-soft-primary">
+                  {#each availableTokenHashingAlgo as [name, algo]}
+                    <RadioItem class="uppercase" name="Hashing algorithm" bind:group={tokenInfo.hashingAlgo} value={algo}>
+                      {name}
+                    </RadioItem>
+                  {/each}
+                </RadioGroup>
               </label>
-            {/if}
-          </svelte:fragment>
+
+              <label class="label mb-3" for="rbgTokenLength">
+                <span class="block">Token length</span>
+                <RadioGroup id="rbgTokenLength" active="variant-filled-primary" hover="hover:variant-soft-primary">
+                  {#each availableTokenLength as len}
+                    <RadioItem name="Token length" bind:group={tokenInfo.length} value={len}>{len} digits</RadioItem>
+                  {/each}
+                </RadioGroup>
+              </label>
+
+              {#if tokenInfo.type === TokenType.TOTP}
+                <label class="label mb-3">
+                  <span class="block">Token duration (seconds)</span>
+                  <input
+                    type="number"
+                    class="input max-w-xs"
+                    min="15"
+                    max="255"
+                    required
+                    bind:value={tokenInfo.duration} />
+                </label>
+              {:else if tokenInfo.type === TokenType.HOTP}
+                <label class="label mb-3">
+                  <span class="block">Token counter</span>
+                  <input type="number" class="input max-w-xs" min="0" required bind:value={tokenInfo.counter} />
+                </label>
+              {/if}
+            
+                  {/snippet}
         </AccordionItem>
         <AccordionItem>
-          <svelte:fragment slot="summary">
-            <h3 class="font-bold">Automation settings</h3>
-          </svelte:fragment>
-          <svelte:fragment slot="content">
-            {#each availableTokenAutomationFeatures as [displayName, feature]}
-              <div class="block">
-                <SlideToggle name="{feature}-label" size="sm" bind:checked={tokenInfo.automationFeatures[feature]}>
-                  {displayName}
-                </SlideToggle>
-              </div>
-            {/each}
-          </svelte:fragment>
+          {#snippet summary()}
+                  
+              <h3 class="font-bold">Automation settings</h3>
+            
+                  {/snippet}
+          {#snippet content()}
+                  
+              {#each availableTokenAutomationFeatures as [displayName, feature]}
+                <div class="block">
+                  <SlideToggle name="{feature}-label" size="sm" bind:checked={tokenInfo.automationFeatures[feature]}>
+                    {displayName}
+                  </SlideToggle>
+                </div>
+              {/each}
+            
+                  {/snippet}
         </AccordionItem>
       </Accordion>
       <div class="mt-4 flex justify-center">
@@ -245,7 +253,7 @@
           Scan QR code
         </div>
         <div class="flex gap-3">
-          <button class="btn btn-lg variant-filled-primary flex-grow" on:click={onScanQrCodeOnScreenClicked}>
+          <button class="btn btn-lg variant-filled-primary flex-grow" onclick={onScanQrCodeOnScreenClicked}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -260,7 +268,7 @@
             </svg>
             <span>On Screen</span>
           </button>
-          <button class="btn btn-lg variant-filled-primary flex-grow" on:click={onScanQrCodeOnCameraClicked}>
+          <button class="btn btn-lg variant-filled-primary flex-grow" onclick={onScanQrCodeOnCameraClicked}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -287,7 +295,7 @@
       {/if}
       <div class="flex flex-col max-w-sm w-full mx-auto">
         <p class="block m-4 text-center">OR</p>
-        <button class="btn variant-ghost btn-lg" on:click={onManualEntryClicked}>
+        <button class="btn variant-ghost btn-lg" onclick={onManualEntryClicked}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

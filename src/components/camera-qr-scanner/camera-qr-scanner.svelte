@@ -1,16 +1,16 @@
 <script lang="ts">
   import { ProgressRadial } from '@skeletonlabs/skeleton';
   import QrScanner from 'qr-scanner';
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
 
-  let videoEl: HTMLVideoElement;
+  let videoEl: HTMLVideoElement | null = $state(null);
   let qrScanner: QrScanner;
 
-  const dispatch = createEventDispatcher();
+  let { scanned }: { scanned: (arg: { data: string }) => void } = $props();
 
-  let availableCameraDevices: MediaDeviceInfo[] | null = null;
+  let availableCameraDevices: MediaDeviceInfo[] | null = $state(null);
   let selectedCamera: MediaDeviceInfo;
-  let isScanning = true;
+  let isScanning = $state(true);
   let scannerStartingPromise: Promise<void> | null;
 
   async function startQrScanner(camera: MediaDeviceInfo) {
@@ -25,15 +25,15 @@
     }
   }
 
-  $: {
+  $effect(() => {
     if (isScanning) {
       startQrScanner(selectedCamera);
     } else {
       qrScanner?.stop();
     }
-  }
+  });
 
-  $: {
+  $effect(() => {
     if (videoEl) {
       if (qrScanner) {
         qrScanner.stop();
@@ -44,7 +44,7 @@
         videoEl,
         result => {
           isScanning = false;
-          dispatch('scanned', { data: result.data });
+          scanned({ data: result.data });
         },
         {
           returnDetailedScanResult: true,
@@ -52,7 +52,7 @@
         },
       );
     }
-  }
+  });
 
   async function loadCameraDevices() {
     let devices = await navigator.mediaDevices.enumerateDevices();

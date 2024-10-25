@@ -7,7 +7,7 @@
   import { CommonToastType, GlobalCommonToast } from '$stores/global-common-toast';
 
   let abortController = new AbortController();
-  let totpList: TokenInfoBase[] | null = null;
+  let totpList: TokenInfoBase[] | null = $state(null);
 
   GlobalCommonToast.initialize();
 
@@ -20,11 +20,11 @@
     }
   }
 
-  async function onListItemDelete(e: CustomEvent<{ token: TokenInfoBase }>) {
+  async function onListItemDelete(e: { token: TokenInfoBase }) {
     try {
-      await SharedTotpAppClient.removeToken(e.detail.token.id, abortController.signal);
+      await SharedTotpAppClient.removeToken(e.token.id, abortController.signal);
       await updateTokenList();
-      GlobalCommonToast.show(`Token "${e.detail.token.name}" has been successfully removed`, CommonToastType.Success, {
+      GlobalCommonToast.show(`Token "${e.token.name}" has been successfully removed`, CommonToastType.Success, {
         autohideTimeout: 3000,
       });
     } catch (e) {
@@ -33,8 +33,8 @@
     }
   }
 
-  async function moveToken(e: CustomEvent<{ from: number; to: number }>) {
-    const { from, to } = e.detail;
+  async function moveToken(e: { from: number; to: number }) {
+    const { from, to } = e;
     if (totpList && from != to) {
       try {
         await SharedTotpAppClient.moveToken(totpList[from].id, totpList[to].id, abortController.signal);
@@ -51,5 +51,5 @@
 </script>
 
 {#if totpList}
-  <TotpList list={totpList} on:delete={onListItemDelete} on:move={moveToken} />
+  <TotpList list={totpList} delete={onListItemDelete} move={moveToken} />
 {/if}

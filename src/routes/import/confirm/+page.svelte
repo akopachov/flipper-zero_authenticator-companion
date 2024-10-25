@@ -13,8 +13,8 @@
 
   let abortController = new AbortController();
 
-  let tokensParsed: TokenInfo[] = [];
-  let tokensToImport: TokenInfo[] = [];
+  let tokensParsed: TokenInfo[] = $state([]);
+  let tokensToImport: TokenInfo[] = $state([]);
 
   function getIcon(name: string) {
     const iconFileName = findIcon(name) || 'Key.svg';

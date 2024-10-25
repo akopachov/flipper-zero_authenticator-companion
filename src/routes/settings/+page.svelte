@@ -16,7 +16,7 @@
   GlobalCommonToast.initialize();
 
   const abortController = new AbortController();
-  let deviceAppSettings: DeviceAppSettings;
+  let deviceAppSettings: DeviceAppSettings | undefined = $state();
   const appSettings = getAppSettings();
   let availableUtcOffsets: UTCOffsetInfo[] = getOffsets();
   let availableKeyboardLayouts: DeviceAppAutomationKeyboardLayout[] = Object.values(DeviceAppAutomationKeyboardLayout);
@@ -32,9 +32,9 @@
         await AvailableTimeProviders[appSettings.dateTime.provider].getCurrentTime(abortController.signal),
         abortController.signal,
       );
-      deviceAppSettings.timezoneOffset =
+      deviceAppSettings!.timezoneOffset =
         await AvailableTimezoneProviders[appSettings.timezone.provider].getCurrentTimezoneOffset();
-      await SharedTotpAppClient.updateAppSettings(deviceAppSettings, abortController.signal);
+      await SharedTotpAppClient.updateAppSettings(deviceAppSettings!, abortController.signal);
       GlobalCommonToast.show('Settings have been successfully updated', CommonToastType.Success, {
         autohideTimeout: 3000,
       });

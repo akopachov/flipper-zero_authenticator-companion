@@ -4,14 +4,14 @@
   import { GlobalPreloader } from '$stores/global-preloader';
   import { ProgressRadial } from '@skeletonlabs/skeleton';
   import QrScanner from 'qr-scanner';
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { IpcMessageHub } from '$stores/ipc-message-hub';
 
   type ScanSource = { id: string; name: string; thumbnail: string };
 
-  const dispatch = createEventDispatcher();
+  let { scanned }: { scanned: (arg: { data: string | undefined }) => void } = $props();
 
-  let screenSources: ScanSource[] | null = null;
+  let screenSources: ScanSource[] | null = $state(null);
 
   async function getSources() {
     screenSources = await IpcMessageHub.emit('getScreenSources', 200);
@@ -39,7 +39,7 @@
 
     GlobalPreloader.hide();
 
-    dispatch('scanned', { data: scanResult?.data });
+    scanned({ data: scanResult?.data });
   }
 
   onMount(() => getSources());

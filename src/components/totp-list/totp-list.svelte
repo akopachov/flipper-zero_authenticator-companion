@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import { dndzone, SOURCES, TRIGGERS, type DndEvent } from 'svelte-dnd-action';
   import { flip } from 'svelte/animate';
   import type { TokenInfoBase } from '$models/token-info';
@@ -12,11 +11,19 @@
     item: TokenInfoBase;
   };
 
+  let {
+    list = [],
+    move: moveToken,
+    delete: deleteToken,
+  }: {
+    list: TokenInfoBase[];
+    move: (args: { from: number; to: number }) => void;
+    delete: (args: { element: Element; token: TokenInfoBase }) => void;
+  } = $props();
+
   const modalStore = getModalStore();
-  const dispatch = createEventDispatcher();
-  export let list: TokenInfoBase[] = [];
-  let flipAnimationMs = 200;
-  let internalList: ListItemWrapper[];
+  let flipAnimationMs = $state(200);
+  let internalList: ListItemWrapper[] = $state([]);
 
   function getTotpItemMenuSettings(index: number | string): PopupSettings {
     return {
@@ -29,13 +36,13 @@
     };
   }
 
-  $: {
+  $effect(() => {
     flipAnimationMs = 0;
     internalList = list.map((m, index) => ({ id: String(index), item: m }));
     delay(100).then(() => (flipAnimationMs = 200));
-  }
+  });
 
-  let dragDisabled = true;
+  let dragDisabled = $state(true);
 
   function getIcon(name: string) {
     const iconFileName = findIcon(name) || 'Key.svg';
@@ -66,8 +73,9 @@
     const from = Number(id);
     const to = internalList.findIndex(p => p.id === id);
 
-    dispatch('move', { from, to });
+    moveToken({ from, to });
   }
+
   function startDrag(e: Event) {
     e.preventDefault();
     dragDisabled = false;
@@ -87,7 +95,7 @@
       `,
       response: (confirmed: boolean) => {
         if (confirmed) {
-          dispatch('delete', { element: e.target as Element, token: token });
+          deleteToken({ element: e.target as Element, token: token });
         }
       },
     };

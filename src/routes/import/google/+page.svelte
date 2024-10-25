@@ -12,8 +12,8 @@
   GlobalCommonToast.initialize();
 
   let abortController = new AbortController();
-  let cameraScanEnabled: boolean = false;
-  let screenScanEnabled: boolean = false;
+  let cameraScanEnabled: boolean = $state(false);
+  let screenScanEnabled: boolean = $state(false);
 
   async function onScanQrCodeOnScreenClicked() {
     cameraScanEnabled = false;
@@ -25,14 +25,14 @@
     cameraScanEnabled = !cameraScanEnabled;
   }
 
-  function onCameraQrCodeScanned(e: CustomEvent<{ data: string }>) {
+  function onCameraQrCodeScanned(e: { data: string }) {
     cameraScanEnabled = false;
-    processQrCodeScanData(e.detail.data);
+    processQrCodeScanData(e.data);
   }
 
-  function onScreenQrCodeScanned(e: CustomEvent<{ data: string }>) {
+  function onScreenQrCodeScanned(e: { data: string }) {
     screenScanEnabled = false;
-    processQrCodeScanData(e.detail.data);
+    processQrCodeScanData(e.data);
   }
 
   async function processQrCodeScanData(scannedData: string | null | undefined) {
@@ -126,11 +126,11 @@
     </div>
     {#if cameraScanEnabled}
       <div class="mt-6 w-full max-w-xl mx-auto" transition:slide>
-        <CameraQrScanner on:scanned={onCameraQrCodeScanned} />
+        <CameraQrScanner scanned={onCameraQrCodeScanned} />
       </div>
     {:else if screenScanEnabled}
       <div class="mt-6 w-full mx-auto px-4" transition:slide>
-        <ScreenQrScanner on:scanned={onScreenQrCodeScanned} />
+        <ScreenQrScanner scanned={onScreenQrCodeScanned} />
       </div>
     {/if}
   </div>

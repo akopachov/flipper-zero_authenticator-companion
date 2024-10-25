@@ -21,16 +21,22 @@
   const drawerStore = getDrawerStore();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
-  let ready = false;
+  let ready = $state(false);
 
   onMount(async () => {
     ready = true;
   });
 
-  $: $navigating && drawerStore.close();
+  $effect(() => {
+    if ($navigating) {
+      drawerStore.close();
+    }
+  });
 
-  $: classesActivePage = (href: string) =>
-    href === $page.url.pathname ? '!bg-primary-500 focus:!bg-primary-500' : 'focus:!bg-inherit';
+  let classesActivePage = $derived.by(
+    () => (href: string) =>
+      href === $page.url.pathname ? '!bg-primary-500 focus:!bg-primary-500' : 'focus:!bg-inherit',
+  );
 
   async function closeTotpAppClient() {
     await SharedTotpAppClient.close();

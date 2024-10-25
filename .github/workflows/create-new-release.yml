@@ -90,6 +90,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python3 -m pip install setuptools
           pnpm config set node-linker hoisted --location project
           pnpm install
 

@@ -29,7 +29,7 @@
     "yarn": "please-use-pnpm"
   },
   "devDependencies": {
-    "@electron/packager": "^18.3.4",
+    "@electron/packager": "^18.3.5",
     "@floating-ui/dom": "^1.6.10",
     "@serialport/bindings-interface": "^1.2.2",
     "@skeletonlabs/skeleton": "^2.10.2",
@@ -51,8 +51,8 @@
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "delay": "^6.0.0",
-    "electron": "^32.0.2",
-    "electron-builder": "^25.0.5",
+    "electron": "^33.0.2",
+    "electron-builder": "^25.1.8",
     "electron-reloader": "^1.2.3",
     "escape-string-regexp": "^5.0.0",
     "eslint": "^9.9.1",
@@ -81,14 +81,14 @@
     "utc-offsets": "^1.0.0",
     "uuid": "^10.0.0",
     "vite": "^5.4.3",
-    "vite-plugin-electron-renderer": "^0.14.5",
+    "vite-plugin-electron-renderer": "^0.14.6",
     "vite-plugin-tailwind-purgecss": "^0.3.3"
   },
   "dependencies": {
-    "electron-log": "^5.1.7",
-    "electron-serve": "^2.1.0",
+    "electron-log": "^5.2.0",
+    "electron-serve": "^2.1.1",
     "electron-store": "npm:electron-store-9@^9.1.2",
-    "electron-updater": "^6.3.4",
+    "electron-updater": "^6.3.9",
     "electron-window-state": "^5.0.3",
     "serialport": "^12.0.0",
     "simple-electron-ipc": "^2.0.1"

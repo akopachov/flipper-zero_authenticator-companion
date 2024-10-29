@@ -22,13 +22,15 @@ function lengthFromGoogle(googleDigitsCount: number): TokenLength {
   return TokenLength.SixDigits;
 }
 
-function nameFromGoogle(googleName: string): string {
-  const [issuer, account] = googleName.split(':', 2);
-  if (issuer && account) {
-    return `${issuer} (${account})`;
+function nameFromGoogle(issuer: string, name: string): string {
+  if (!issuer && name) {
+    ([issuer, name] = name.split(':', 2));
+  }
+  if (issuer && name) {
+    return `${issuer} (${name})`;
   }
 
-  return googleName;
+  return issuer || name;
 }
 
 function tokenTypeFromGoogle(str?: string) {
@@ -39,7 +41,7 @@ function tokenTypeFromGoogle(str?: string) {
 
 export function importFromGoogleAuthenticator(url: string | URL): TokenInfo[] {
   const uri = url instanceof URL ? url : new URL(url);
-  if (uri.protocol !== 'otpauth-migration:' || uri.pathname !== '//offline') {
+  if (uri.protocol !== 'otpauth-migration:' || uri.host !== 'offline') {
     throw Error('Invalid import data URL');
   }
   const encodedData = uri.searchParams.get('data') || '';
@@ -59,7 +61,7 @@ export function importFromGoogleAuthenticator(url: string | URL): TokenInfo[] {
     p =>
       new TokenInfo({
         type: tokenTypeFromGoogle(p.type),
-        name: nameFromGoogle(p.name),
+        name: nameFromGoogle(p.issuer, p.name),
         secret: p.secret,
         secretEncoding: TokenSecretEncoding.Base64,
         hashingAlgo: hashingAlgoFromGoogle(p.algorithm),

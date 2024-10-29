@@ -64,7 +64,7 @@
       <li>Tap the hamburger-menu icon located on the top left corner</li>
       <li>Select "Transfer accounts"</li>
       <li>Select "Export accounts" and enter your PIN code when prompted</li>
-      <li>Select the accounts you want to transfer into your new phone and then tap "Next"</li>
+      <li>Select the accounts you want to transfer and then tap "Next"</li>
       <li>The app will display a QR code</li>
       <li>Use two possible options to scan QR code:</li>
     </ol>

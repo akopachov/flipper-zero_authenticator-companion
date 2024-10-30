@@ -4,36 +4,16 @@
   import { onDestroy, onMount } from 'svelte';
 
   let videoEl: HTMLVideoElement | null = $state(null);
-  let qrScanner: QrScanner;
+  let qrScanner: QrScanner | null;
 
   let { scanned }: { scanned: (arg: { data: string }) => void } = $props();
 
   let availableCameraDevices: MediaDeviceInfo[] | null = $state(null);
-  let selectedCamera: MediaDeviceInfo;
+  let selectedCamera: MediaDeviceInfo | null = $state(null);
   let isScanning = $state(true);
   let scannerStartingPromise: Promise<void> | null;
 
   async function startQrScanner(camera: MediaDeviceInfo) {
-    if (qrScanner && camera) {
-      if (scannerStartingPromise) {
-        scannerStartingPromise.then(() => startQrScanner(camera));
-        return;
-      }
-      await qrScanner.setCamera(camera.deviceId);
-      await qrScanner.start();
-      scannerStartingPromise = null;
-    }
-  }
-
-  $effect(() => {
-    if (isScanning) {
-      startQrScanner(selectedCamera);
-    } else {
-      qrScanner?.stop();
-    }
-  });
-
-  $effect(() => {
     if (videoEl) {
       if (qrScanner) {
         qrScanner.stop();
@@ -51,6 +31,23 @@
           highlightScanRegion: true,
         },
       );
+    }
+    if (qrScanner && camera) {
+      if (scannerStartingPromise) {
+        scannerStartingPromise.then(() => startQrScanner(camera));
+        return;
+      }
+      await qrScanner.setCamera(camera.deviceId);
+      await qrScanner.start();
+      scannerStartingPromise = null;
+    }
+  }
+
+  $effect(() => {
+    if (isScanning && selectedCamera) {
+      startQrScanner(selectedCamera);
+    } else {
+      qrScanner?.stop();
     }
   });
 

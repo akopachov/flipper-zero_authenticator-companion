@@ -55,7 +55,7 @@
     processQrCodeScanData(e.data);
   }
 
-  function onScreenQrCodeScanned(e: { data: string }) {
+  function onScreenQrCodeScanned(e: { data: string | undefined | null }) {
     screenScanEnabled = false;
     processQrCodeScanData(e.data);
   }
@@ -156,79 +156,75 @@
       <Accordion>
         <AccordionItem>
           {#snippet summary()}
-                  
-              <h3 class="font-bold">Additional settings</h3>
-            
-                  {/snippet}
+            <h3 class="font-bold">Additional settings</h3>
+          {/snippet}
           {#snippet content()}
-                  
-              <label class="label mb-3" for="rbgTokenType">
-                <span class="block">Token type</span>
-                <RadioGroup id="rbgTokenType" active="variant-filled-primary" hover="hover:variant-soft-primary">
-                  {#each availableTokenTypes as type}
-                    <RadioItem class="uppercase" name="Token type" bind:group={tokenInfo.type} value={type}>
-                      {type}
-                    </RadioItem>
-                  {/each}
-                </RadioGroup>
-              </label>
-              <label class="label mb-3" for="rbgHashingAlgorithm">
-                <span class="block">Hashing algorithm</span>
-                <RadioGroup id="rbgHashingAlgorithm" active="variant-filled-primary" hover="hover:variant-soft-primary">
-                  {#each availableTokenHashingAlgo as [name, algo]}
-                    <RadioItem class="uppercase" name="Hashing algorithm" bind:group={tokenInfo.hashingAlgo} value={algo}>
-                      {name}
-                    </RadioItem>
-                  {/each}
-                </RadioGroup>
-              </label>
+            <label class="label mb-3" for="rbgTokenType">
+              <span class="block">Token type</span>
+              <RadioGroup id="rbgTokenType" active="variant-filled-primary" hover="hover:variant-soft-primary">
+                {#each availableTokenTypes as type}
+                  <RadioItem class="uppercase" name="Token type" bind:group={tokenInfo!.type} value={type}>
+                    {type}
+                  </RadioItem>
+                {/each}
+              </RadioGroup>
+            </label>
+            <label class="label mb-3" for="rbgHashingAlgorithm">
+              <span class="block">Hashing algorithm</span>
+              <RadioGroup id="rbgHashingAlgorithm" active="variant-filled-primary" hover="hover:variant-soft-primary">
+                {#each availableTokenHashingAlgo as [name, algo]}
+                  <RadioItem
+                    class="uppercase"
+                    name="Hashing algorithm"
+                    bind:group={tokenInfo!.hashingAlgo}
+                    value={algo}>
+                    {name}
+                  </RadioItem>
+                {/each}
+              </RadioGroup>
+            </label>
 
-              <label class="label mb-3" for="rbgTokenLength">
-                <span class="block">Token length</span>
-                <RadioGroup id="rbgTokenLength" active="variant-filled-primary" hover="hover:variant-soft-primary">
-                  {#each availableTokenLength as len}
-                    <RadioItem name="Token length" bind:group={tokenInfo.length} value={len}>{len} digits</RadioItem>
-                  {/each}
-                </RadioGroup>
-              </label>
+            <label class="label mb-3" for="rbgTokenLength">
+              <span class="block">Token length</span>
+              <RadioGroup id="rbgTokenLength" active="variant-filled-primary" hover="hover:variant-soft-primary">
+                {#each availableTokenLength as len}
+                  <RadioItem name="Token length" bind:group={tokenInfo!.length} value={len}>{len} digits</RadioItem>
+                {/each}
+              </RadioGroup>
+            </label>
 
-              {#if tokenInfo.type === TokenType.TOTP}
-                <label class="label mb-3">
-                  <span class="block">Token duration (seconds)</span>
-                  <input
-                    type="number"
-                    class="input max-w-xs"
-                    min="15"
-                    max="255"
-                    required
-                    bind:value={tokenInfo.duration} />
-                </label>
-              {:else if tokenInfo.type === TokenType.HOTP}
-                <label class="label mb-3">
-                  <span class="block">Token counter</span>
-                  <input type="number" class="input max-w-xs" min="0" required bind:value={tokenInfo.counter} />
-                </label>
-              {/if}
-            
-                  {/snippet}
+            {#if tokenInfo!.type === TokenType.TOTP}
+              <label class="label mb-3">
+                <span class="block">Token duration (seconds)</span>
+                <input
+                  type="number"
+                  class="input max-w-xs"
+                  min="15"
+                  max="255"
+                  required
+                  bind:value={tokenInfo!.duration} />
+              </label>
+            {:else if tokenInfo!.type === TokenType.HOTP}
+              <label class="label mb-3">
+                <span class="block">Token counter</span>
+                <input type="number" class="input max-w-xs" min="0" required bind:value={tokenInfo!.counter} />
+              </label>
+            {/if}
+          {/snippet}
         </AccordionItem>
         <AccordionItem>
           {#snippet summary()}
-                  
-              <h3 class="font-bold">Automation settings</h3>
-            
-                  {/snippet}
+            <h3 class="font-bold">Automation settings</h3>
+          {/snippet}
           {#snippet content()}
-                  
-              {#each availableTokenAutomationFeatures as [displayName, feature]}
-                <div class="block">
-                  <SlideToggle name="{feature}-label" size="sm" bind:checked={tokenInfo.automationFeatures[feature]}>
-                    {displayName}
-                  </SlideToggle>
-                </div>
-              {/each}
-            
-                  {/snippet}
+            {#each availableTokenAutomationFeatures as [displayName, feature]}
+              <div class="block">
+                <SlideToggle name="{feature}-label" size="sm" bind:checked={tokenInfo!.automationFeatures[feature]}>
+                  {displayName}
+                </SlideToggle>
+              </div>
+            {/each}
+          {/snippet}
         </AccordionItem>
       </Accordion>
       <div class="mt-4 flex justify-center">

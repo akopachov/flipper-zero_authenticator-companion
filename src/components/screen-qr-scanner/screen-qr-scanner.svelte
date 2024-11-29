@@ -9,7 +9,7 @@
 
   type ScanSource = { id: string; name: string; thumbnail: string };
 
-  let { scanned }: { scanned: (arg: { data: string | undefined }) => void } = $props();
+  let { scanned }: { scanned: (arg: { data: string | undefined | null }) => void } = $props();
 
   let screenSources: ScanSource[] | null = $state(null);
 

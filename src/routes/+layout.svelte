@@ -182,42 +182,38 @@
   </Drawer>
   <AppShell>
     {#snippet header()}
-      
-        <AppBar>
-          {#snippet lead()}
-              
-              <button type="button" class="btn-icon bg-initial btn-lg" onclick={openMainMenu}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="w-8 h-8">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-              </button>
-            
-              {/snippet}
-          <h1 class="h3">Flipper Authenticator Companion</h1>
-          {#snippet trail()}
-              
-              <a href="/update" class="btn-icon bg-initial btn-lg">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="w-6 h-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-              </a>
-            
-              {/snippet}
-        </AppBar>
-      
-      {/snippet}
+      <AppBar>
+        {#snippet lead()}
+          <!-- svelte-ignore a11y_consider_explicit_label -->
+          <button type="button" class="btn-icon bg-initial btn-lg" onclick={openMainMenu}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-8 h-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+        {/snippet}
+        <h1 class="h3">Flipper Authenticator Companion</h1>
+        {#snippet trail()}
+          <!-- svelte-ignore a11y_consider_explicit_label -->
+          <a href="/update" class="btn-icon bg-initial btn-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </a>
+        {/snippet}
+      </AppBar>
+    {/snippet}
 
     {@render children?.()}
   </AppShell>

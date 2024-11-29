@@ -147,6 +147,7 @@
             <span class="block text-base truncate">{totp.name}</span>
             <span class="block text-sm uppercase">{totp.type}, {totp.hashingAlgo}</span>
           </p>
+          <!-- svelte-ignore a11y_consider_explicit_label -->
           <button type="button" use:popup={getTotpItemMenuSettings(item.id)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
